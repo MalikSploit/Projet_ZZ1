@@ -37,14 +37,35 @@ int deplacementFromBot(bot robot, int situation[4]){
 
 bool iterJeu(jeu j, int deplacement){
 
-  /* SDL */
-  /* iterJeu(grille, proie, chasseur, deplacement) */
+  deplacerProie();
+  déplacerChasseur();
+  avanceGrille(j.grille);
+  return jeuFini(j);
+  
+}
 
-  /* for (i=0; i < MAX_ITER; i++) { */
-/* iterJeu(grille, proie, chasseur, deplacement) */
-/* } */
+bool jeuFini(jeu j){
 
-    // appel à decalerGrille qui genere une nouvelle ligne et decale les autres
+
+  int posProie = j.proie;
+
+  int posObstacleGauche = obstacleGauche(posProie);
+  int posObstacleDroite = obstacleDroite(posProie);
+
+  if((posObstacleGauche && posObstacleDroite) && verifierSurLesCOlonneETLigne)
+}
+
+/* renvoie 1 si VALIDE, renvoie 0 si PAS VALIDE */
+bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){
+
+  /* verif côté gauche */
+  if(coordonnee + deplacement < 0) return 0;
+  /* verif côté droit */
+  if(coordonnee + deplacement > NB_COLONNES - 1) return 0;
+  /* verif en à la ligne N + 1 qui faut vide  */
+  if(grille[ligne + 1] coordonnee + deplacement == ) return 0;
+  return 1;
+
 }
 
 void avanceGrille(int grille[][NB_COLONNES]){

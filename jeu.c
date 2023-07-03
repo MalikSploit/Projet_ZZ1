@@ -27,7 +27,24 @@ int Jeu(bot robot){
 }
 
 int distanceSurColonne(jeu j, int colonne) {
-    return PROCHE;
+    int ligne = 1;
+    bool trouve = false;
+    // recherche du plus proche obstacle
+    while (ligne < NB_LIGNES && !trouve) {
+	ligne++;
+	if(j.grille[ligne][colonne]) {
+	    trouve = true;
+	}
+    }
+    // mettre a jour la situation en fonction du cas
+    int result;
+    if (trouve){
+	if (ligne == 2) result = PROCHE;
+	else if (ligne <= 5) result = MOYEN;
+	else result = LOIN;
+    } else result = AUCUN;
+
+    return result;
 }
 
 // modifier la situation en fonction du jeu

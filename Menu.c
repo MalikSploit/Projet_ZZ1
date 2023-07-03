@@ -1,5 +1,6 @@
 #include "Menu.h"
-#include "Constantes.h"
+#include "SDL_Initialisation.h"
+#include "main.h"
 
 
 void displayHelp()
@@ -319,8 +320,8 @@ int main()
     SDL_QueryTexture(logo2, NULL, NULL, &logo2Width, &logo2Height);
 
     // Define buttons
-    Button buttons[4];
-    for (int i = 0; i < 4; ++i)
+    Button buttons[5];
+    for (int i = 0; i < 5; ++i)
     {
         buttons[i].rect.x = SCREEN_WIDTH / 2 - 50;
         buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 150;
@@ -333,11 +334,12 @@ int main()
         buttons[i].font = font;
     }
     buttons[0].text = "New Game";
-    buttons[1].text = "Highscore";
-    buttons[2].text = "Help";
-    buttons[3].text = "Quit";
+    buttons[1].text = "Simulation";
+    buttons[2].text = "Highscore";
+    buttons[3].text = "Help";
+    buttons[4].text = "Quit";
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         SDL_Surface* surface = TTF_RenderText_Blended(font, buttons[i].text, buttons[i].color);
         buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -370,7 +372,7 @@ int main()
         SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad);
 
         // Draw buttons
-        for (int i = 0; i < 4; ++i)
+        for (int i = 0; i < 5; ++i)
         {
             drawButton(renderer, &buttons[i]);
         }
@@ -401,7 +403,7 @@ int main()
             {
                 int x, y;
                 SDL_GetMouseState(&x, &y);
-                for (int i = 0; i < 4; ++i)
+                for (int i = 0; i < 5; ++i)
                 {
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
                     {
@@ -419,6 +421,18 @@ int main()
                         {
                             displayHighScore();
                         }
+                        if (strcmp(buttons[i].text, "Simulation") == 0)
+                        {
+                        }
+                        if (strcmp(buttons[i].text, "New Game") == 0)
+                        {
+                            int status = LancerJeu();
+                            if (status == 1)
+                            {
+                                quit = true;
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -429,7 +443,7 @@ int main()
     SDL_DestroyTexture(logo1);  // destroy the logo1 texture
     SDL_DestroyTexture(logo2);  // destroy the logo2 texture
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         SDL_DestroyTexture(buttons[i].texture);
     }

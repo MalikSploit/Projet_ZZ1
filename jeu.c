@@ -71,3 +71,12 @@ void avanceGrille(int grille[][NB_COLONNES]){
     }
 
 }
+
+void creerLigne(int arr[NB_COLONNES]) {
+    srand(time(0)); // Initialise le générateur de nombres aléatoires
+
+    // Remplis le tableau avec des nombres aléatoires 0 et 1
+    for (int j = 0; j < NB_COLONNES; j++) {
+        arr[j] = rand() % 2;
+    }
+}

@@ -1,6 +1,6 @@
 #include "SDL_Initialisation.h"
 #include "Constantes.h"
-#include "Menu.h"
+#include "Menu.c"
 
 SDL_Window* createWindow(char *title)
 {

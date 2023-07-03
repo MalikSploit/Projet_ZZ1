@@ -53,3 +53,26 @@ int initializeIMG()
     }
     return 0;
 }
+
+
+SDL_Texture* loadLogo(SDL_Renderer* renderer, char *imagePath)
+{
+    SDL_Texture* logo = loadTexture(renderer, imagePath);
+    if (logo == NULL)
+    {
+        printf("Failed to load logo image!\n");
+        return NULL;
+    }
+    return logo;
+}
+
+TTF_Font* loadFont(char* fontPath)
+{
+    TTF_Font* font = TTF_OpenFont(fontPath, 38);
+    if (font == NULL)
+    {
+        printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
+        return NULL;
+    }
+    return font;
+}

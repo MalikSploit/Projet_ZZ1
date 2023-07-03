@@ -324,7 +324,7 @@ int main()
     for (int i = 0; i < 5; ++i)
     {
         buttons[i].rect.x = SCREEN_WIDTH / 2 - 50;
-        buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 150;
+        buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 140;
         buttons[i].rect.w = 100;
         buttons[i].rect.h = 50;
         buttons[i].color.r = 0;
@@ -360,15 +360,15 @@ int main()
         SDL_RenderClear(renderer);
 
         // Draw logo1 (High_Racer Text)
-        SDL_Rect logo1Quad = { SCREEN_WIDTH / 2 - logo1Width / 2, 50, logo1Width, logo1Height };
+        SDL_Rect logo1Quad = { SCREEN_WIDTH / 2 - logo1Width / 2, 40, logo1Width, logo1Height };
         SDL_RenderCopy(renderer, logo1, NULL, &logo1Quad);
 
         // Define the new dimensions
-        int newLogo2Width = logo2Width / 2; // Now 960
-        double newLogo2Height = logo2Height / 2.5; // Now 540
+        int newLogo2Width = logo2Width / 2;
+        double newLogo2Height = logo2Height / 2.3;
 
         // Draw logo2 (Menu Image)
-        SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - newLogo2Width / 2, 50 + logo1Height + 10, newLogo2Width, (int)newLogo2Height };
+        SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - newLogo2Width / 2, 20 + logo1Height, newLogo2Width, (int)newLogo2Height };
         SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad);
 
         // Draw buttons
@@ -384,7 +384,7 @@ int main()
         while (SDL_PollEvent(&e) != 0)
         {
             // User requests quit
-            if (e.type == SDL_QUIT)
+            if (e.type == SDL_QUIT || (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)))
             {
                 quit = true;
             }
@@ -398,7 +398,7 @@ int main()
                         break;
                 }
             }
-                // User clicks the mouse
+            // User clicks the mouse
             else if (e.type == SDL_MOUSEBUTTONDOWN)
             {
                 int x, y;
@@ -423,6 +423,7 @@ int main()
                         }
                         if (strcmp(buttons[i].text, "Simulation") == 0)
                         {
+                            printf("t'es lent :)\n");
                         }
                         if (strcmp(buttons[i].text, "New Game") == 0)
                         {

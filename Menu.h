@@ -2,7 +2,6 @@
 #define PROJET_ZZ1_MENU_H
 
 #include "Constantes.h"
-#include "SDL_Initialisation.h"
 
 typedef struct Button
 {

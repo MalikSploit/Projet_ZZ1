@@ -6,6 +6,8 @@
 
 SDL_Window* createWindow(char *title);
 SDL_Renderer* createRenderer(SDL_Window* window);
+SDL_Texture* loadLogo(SDL_Renderer* renderer, char *imagePath);
+TTF_Font* loadFont(char* fontPath);
 int initializeSDL();
 int initializeTTF();
 int initializeIMG();

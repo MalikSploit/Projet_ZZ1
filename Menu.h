@@ -209,3 +209,66 @@ void displayHighScore()
     SDL_DestroyRenderer(highScoreRenderer);
     SDL_DestroyWindow(highScoreWindow);
 }
+
+
+void drawButton(SDL_Renderer* renderer, Button* button)
+{
+    // Render the button's text
+    int textWidth, textHeight;
+    SDL_QueryTexture(button->texture, NULL, NULL, &textWidth, &textHeight);
+    SDL_Rect renderQuad = { button->rect.x + (button->rect.w - textWidth) / 2,
+                            button->rect.y + (button->rect.h - textHeight) / 2,
+                            textWidth, textHeight };
+    SDL_RenderCopy(renderer, button->texture, NULL, &renderQuad);
+}
+
+void drawText(SDL_Renderer* renderer, TTF_Font* font, char* text, SDL_Color color, int x, int y)
+{
+
+    // Render text surface
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text, color);
+    if (textSurface == NULL) {
+        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+        return;
+    }
+
+    // Create texture from surface pixels
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (textTexture == NULL) {
+        printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+        return;
+    }
+
+    // Set text dimensions
+    SDL_Rect renderQuad = { x, y, textSurface->w, textSurface->h };
+
+    // Render text
+    SDL_RenderCopy(renderer, textTexture, NULL, &renderQuad);
+
+    // Free surface and texture
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
+}
+
+
+SDL_Texture* loadTexture(SDL_Renderer* renderer, char* filepath)
+{
+    SDL_Texture* newTexture = NULL;
+    SDL_Surface* loadedSurface = IMG_Load(filepath);
+    if(loadedSurface == NULL)
+    {
+        printf("Unable to load image %s! SDL_image Error: %s\n", filepath, IMG_GetError());
+    }
+    else
+    {
+        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        if(newTexture == NULL)
+        {
+            printf("Unable to create texture from %s! SDL Error: %s\n", filepath, SDL_GetError());
+        }
+        SDL_FreeSurface(loadedSurface);
+    }
+    return newTexture;
+}
+
+

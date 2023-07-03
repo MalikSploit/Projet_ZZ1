@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
+
 
 // Valeurs pour les distances des plus proches obstacles
 #define PROCHE 1 // immediatement sur la ligne suivante
@@ -40,3 +42,5 @@ bool iterJeu(jeu j, int deplacement);
 void getSituationFromJeu(jeu j, int situation[4]);
 int deplacementFromBot(bot robot, int situation[4]);
 int distanceSurColonne(jeu j, int colonne);
+void avanceGrille(int grille[][NB_COLONNES]);
+void creerLigne(int arr[NB_COLONNES]);

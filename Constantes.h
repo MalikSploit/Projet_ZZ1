@@ -14,4 +14,12 @@
 #define NB_LIGNES 8
 #define NB_COLONNES 8
 
+#define MAX_ITER 100
+
+typedef struct {
+    int grille[NB_LIGNES][NB_COLONNES]; // 0 : case vide, 1 : obstacle
+    int chasseur;
+    int proie;
+} jeu;
+
 #endif //PROJET_ZZ1_CONSTANTES_H

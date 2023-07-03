@@ -1,7 +1,44 @@
 #include "Constantes.h"
 #include "main.h"
 
-int LancerJeu() {
+typedef struct UserCar {
+    SDL_Rect rect;
+    SDL_Texture *texture;
+    int velocity;
+} UserCar;
+
+UserCar initVoiture(SDL_Renderer *renderer)
+{
+    UserCar userCar;
+
+    // Set up initial size and position of the user car
+    userCar.rect.w = 100;
+    userCar.rect.h = 100;
+    userCar.rect.x = SCREEN_WIDTH / 2 + 35;
+    userCar.rect.y = SCREEN_HEIGHT - 100 - userCar.rect.h;// start at the bottom of the screen
+
+    // Load the texture for the user car
+    SDL_Surface *tempSurface = IMG_Load("Images/Car.png");
+    if (!tempSurface) {
+        printf("Unable to load image car.png! SDL_image Error: %s\n", IMG_GetError());
+        // handle error here
+    }
+
+    userCar.texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
+
+    // Initial velocity
+    userCar.velocity = 5;
+
+    return userCar;
+}
+
+void drawVoiture(SDL_Renderer *renderer, UserCar *userCar) {
+    SDL_RenderCopy(renderer, userCar->texture, NULL, &userCar->rect);
+}
+
+int LancerJeu()
+{
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -50,6 +87,18 @@ int LancerJeu() {
         return 1; // Return error
     }
 
+    // Create a second texture from the same surface for scrolling background
+    SDL_Texture *backgroundTexture2 = SDL_CreateTextureFromSurface(renderer, backgroundSurface);
+    if (backgroundTexture2 == NULL)
+    {
+        printf("Unable to create texture2 from surface! SDL Error: %s\n", SDL_GetError());
+        return 1; // Return error
+    }
+
+    UserCar userCar = initVoiture(renderer);
+
+    int bgScroll = 0;  // Initialize background scroll offset
+
     bool running = true;
     SDL_Event e;
     while (running)
@@ -64,18 +113,46 @@ int LancerJeu() {
             {
                 if (e.key.keysym.sym == SDLK_LEFT)
                 {
-
+                    userCar.rect.x -= 180; // Move the car to the left
+                    break;
                 } else if (e.key.keysym.sym == SDLK_RIGHT)
                 {
-
+                    userCar.rect.x += 180; // Move the car to the right
+                    break;
+                }
+                if (e.key.keysym.sym == SDLK_UP)
+                {
+                    userCar.velocity += 5;
+                    break;
+                }
+                if (e.key.keysym.sym == SDLK_DOWN)
+                {
+                    if (userCar.velocity > 5)
+                    {
+                        userCar.velocity -= 5;
+                        break;
+                    }
                 }
             }
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
-
-            // Update screen
-            SDL_RenderPresent(renderer);
         }
+        bgScroll += userCar.velocity;  // Scroll background at car's velocity
+
+        // Reset scroll offset when it is greater than or equal to the height of the screen
+        if (bgScroll >= SCREEN_HEIGHT)
+        {
+            bgScroll = 0;
+        }
+
+        // Draw the scrolling backgrounds
+        SDL_Rect bgQuad1 = { 0, bgScroll - SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT };
+        SDL_Rect bgQuad2 = { 0, bgScroll, SCREEN_WIDTH, SCREEN_HEIGHT };
+        SDL_RenderCopy(renderer, backgroundTexture, NULL, &bgQuad1);
+        SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgQuad2);
+
+        drawVoiture(renderer, &userCar);
+        // Update screen
+        SDL_RenderPresent(renderer);
+        SDL_RenderClear(renderer);
     }
 
     // Free the loaded surface as it is no longer needed

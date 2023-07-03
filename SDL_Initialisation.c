@@ -23,3 +23,33 @@ SDL_Renderer* createRenderer(SDL_Window* window)
     }
     return renderer;
 }
+int initializeSDL()
+{
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    {
+        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        return -1;
+    }
+    return 0;
+}
+
+int initializeTTF()
+{
+    if (TTF_Init() == -1)
+    {
+        printf("SDL_ttf could not initialize! TTF_Error: %s\n", TTF_GetError());
+        return -1;
+    }
+    return 0;
+}
+
+int initializeIMG()
+{
+    int imgFlags = IMG_INIT_PNG;
+    if(!(IMG_Init(imgFlags) & imgFlags))
+    {
+        printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+        return -1;
+    }
+    return 0;
+}

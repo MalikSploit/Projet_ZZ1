@@ -26,12 +26,62 @@ int Jeu(bot robot){
     return i;
 }
 
-void getSituationFromJeu(jeu j, int situation[4]){
-    // modifier la situation en fonction du jeu
+int distanceSurColonne(jeu j, int colonne) {
+    int ligne = 1;
+    bool trouve = false;
+    // recherche du plus proche obstacle
+    while (ligne < NB_LIGNES && !trouve) {
+	ligne++;
+	if(j.grille[ligne][colonne]) {
+	    trouve = true;
+	}
+    }
+    // mettre a jour la situation en fonction du cas
+    int result;
+    if (trouve){
+	if (ligne == 2) result = PROCHE;
+	else if (ligne <= 5) result = MOYEN;
+	else result = LOIN;
+    } else result = AUCUN;
+
+    return result;
 }
 
+// modifier la situation en fonction du jeu
+void getSituationFromJeu(jeu j, int situation[4]){
+    // colonne a gauche de la proie
+    if (j.proie == 0) {
+	// si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante
+	situation[0] = PROCHE;
+    } else {
+	situation[0] = distanceSurColonne(j, j.proie-1);
+    }
+
+    // colonne d'en face
+    situation[1] = distanceSurColonne(j, j.proie);
+
+    // colonne a droite de la proie
+    if (j.proie == NB_COLONNES - 1) {
+	// si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante
+	situation[2] = PROCHE;
+    } else {
+	situation[2] = distanceSurColonne(j, j.proie+1);
+    }
+
+    // determination de la position de la proie
+    if (j.proie == j.chasseur) situation[3] = CENTRE;
+    else if (j.proie == j.chasseur - 1) situation[3] = GAUCHE;
+    else if (j.proie == j.chasseur + 1) situation[3] = DROITE;
+    else if (j.proie < j.chasseur) situation[3] = EGAUCHE;
+    else situation[3] = EDROITE;
+}
+
+// renvoyer ce que fait le bot dans le cas donne
 int deplacementFromBot(bot robot, int situation[4]){
-    // renvoyer ce que fait le bot dans le cas donne
+    // trouver les regles qui matchent la situation
+    // retirer les regles demandant une action illegale
+    // choisir une regle parmi les restantes en priorisant les priorités fortes (proba de prio^s / somme des prio^s avec s constante d'importance des priorites)
+    // si aucune regle candidate, choisir un deplacement random parmi les legaux
     return DIRMILIEU;
 }
 

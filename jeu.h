@@ -39,3 +39,4 @@ typedef regle bot[10];
 bool iterJeu(jeu j, int deplacement);
 void getSituationFromJeu(jeu j, int situation[4]);
 int deplacementFromBot(bot robot, int situation[4]);
+void avanceGrille(int grille[][NB_COLONNES]);

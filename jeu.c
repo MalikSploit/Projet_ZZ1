@@ -46,3 +46,28 @@ bool iterJeu(jeu j, int deplacement){
 
     // appel à decalerGrille qui genere une nouvelle ligne et decale les autres
 }
+
+void avanceGrille(int grille[][NB_COLONNES]){
+  
+    srand(time(0)); // Initialise le générateur de nombres aléatoires
+
+    // Déplace toutes les lignes une ligne vers le bas
+    for (int i = 0; i < NB_LIGNES - 1; i++) {
+        for (int j = 0; j < NB_COLONNES; j++) {
+            grille[i][j] = grille[i + 1][j];
+        }
+    }
+
+    // Remplis la dernière ligne avec des nombres aléatoires 0 et 1
+    for (int j = 0; j < NB_COLONNES; j++) {
+        grille[NB_LIGNES - 1][j] = rand() % 2;
+    }
+
+    int derniere[NB_COLONNES] = {0};
+    creerLigne(derniere);
+
+    for (int j = 0; j < NB_COLONNES; j++) {
+      grille[NB_LIGNES - 1][j] = derniere[j];
+    }
+
+}

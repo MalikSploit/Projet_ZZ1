@@ -1,9 +1,15 @@
 #include "Constantes.h"
 #include "main.h"
 
-typedef struct UserCar {
+#define TAILLE_CELLULE_LARGEUR 180
+#define TAILLE_CELLULE_LONGUEUR 130
+
+typedef struct UserCar
+{
     SDL_Rect rect;
     SDL_Texture *texture;
+    int cell_x;
+    int cell_y;
     int velocity;
 } UserCar;
 
@@ -12,10 +18,10 @@ UserCar initVoiture(SDL_Renderer *renderer)
     UserCar userCar;
 
     // Set up initial size and position of the user car
+    userCar.cell_x = 0;
+    userCar.cell_y = 7;
     userCar.rect.w = 100;
     userCar.rect.h = 100;
-    userCar.rect.x = SCREEN_WIDTH / 2 + 35;
-    userCar.rect.y = SCREEN_HEIGHT - 100 - userCar.rect.h;// start at the bottom of the screen
 
     // Load the texture for the user car
     SDL_Surface *tempSurface = IMG_Load("Images/Car.png");
@@ -28,13 +34,16 @@ UserCar initVoiture(SDL_Renderer *renderer)
     SDL_FreeSurface(tempSurface);
 
     // Initial velocity
-    userCar.velocity = 5;
+    userCar.velocity = 3;
 
     return userCar;
 }
 
-void drawVoiture(SDL_Renderer *renderer, UserCar *userCar) {
+void drawVoiture(SDL_Renderer *renderer, UserCar *userCar)
+{
     SDL_RenderCopy(renderer, userCar->texture, NULL, &userCar->rect);
+    userCar->rect.x = userCar->cell_x * TAILLE_CELLULE_LARGEUR + 280;
+    userCar->rect.y = userCar->cell_y * TAILLE_CELLULE_LONGUEUR;// start at the bottom of the screen
 }
 
 int LancerJeu()
@@ -113,23 +122,30 @@ int LancerJeu()
             {
                 if (e.key.keysym.sym == SDLK_LEFT)
                 {
-                    userCar.rect.x -= 180; // Move the car to the left
-                    break;
-                } else if (e.key.keysym.sym == SDLK_RIGHT)
+                    if (userCar.cell_x > 0)
+                    {
+                        userCar.cell_x -= 1; // Move the car to the left
+                        break;
+                    }
+                }
+                else if (e.key.keysym.sym == SDLK_RIGHT)
                 {
-                    userCar.rect.x += 180; // Move the car to the right
-                    break;
+                    if (userCar.cell_x < 7)
+                    {
+                        userCar.cell_x += 1; // Move the car to the right
+                        break;
+                    }
                 }
                 if (e.key.keysym.sym == SDLK_UP)
                 {
-                    userCar.velocity += 5;
+                    userCar.velocity += 3;
                     break;
                 }
                 if (e.key.keysym.sym == SDLK_DOWN)
                 {
-                    if (userCar.velocity > 5)
+                    if (userCar.velocity > 3)
                     {
-                        userCar.velocity -= 5;
+                        userCar.velocity -= 3;
                         break;
                     }
                 }

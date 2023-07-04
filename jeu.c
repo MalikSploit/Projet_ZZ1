@@ -14,7 +14,7 @@ int Jeu(bot robot){
 	getSituationFromJeu(j, situation);
 	/* déplacement toujours faisable */
 	deplacement = deplacementFromBot(j, robot, situation);
-	fin = iterJeu(j, deplacement);
+	fin = iterJeu(&j, deplacement);
 	i++;
     }
     return i;
@@ -166,23 +166,23 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
     return direction;
 }
 
-bool iterJeu(jeu j, int deplacement){
+bool iterJeu(jeu * j, int deplacement){
 
   deplacerProie(j);
   deplacerChasseur(j, deplacement);
-  avanceGrille(j.grille);
-  return jeuFini(j);
+  avanceGrille(j->grille);
+  return jeuFini(*j);
   
 }
 
-void deplacerChasseur(jeu j, int deplacement){
+void deplacerChasseur(jeu * j, int deplacement){
   deplacer(j, deplacement, 0);
 }
 
-void deplacerProie(jeu j){
+void deplacerProie(jeu * j){
 
   /* calcul du comportement de la proie */
-  int deplacement = comportementProie(j);
+  int deplacement = comportementProie(*j);
   /* vérifier tant que */
   deplacer(j, deplacement, 1);
 
@@ -249,22 +249,22 @@ int retourneDeplacement(jeu j, int numLigne, int deplacement){
   
 }
 
-void deplacer(jeu j, int deplacement, int numLigne){
+void deplacer(jeu * j, int deplacement, int numLigne){
 
   /* on bouge le prédateur */
   if(numLigne == 0){
 
-    deplacement = retourneDeplacement(j, 0, deplacement);
+    deplacement = retourneDeplacement(*j, 0, deplacement);
 
-    j.chasseur = j.chasseur + deplacement;
+    j->chasseur = j->chasseur + deplacement;
 
   }
 
   /* on bouge la proix */
   else {
 
-    deplacement = retourneDeplacement(j, 1, deplacement);
-    j.proie = j.proie + deplacement;
+    deplacement = retourneDeplacement(*j, 1, deplacement);
+    j->proie = j->proie + deplacement;
 
   }
 }
@@ -357,8 +357,6 @@ bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee
 }
 
 void avanceGrille(int grille[][NB_COLONNES]){
-  
-    srand(time(0)); // Initialise le générateur de nombres aléatoires
 
     // Déplace toutes les lignes une ligne vers le bas
     for (int i = 0; i < NB_LIGNES - 1; i++) {
@@ -378,6 +376,9 @@ void creerLigne(int arr[NB_COLONNES]) {
 
     // Remplis le tableau avec des nombres aléatoires 0 et 1
     for (int j = 0; j < NB_COLONNES; j++) {
-      arr[j] = rand() % NOMBRE_SPRITE + 1;
+	if((double)rand() / RAND_MAX < PROBA_OBSTACLE)
+	    arr[j] = rand() % NOMBRE_SPRITE + 1;
+	else
+	    arr[j] = 0;
     }
 }

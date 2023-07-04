@@ -63,6 +63,8 @@ void creerLigne(int arr[NB_COLONNES]);
 int obstacleDroite(jeu j);
 int obstacleGauche(jeu j);
 bool jeuFini(jeu j);
+bool verifCroix(int debut, int fin, int * ligne);
+bool chasseurBienPlace(int chasseur, int debut, int fin);
 bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne);
 void avanceGrille(int grille[][NB_COLONNES]);
 void creerLigne(int arr[NB_COLONNES]) ;

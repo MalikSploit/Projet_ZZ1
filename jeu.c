@@ -288,13 +288,31 @@ bool jeuFini(jeu j){
   int posObstacleGauche = obstacleGauche(j);
   int posObstacleDroite = obstacleDroite(j);
 
-  if((posObstacleGauche && posObstacleDroite) && verifierSurLesCOlonneETLigne)test;
+  if((posObstacleGauche && posObstacleDroite) && verifierSurLesCOlonneETLigne);
 
     /* vérifier si le chasseur est compris entre les deux croix sur les côtés moins 1 */
 
     
 
     }
+
+/* retourne 1 si les croix sont bien toutes présentes */
+bool verifCroix(int debut, int fin, int * ligne){
+  debut++;
+  while(debut < fin) {
+    if(ligne[debut] == 0)return 0;
+      debut++;
+  }
+  return 1;
+}
+
+/* retourne 1 si les croix sont bien toutes présentes */
+bool chasseurBienPlace(int chasseur, int debut, int fin){
+ if (chasseur >= debut && chasseur <= fin) {
+   return 1;
+    }
+ else return 0;
+}
 
 /* renvoie 1 si VALIDE, renvoie 0 si PAS VALIDE, renvoie -1 si téléportation */
 bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){

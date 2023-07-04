@@ -1,4 +1,4 @@
-#include "main.h"
+#include "jeu_SDL.h"
 #include "SDL_Initialisation.h"
 
 UserCar initVoiture(SDL_Renderer *renderer)
@@ -230,32 +230,39 @@ int getHighScore() {
     return highScore;
 }
 
-int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, int score)
+int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 {
+    SDL_Color greenColor = {0, 255, 0, 255}; // Define the color green.
+
     char scoreText[50];
     sprintf(scoreText, "Score: %d", score);
     SDL_Texture* scoreTexture = NULL;
-    SDL_Rect scoreRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 100, 100};
-    updateText(renderer, font, textColor, &scoreTexture, &scoreRect, scoreText);
+    SDL_Rect scoreRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 200, 50};
+    updateText(renderer, font, greenColor, &scoreTexture, &scoreRect, scoreText);
 
-    SDL_Texture* gameOverTexture = NULL;
-    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 100, 200, 50};
-    updateText(renderer, font, textColor, &gameOverTexture, &gameOverRect, "Game Over");
+    SDL_Surface* gameOverSurface = LoadImage("Images/GAME_OVER.png");
+    SDL_Texture* gameOverTexture = LoadTexture(renderer, gameOverSurface);
+    // Get dimensions of Game Over texture
+    int gameOverWidth;
+    int gameOverHeight;
+    SDL_QueryTexture(gameOverTexture, NULL, NULL, &gameOverWidth, &gameOverHeight);
+    // Position and size of Game Over texture
+    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - gameOverWidth / 2, 50, gameOverWidth, gameOverHeight};
 
     int highScore = getHighScore();
     char highScoreText[50];
     sprintf(highScoreText, "High Score: %d", highScore);
     SDL_Texture* highScoreTexture = NULL;
     SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2, 200, 50};
-    updateText(renderer, font, textColor, &highScoreTexture, &highScoreRect, highScoreText);
+    updateText(renderer, font, greenColor, &highScoreTexture, &highScoreRect, highScoreText);
 
     SDL_Texture* replayTexture = NULL;
     SDL_Rect replayRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 + 50, 200, 50};
-    updateText(renderer, font, textColor, &replayTexture, &replayRect, "Play Again");
+    updateText(renderer, font, greenColor, &replayTexture, &replayRect, "Play Again");
 
     SDL_Texture* quitTexture = NULL;
     SDL_Rect quitRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 + 100, 200, 50};
-    updateText(renderer, font, textColor, &quitTexture, &quitRect, "Quit");
+    updateText(renderer, font, greenColor, &quitTexture, &quitRect, "Quit");
 
     bool running = true;
     while (running)
@@ -315,6 +322,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, 
 
     return 0;
 }
+
 
 
 int LancerJeu()
@@ -498,7 +506,7 @@ int LancerJeu()
         SDL_RenderClear(renderer);
     }
     // Ajouter ceci après votre boucle de jeu
-    int retry = gameOverScreen(renderer, font, textColor, score);
+    int retry = gameOverScreen(renderer, font, score);
     if (retry)
     {
         // Si le joueur veut rejouer, réexécuter la fonction LancerJeu

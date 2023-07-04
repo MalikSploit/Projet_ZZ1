@@ -106,7 +106,48 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
     // retirer les regles demandant une action illegale
     // choisir une regle parmi les restantes en priorisant les priorités fortes (proba de prio^s / somme des prio^s avec s constante d'importance des priorites)
     // si aucune regle candidate, choisir un deplacement random parmi les legaux
-    return DIRMILIEU;
+
+    float probabilities[3];
+    float probaTotale = 0;
+    float newProba;
+
+    bool regleExiste = false;
+
+    for (int i = 0; i < NB_REGLES; i++) {
+	// si la regle matche et que le deplacement est legal on attribue la probabilite
+	if(matchRegleSituation(robot[i], situation) && verifDeplacement(j.grille, robot[i][TAILLE_ETAT], j.chasseur, 0)) {
+	    newProba = powf(robot[i][TAILLE_ETAT+1], IMPORTANCE_PRIORITES);
+	    probabilities[robot[i][TAILLE_ETAT]] += newProba;
+	    probaTotale += newProba;
+	    regleExiste = true;
+	}
+    }
+    
+    // si aucune regle n'a matche on attribue des probas egales a tous les deplacements legaux
+    if (!regleExiste) {
+	for (int i = -1; i < 2; i++) {
+	    if(verifDeplacement(j.grille, i, j.chasseur, 0)) {
+		probabilities[i] = 1;
+		probaTotale += 1;
+	    }
+	}
+    }
+
+    // choix d'une direction en fonction des probabilites
+
+    double r = ((double)rand() / RAND_MAX) * probaTotale;
+    int direction = -2;
+
+    for(int dir = -1; dir < 2 && r > 0; dir++) {
+        if(probabilities[dir+1] > 0) {
+            r -= probabilities[dir+1];
+            if(r <= 0) {
+                direction = dir;
+            }
+        }
+    }
+
+    return direction;
 }
 
 bool iterJeu(jeu j, int deplacement){

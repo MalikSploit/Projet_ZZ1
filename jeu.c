@@ -10,7 +10,7 @@ int Jeu(bot robot){
     // initialisation du jeu
     jeu j = initJeu();
 
-    while (i > MAX_ITER && !fin) {
+    while (i < MAX_ITER && !fin) {
 	getSituationFromJeu(j, situation);
 	/* déplacement toujours faisable */
 	deplacement = deplacementFromBot(j, robot, situation);

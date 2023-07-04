@@ -297,22 +297,25 @@ bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee
      &&
      (grille[ligne + 1][coordonnee + DIRDROITE] == 1))
     {
-      if(deplacement == MILIEU)return 0;
-      else if(deplacement == DIRGAUCHE){
-        int indiceOùAller = 0;
-        while (grille[ligne + 1][indiceOùAller] == 1) {
-          indiceOùAller--;
-        }
-	if(indiceOùAller < 0 && indiceOùAller > NB_COLONNES - 1) return 0;
-	else return -1;
+    int indiceOuAller = 0;
+    if (deplacement == DIRMILIEU)
+      return 0;
+    else if (deplacement == DIRGAUCHE) {
+      while (grille[ligne + 1][indiceOuAller] == 1) {
+        indiceOuAller--;
+      }
+      if (indiceOuAller < 0 && indiceOuAller > NB_COLONNES - 1)
+        return 0;
+      else
+        return -1;
       }
       else if(deplacement == DIRDROITE){
-        int indiceOùAller = 0;
-        while (grille[ligne + 1][indiceOùAller] == 1) {
-          indiceOùAller++;
+        while (grille[ligne + 1][indiceOuAller] == 1) {
+          indiceOuAller++;
         }
-	if(indiceOùAller < 0 && indiceOùAller > NB_COLONNES - 1) return 0;
-	else return -1;
+        if (indiceOuAller < 0 && indiceOuAller > NB_COLONNES - 1)
+          return 0;
+        else return -1;
       }
     }
 

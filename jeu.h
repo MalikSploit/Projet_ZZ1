@@ -64,7 +64,7 @@ bool jeuFini(jeu j);
 bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne);
 void avanceGrille(int grille[][NB_COLONNES]);
 void creerLigne(int arr[NB_COLONNES]) ;
-int retourneDeplacement(int numLigne, int deplacement);
+int retourneDeplacement(jeu j, int numLigne, int deplacement);
 void deplacer(jeu j, int deplacement, int numLigne);
 void deplacerChasseur(jeu j, int deplacement);
 void deplacerProie(jeu j);

@@ -87,8 +87,8 @@ int deplacementFromBot(bot robot, int situation[4]){
 
 bool iterJeu(jeu j, int deplacement){
 
-  deplacerProie();
-  déplacerChasseur();
+  deplacerProie(j);
+  deplacerChasseur(j, deplacement);
   avanceGrille(j.grille);
   return jeuFini(j);
   

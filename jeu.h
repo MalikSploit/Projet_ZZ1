@@ -53,6 +53,8 @@ typedef regle bot[NB_REGLES];
 #define ALEATOIRE 0.1
 
 // prototypes
+jeu initJeu();
+int Jeu(bot robot);
 bool iterJeu(jeu j, int deplacement);
 void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]);
 int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]);

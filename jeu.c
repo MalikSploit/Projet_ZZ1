@@ -35,6 +35,9 @@ jeu initJeu() {
 // renvoie la distance entre la proie et le plus proche obstacle sur la colonne donnee
 // s'il n'y pas d'obstacle, renvoie NB_LIGNES-1
 int distanceSurColonne(jeu j, int colonne) {
+    if(colonne < 0 || colonne >= NB_COLONNES)
+	return 0;
+    
     int ligne = 1;
     bool trouve = false;
     // recherche du plus proche obstacle
@@ -58,7 +61,7 @@ int proximiteSurColonne(jeu j, int colonne) {
 
     // mettre a jour la situation en fonction du cas
     int result;
-    if (distance == 1) result = PROCHE;
+    if (distance <= 1) result = PROCHE;
     else if (distance <= 4) result = MOYEN;
     else if (distance < NB_LIGNES - 1) result = LOIN;
     else result = AUCUN;
@@ -114,6 +117,9 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
     // si aucune regle candidate, choisir un deplacement random parmi les legaux
 
     float probabilities[3];
+
+    for(int i = 0; i < 3; i++) probabilities[i] = 0;
+
     float probaTotale = 0;
     float newProba;
 
@@ -133,7 +139,7 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
     if (!regleExiste) {
 	for (int i = -1; i < 2; i++) {
 	    if(verifDeplacement(j.grille, i, j.chasseur, 0)) {
-		probabilities[i] = 1;
+		probabilities[i+1] = 1;
 		probaTotale += 1;
 	    }
 	}
@@ -315,7 +321,7 @@ bool chasseurBienPlace(int chasseur, int debut, int fin){
 }
 
 /* renvoie 1 si VALIDE, renvoie 0 si PAS VALIDE, renvoie -1 si téléportation */
-bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){
+int verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){
 
   /* verif côté gauche */
   if(coordonnee + deplacement < 0) return 0;
@@ -372,8 +378,6 @@ void avanceGrille(int grille[][NB_COLONNES]){
 }
 
 void creerLigne(int arr[NB_COLONNES]) {
-    srand(time(0)); // Initialise le générateur de nombres aléatoires
-
     // Remplis le tableau avec des nombres aléatoires 0 et 1
     for (int j = 0; j < NB_COLONNES; j++) {
 	if((double)rand() / RAND_MAX < PROBA_OBSTACLE)

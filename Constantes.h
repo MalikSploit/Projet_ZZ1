@@ -16,6 +16,8 @@
 
 #define MAX_ITER 100
 
+#define NOMBRE_SPRITE 8
+
 typedef struct {
     int grille[NB_LIGNES][NB_COLONNES]; // 0 : case vide, 1 : obstacle
     int chasseur;

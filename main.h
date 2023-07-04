@@ -5,7 +5,7 @@
 
 #define TAILLE_CELLULE_LARGEUR 361
 #define TAILLE_CELLULE_LONGUEUR 243
-#define MAX_OBSTACLES 1
+#define MAX_OBSTACLES 4
 
 typedef struct UserCar
 {

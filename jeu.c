@@ -114,19 +114,50 @@ bool jeuFini(jeu j){
   int posObstacleDroite = obstacleDroite(posProie);
 
   if((posObstacleGauche && posObstacleDroite) && verifierSurLesCOlonneETLigne)
-}
 
-/* renvoie 1 si VALIDE, renvoie 0 si PAS VALIDE */
+    /* vérifier si le chasseur est compris entre les deux croix sur les côtés moins 1 */
+
+    
+
+    }
+
+/* renvoie 1 si VALIDE, renvoie 0 si PAS VALIDE, renvoie -1 si téléportation */
 bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){
 
   /* verif côté gauche */
   if(coordonnee + deplacement < 0) return 0;
   /* verif côté droit */
   if(coordonnee + deplacement > NB_COLONNES - 1) return 0;
-  /* verif en à la ligne N + 1 qui faut vide  */
-  if(grille[ligne + 1] coordonnee + deplacement == ) return 0;
-  return 1;
+  /* verif en à la ligne N + 1 que la case est vide où il veut aller  */
+  if(grille[ligne + 1][coordonnee + deplacement] == 1) return 0;
 
+  /* si les trois cases devant lui sont prises, alors cas spécial de téléportation */
+  if((grille[ligne + 1][coordonnee + DIRGAUCHE] == 1)
+     &&
+     (grille[ligne + 1][coordonnee + DIRMILIEU] == 1)
+     &&
+     (grille[ligne + 1][coordonnee + DIRDROITE] == 1))
+    {
+      if(deplacement == MILIEU)return 0;
+      else if(deplacement == DIRGAUCHE){
+        int indiceOùAller = 0;
+        while (grille[ligne + 1][indiceOùAller] == 1) {
+          indiceOùAller--;
+        }
+	if(indiceOùAller < 0 && indiceOùAller > NB_COLONNES - 1) return 0;
+	else return -1;
+      }
+      else if(deplacement == DIRDROITE){
+        int indiceOùAller = 0;
+        while (grille[ligne + 1][indiceOùAller] == 1) {
+          indiceOùAller++;
+        }
+	if(indiceOùAller < 0 && indiceOùAller > NB_COLONNES - 1) return 0;
+	else return -1;
+      }
+    }
+
+  return 1;
 }
 
 void avanceGrille(int grille[][NB_COLONNES]){

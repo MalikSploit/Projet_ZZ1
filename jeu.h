@@ -44,6 +44,7 @@ int deplacementFromBot(bot robot, int situation[4]);
 int distanceSurColonne(jeu j, int colonne);
 void avanceGrille(int grille[][NB_COLONNES]);
 void creerLigne(int arr[NB_COLONNES]);
+bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne);
 void avanceGrille(int grille[][NB_COLONNES]);
 void deplacerChasseur(jeu j, int deplacement);
 void deplacerProie(jeu j, int deplacement);

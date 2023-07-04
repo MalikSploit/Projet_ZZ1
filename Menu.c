@@ -307,7 +307,7 @@ int main()
     {
         return 1;
     }
-    TTF_Font* font = loadFont("Font/arial_bold.ttf");
+    TTF_Font* font = loadFont("Font/arial_bold.ttf", 38);
     if (font == NULL)
     {
         return 1;

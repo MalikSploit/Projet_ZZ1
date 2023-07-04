@@ -54,7 +54,6 @@ int initializeIMG()
     return 0;
 }
 
-
 SDL_Texture* loadLogo(SDL_Renderer* renderer, char *imagePath)
 {
     SDL_Texture* logo = loadTexture(renderer, imagePath);
@@ -66,13 +65,35 @@ SDL_Texture* loadLogo(SDL_Renderer* renderer, char *imagePath)
     return logo;
 }
 
-TTF_Font* loadFont(char* fontPath)
+TTF_Font* loadFont(char* fontPath, int size)
 {
-    TTF_Font* font = TTF_OpenFont(fontPath, 38);
+    TTF_Font* font = TTF_OpenFont(fontPath, size);
     if (font == NULL)
     {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
         return NULL;
     }
     return font;
+}
+
+SDL_Surface* LoadImage(char *imagePath)
+{
+    SDL_Surface *backgroundSurface = IMG_Load(imagePath);
+    if (backgroundSurface == NULL)
+    {
+        printf("Unable to load image! SDL_image Error: %s\n", IMG_GetError());
+        return NULL; // Return error
+    }
+    return backgroundSurface;
+}
+
+SDL_Texture *LoadTexture(SDL_Renderer *renderer, SDL_Surface *backgroundSurface)
+{
+    SDL_Texture *backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundSurface);
+    if (backgroundTexture == NULL)
+    {
+        printf("Unable to create texture from surface! SDL Error: %s\n", SDL_GetError());
+        return NULL; // Return error
+    }
+    return backgroundTexture;
 }

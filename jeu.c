@@ -191,7 +191,7 @@ void deplacerProie(jeu j){
 /* retourne un déplacement, donc un entier */
 int comportementProie(jeu j){
 
-  int deplacement;
+  int deplacement = 0;
 
   float p = (float)rand()/(float)RAND_MAX;  // Génère un nombre aléatoire entre 0 et 1
 

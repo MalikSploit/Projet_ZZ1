@@ -105,6 +105,69 @@ void deplacerProie(jeu j){
   deplacer(j, deplacement, 1);
 
 }
+
+/* retourne un déplacement, donc un entier */
+int comportementProie(jeu j){
+
+  int deplacement;
+
+  float p = (float)rand()/(float)RAND_MAX;  // Génère un nombre aléatoire entre 0 et 1
+
+  if (p < INFLUENCEPREDATEUR) {
+    /* si le chasseur est derrière la proie */
+    if(j.chasseur == j.proie){
+      deplacement = (rand() % 2) * 2 - 1;  // Génère soit -1 soit 1
+    }
+    else if(j.chasseur < j.proie){
+      if(verifDeplacement(g, DIRDROITE, j.proie, 1)){
+	deplacement = DIRDROITE;
+      }
+      else if(verifDeplacement(g, DIRMILIEU, j.proie, 1)){
+	deplacement = DIRMILIEU;
+      }
+      else deplacement = DIRGAUCHE;
+    }
+  } 
+  else if (p < INFLUENCEPREDATEUR + ALEATOIRE) {
+    deplacement = (rand() % 3) - 1;  // Génère un nombre aléatoire entre -1 et 1;
+  } 
+  else {
+    /* déplacement "intelligent" = prend la direction ou la croix est la plus loin*/
+
+    int valDIRGAUCHE = distanceSurColonne(j, j.proie - 1);
+    int valDIRMILIEU = distanceSurColonne(j, j.proie);
+    int valDIRDROITE = distanceSurColonne(j, j.proie + 1);
+
+    /* choix du + grand */
+    int deplacement = DIRGAUCHE;
+    int max = valDIRGAUCHE;
+    if (valDIRDROITE > max) {
+      deplacement = DIRDROITE;
+      max = valDIRDROITE;
+    }
+    if (valDIRMILIEU > max) {
+      deplacement = DIRMILIEU;
+    }
+  }
+  return deplacement;
+}
+
+int retourneDeplacement(int numLigne, int deplacement){
+
+  if(deplacement == DIRGAUCHE){
+    while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
+      deplacement--;
+  }
+
+  else (deplacement == DIRDROITE){
+      while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
+	deplacement++;
+    }
+
+  return deplacement;
+  
+}
+
 bool jeuFini(jeu j){
 
 

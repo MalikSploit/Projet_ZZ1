@@ -5,7 +5,7 @@ int Jeu(bot robot){
     bool fin = false;
     int i;
     int deplacement;
-    int situation[4];
+    int situation[TAILLE_ETAT];
     
     // initialisation du jeu
     jeu j;
@@ -19,13 +19,15 @@ int Jeu(bot robot){
 
     while (i > MAX_ITER && !fin) {
 	getSituationFromJeu(j, situation);
-	deplacement = deplacementFromBot(robot, situation);
+	deplacement = deplacementFromBot(j, robot, situation);
 	fin = iterJeu(j, deplacement);
 	i++;
     }
     return i;
 }
 
+// renvoie la distance entre la proie et le plus proche obstacle sur la colonne donnee
+// s'il n'y pas d'obstacle, renvoie NB_LIGNES-1
 int distanceSurColonne(jeu j, int colonne) {
     int ligne = 1;
     bool trouve = false;
@@ -36,36 +38,47 @@ int distanceSurColonne(jeu j, int colonne) {
 	    trouve = true;
 	}
     }
+    // si pas d'obstacle, on renvoie l'indice de la ligne après la dernière
+    if(!trouve) ligne = NB_LIGNES;
+   
+    // renvoyer la distance à la proie
+    return ligne-1;
+}
+
+// renvoie la proximite de l'obstacle sur la colonne donnee
+int proximiteSurColonne(jeu j, int colonne) {
+    // recuperer la distance sur la colonne
+    int distance = distanceSurColonne(j, colonne);
+
     // mettre a jour la situation en fonction du cas
     int result;
-    if (trouve){
-	if (ligne == 2) result = PROCHE;
-	else if (ligne <= 5) result = MOYEN;
-	else result = LOIN;
-    } else result = AUCUN;
+    if (distance == 1) result = PROCHE;
+    else if (distance <= 4) result = MOYEN;
+    else if (distance < NB_LIGNES - 1) result = LOIN;
+    else result = AUCUN;
 
     return result;
 }
 
 // modifier la situation en fonction du jeu
-void getSituationFromJeu(jeu j, int situation[4]){
+void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]){
     // colonne a gauche de la proie
     if (j.proie == 0) {
 	// si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante
 	situation[0] = PROCHE;
     } else {
-	situation[0] = distanceSurColonne(j, j.proie-1);
+	situation[0] = proximiteSurColonne(j, j.proie-1);
     }
 
     // colonne d'en face
-    situation[1] = distanceSurColonne(j, j.proie);
+    situation[1] = proximiteSurColonne(j, j.proie);
 
     // colonne a droite de la proie
     if (j.proie == NB_COLONNES - 1) {
 	// si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante
 	situation[2] = PROCHE;
     } else {
-	situation[2] = distanceSurColonne(j, j.proie+1);
+	situation[2] = proximiteSurColonne(j, j.proie+1);
     }
 
     // determination de la position de la proie
@@ -77,7 +90,7 @@ void getSituationFromJeu(jeu j, int situation[4]){
 }
 
 // renvoyer ce que fait le bot dans le cas donne
-int deplacementFromBot(bot robot, int situation[4]){
+int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
     // trouver les regles qui matchent la situation
     // retirer les regles demandant une action illegale
     // choisir une regle parmi les restantes en priorisant les priorités fortes (proba de prio^s / somme des prio^s avec s constante d'importance des priorites)

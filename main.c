@@ -181,7 +181,6 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
     TTF_Quit();
 }
 
-
 void InitScore(SDL_Renderer* renderer, Uint32* lastScoreUpdateTime, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, UserCar* userCar, SDL_Color* textColor)
 {
     Uint32 currentTime = SDL_GetTicks();
@@ -305,15 +304,30 @@ int LancerJeu()
                             break;
                         }
                     }
-                    else if (e.key.keysym.sym == SDLK_UP)
+                    else if (e.key.keysym.sym == SDLK_UP && !( SDL_GetModState() & KMOD_CTRL ))
                     {
-                        if (userCar.velocity <= 20)
+                        if (userCar.cell_y > 0) // Add some condition here to prevent the car from moving off the screen
+                        {
+                            userCar.cell_y -= 1; // Move the car forward (upwards on the screen)
+                        }
+                    }
+                    else if (e.key.keysym.sym == SDLK_DOWN && !( SDL_GetModState() & KMOD_CTRL ))
+                    {
+                        if (userCar.cell_y < 7)
+                        {
+                            userCar.cell_y += 1;
+                            break;
+                        }
+                    }
+                    else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_UP)
+                    {
+                        if (userCar.velocity <= 19)
                         {
                             userCar.velocity += 1;
                             break;
                         }
                     }
-                    else if (e.key.keysym.sym == SDLK_DOWN)
+                    else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_DOWN)
                     {
                         if (userCar.velocity > 1)
                         {

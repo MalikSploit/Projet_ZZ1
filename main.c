@@ -1,34 +1,5 @@
-#include "Constantes.h"
 #include "main.h"
 #include "SDL_Initialisation.h"
-
-#define TAILLE_CELLULE_LARGEUR 361
-#define TAILLE_CELLULE_LONGUEUR 243
-
-#define ENEMY_CAR_COUNT 10
-
-const int MAX_OBSTACLES = 4; // change this to control the number of obstacles on the screen at once
-
-typedef struct UserCar
-{
-    SDL_Rect rect;
-    SDL_Texture *textures[3];
-    int cell_x;
-    int cell_y;
-    int velocity;
-    int current_frame;
-    int total_frames;
-} UserCar;
-
-typedef struct
-{
-    int cell_x;
-    int cell_y;
-    SDL_Rect rect;
-    SDL_Texture *texture;
-    int speed;
-    Uint32 last_update; // New field for time of last update;
-} EnemyCar;
 
 UserCar initVoiture(SDL_Renderer *renderer)
 {
@@ -43,15 +14,10 @@ UserCar initVoiture(SDL_Renderer *renderer)
     userCar.total_frames = 3;
 
     // Load the textures for the user car
-    const char* image_files[] = {"Images/Chasseur/1.png", "Images/Chasseur/2.png", "Images/Chasseur/3.png"};
+    char* image_files[] = {"Images/Chasseur/1.png", "Images/Chasseur/2.png", "Images/Chasseur/3.png"};
     for (int i = 0; i < userCar.total_frames; ++i)
     {
-        SDL_Surface *tempSurface = IMG_Load(image_files[i]);
-        if (!tempSurface)
-        {
-            printf("Unable to load image %s! SDL_image Error: %s\n", image_files[i], IMG_GetError());
-            // handle error here
-        }
+        SDL_Surface *tempSurface = LoadImage(image_files[i]);
 
         userCar.textures[i] = SDL_CreateTextureFromSurface(renderer, tempSurface);
         SDL_FreeSurface(tempSurface);
@@ -77,11 +43,7 @@ EnemyCar initObstacle(SDL_Renderer *renderer, int lane_x, int lane_y, char *obst
     enemyCar.speed = rand() % 4;
 
     // Load the texture for the enemy car
-    SDL_Surface *tempSurface = IMG_Load(obstacleImagePath);
-    if (!tempSurface)
-    {
-        printf("Unable to load image EnemyCar.png! SDL_image Error: %s\n", IMG_GetError());
-    }
+    SDL_Surface *tempSurface = LoadImage(obstacleImagePath);
 
     enemyCar.texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     SDL_FreeSurface(tempSurface);
@@ -246,7 +208,6 @@ void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor,
 }
 
 
-
 int LancerJeu()
 {
     // Initialize SDL
@@ -277,7 +238,7 @@ int LancerJeu()
     SDL_Texture* scoreTexture = NULL;
     SDL_Texture* vitesseTexture = NULL;
     SDL_Rect scoreRect = {10, 10, 0, 0}; // position for score, top left
-    SDL_Rect vitesseRect = {SCREEN_WIDTH - 200, 10, 0, 0}; // position for time, top right
+    SDL_Rect vitesseRect = {SCREEN_WIDTH - 260, 10, 0, 0}; // position for speed, top right
 
     UserCar userCar = initVoiture(renderer);
     int numObstacles = MAX_OBSTACLES; // Keep track of the current number of obstacles

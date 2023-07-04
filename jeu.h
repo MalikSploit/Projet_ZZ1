@@ -60,6 +60,8 @@ int distanceSurColonne(jeu j, int colonne);
 int proximiteSurColonne(jeu j, int colonne);
 void avanceGrille(int grille[][NB_COLONNES]);
 void creerLigne(int arr[NB_COLONNES]);
+int obstacleDroite(jeu j);
+int obstacleGauche(jeu j);
 bool jeuFini(jeu j);
 bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne);
 void avanceGrille(int grille[][NB_COLONNES]);

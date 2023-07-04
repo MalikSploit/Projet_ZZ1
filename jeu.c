@@ -264,13 +264,29 @@ void deplacer(jeu j, int deplacement, int numLigne){
   }
 }
 
+int obstacleGauche(jeu j) {
+    int i = j.proie - 1;
+    while (i >= 0 && !j.grille[1][i]) {
+	i--;
+    }
+    return i;
+}
+
+int obstacleDroite(jeu j) {
+    int i = j.proie + 1;
+    while (i < NB_COLONNES && !j.grille[1][i]) {
+	i++;
+    }
+    return i;
+}
+
 bool jeuFini(jeu j){
 
 
   int posProie = j.proie;
 
-  int posObstacleGauche = obstacleGauche(posProie);
-  int posObstacleDroite = obstacleDroite(posProie);
+  int posObstacleGauche = obstacleGauche(j);
+  int posObstacleDroite = obstacleDroite(j);
 
   if((posObstacleGauche && posObstacleDroite) && verifierSurLesCOlonneETLigne)test;
 

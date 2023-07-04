@@ -148,6 +148,6 @@ void creerLigne(int arr[NB_COLONNES]) {
 
     // Remplis le tableau avec des nombres aléatoires 0 et 1
     for (int j = 0; j < NB_COLONNES; j++) {
-        arr[j] = rand() % 2;
+      arr[j] = rand() % NOMBRE_SPRITE + 1;
     }
 }

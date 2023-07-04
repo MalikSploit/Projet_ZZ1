@@ -280,6 +280,15 @@ bool jeuFini(jeu j){
 
     }
 
+/* retourne 1 si les croix sont bien toutes présentes */
+bool verifCroix(int debut, int fin, int * ligne){
+  debut++;
+  while(debut < fin) {
+    if(ligne[debut] == 0)return 0;
+      debut++;
+  }
+  return 1;
+}
 /* renvoie 1 si VALIDE, renvoie 0 si PAS VALIDE, renvoie -1 si téléportation */
 bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){
 

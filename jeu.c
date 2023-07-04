@@ -94,6 +94,9 @@ bool iterJeu(jeu j, int deplacement){
   
 }
 
+void deplacerChasseur(jeu j, int deplacement){
+  deplacer(j, deplacement, 0);
+}
 bool jeuFini(jeu j){
 
 

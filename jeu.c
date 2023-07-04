@@ -282,8 +282,6 @@ int obstacleDroite(jeu j) {
 
 bool jeuFini(jeu j){
 
-  int posProie = j.proie;
-
   int posObstacleGauche = obstacleGauche(j);
   int posObstacleDroite = obstacleDroite(j);
 

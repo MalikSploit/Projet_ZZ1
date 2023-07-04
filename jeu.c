@@ -147,6 +147,16 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
         }
     }
 
+    // gestion de l'imprecision des flottants : si on n'a pas trouve, c'est le dernier possible
+    if (direction == -2) {
+	int dir = 1;
+	while (dir > -2 && direction == -2) {
+	    // si c'est un cas possible on le prend
+	    if(probabilities[dir+1]) direction = dir;
+	    dir--; // parcours en sens inverse
+	}
+    }
+
     return direction;
 }
 

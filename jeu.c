@@ -272,7 +272,7 @@ bool jeuFini(jeu j){
   int posObstacleGauche = obstacleGauche(posProie);
   int posObstacleDroite = obstacleDroite(posProie);
 
-  if((posObstacleGauche && posObstacleDroite) && verifierSurLesCOlonneETLigne)
+  if((posObstacleGauche && posObstacleDroite) && verifierSurLesCOlonneETLigne)test;
 
     /* vérifier si le chasseur est compris entre les deux croix sur les côtés moins 1 */
 

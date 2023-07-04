@@ -55,7 +55,7 @@ typedef regle bot[NB_REGLES];
 // prototypes
 jeu initJeu();
 int Jeu(bot robot);
-bool iterJeu(jeu j, int deplacement);
+bool iterJeu(jeu * j, int deplacement);
 void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]);
 int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]);
 int distanceSurColonne(jeu j, int colonne);
@@ -71,7 +71,7 @@ bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee
 void avanceGrille(int grille[][NB_COLONNES]);
 void creerLigne(int arr[NB_COLONNES]) ;
 int retourneDeplacement(jeu j, int numLigne, int deplacement);
-void deplacer(jeu j, int deplacement, int numLigne);
-void deplacerChasseur(jeu j, int deplacement);
-void deplacerProie(jeu j);
+void deplacer(jeu * j, int deplacement, int numLigne);
+void deplacerChasseur(jeu * j, int deplacement);
+void deplacerProie(jeu * j);
 int comportementProie(jeu j);

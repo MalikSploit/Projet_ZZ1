@@ -6,44 +6,27 @@ int Jeu(bot robot){
     int i = 0;
     int deplacement;
     int situation[TAILLE_ETAT];
-
+    
     // initialisation du jeu
     jeu j = initJeu();
 
     while (i < MAX_ITER && !fin) {
-        getSituationFromJeu(j, situation);
-        /* déplacement toujours faisable */
-        deplacement = deplacementFromBot(j, robot, situation);
-        fin = iterJeu(j, deplacement);
-        i++;
+	getSituationFromJeu(j, situation);
+	/* déplacement toujours faisable */
+	deplacement = deplacementFromBot(j, robot, situation);
+	fin = iterJeu(&j, deplacement);
+	i++;
     }
     return i;
 }
 
 jeu initJeu() {
     jeu j;
-    int nombreObstacles = 0;
-
-    // Initialise the grid to 0
     for (int y = 0; y < NB_LIGNES; y++) {
-        for (int x = 0; x < NB_COLONNES; x++) {
-            j.grille[y][x] = 0;
-        }
+	for (int x = 0; x < NB_COLONNES; x++) {
+	    j.grille[y][x] = 0;
+	}
     }
-
-    // Ajouter les obstacles un par un à des positions aléatoires
-    while (nombreObstacles < MAX_OBSTACLES)
-    {
-        int x = rand() % NB_COLONNES;
-        int y = rand() % 6;  // Choisissez une ligne aléatoire parmi les 5 premières
-        // Vérifiez s'il n'y a pas déjà un obstacle ici
-        if (j.grille[y][x] == 0)
-        {
-            j.grille[y][x] = rand() % 8;  // Ajoute un obstacle
-            nombreObstacles++;
-        }
-    }
-
     j.chasseur = rand() % NB_COLONNES;
     j.proie = rand() % NB_COLONNES;
     return j;
@@ -56,14 +39,14 @@ int distanceSurColonne(jeu j, int colonne) {
     bool trouve = false;
     // recherche du plus proche obstacle
     while (ligne < NB_LIGNES && !trouve) {
-        ligne++;
-        if(j.grille[ligne][colonne]) {
-            trouve = true;
-        }
+	ligne++;
+	if(j.grille[ligne][colonne]) {
+	    trouve = true;
+	}
     }
     // si pas d'obstacle, on renvoie l'indice de la ligne après la dernière
     if(!trouve) ligne = NB_LIGNES;
-
+   
     // renvoyer la distance à la proie
     return ligne-1;
 }
@@ -87,10 +70,10 @@ int proximiteSurColonne(jeu j, int colonne) {
 void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]){
     // colonne a gauche de la proie
     if (j.proie == 0) {
-        // si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante
-        situation[0] = PROCHE;
+	// si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante
+	situation[0] = PROCHE;
     } else {
-        situation[0] = proximiteSurColonne(j, j.proie-1);
+	situation[0] = proximiteSurColonne(j, j.proie-1);
     }
 
     // colonne d'en face
@@ -98,10 +81,10 @@ void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]){
 
     // colonne a droite de la proie
     if (j.proie == NB_COLONNES - 1) {
-        // si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante
-        situation[2] = PROCHE;
+	// si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante
+	situation[2] = PROCHE;
     } else {
-        situation[2] = proximiteSurColonne(j, j.proie+1);
+	situation[2] = proximiteSurColonne(j, j.proie+1);
     }
 
     // determination de la position de la proie
@@ -117,8 +100,8 @@ bool matchRegleSituation(regle r, int situation[TAILLE_ETAT]) {
     bool matches = true;
     int i = 0;
     while (matches && i < TAILLE_ETAT) {
-        if(situation[i] != r[i] && r[i] != -1) matches = false;
-        i++;
+	if(situation[i] != r[i] && r[i] != -1) matches = false;
+	i++;
     }
     return matches;
 }
@@ -137,23 +120,23 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
     bool regleExiste = false;
 
     for (int i = 0; i < NB_REGLES; i++) {
-        // si la regle matche et que le deplacement est legal on attribue la probabilite
-        if(matchRegleSituation(robot[i], situation) && verifDeplacement(j.grille, robot[i][TAILLE_ETAT], j.chasseur, 0)) {
-            newProba = powf(robot[i][TAILLE_ETAT+1], IMPORTANCE_PRIORITES);
-            probabilities[robot[i][TAILLE_ETAT]] += newProba;
-            probaTotale += newProba;
-            regleExiste = true;
-        }
+	// si la regle matche et que le deplacement est legal on attribue la probabilite
+	if(matchRegleSituation(robot[i], situation) && verifDeplacement(j.grille, robot[i][TAILLE_ETAT], j.chasseur, 0)) {
+	    newProba = powf(robot[i][TAILLE_ETAT+1], IMPORTANCE_PRIORITES);
+	    probabilities[robot[i][TAILLE_ETAT]] += newProba;
+	    probaTotale += newProba;
+	    regleExiste = true;
+	}
     }
-
+    
     // si aucune regle n'a matche on attribue des probas egales a tous les deplacements legaux
     if (!regleExiste) {
-        for (int i = -1; i < 2; i++) {
-            if(verifDeplacement(j.grille, i, j.chasseur, 0)) {
-                probabilities[i] = 1;
-                probaTotale += 1;
-            }
-        }
+	for (int i = -1; i < 2; i++) {
+	    if(verifDeplacement(j.grille, i, j.chasseur, 0)) {
+		probabilities[i] = 1;
+		probaTotale += 1;
+	    }
+	}
     }
 
     // choix d'une direction en fonction des probabilites
@@ -172,120 +155,124 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
 
     // gestion de l'imprecision des flottants : si on n'a pas trouve, c'est le dernier possible
     if (direction == -2) {
-        int dir = 1;
-        while (dir > -2 && direction == -2) {
-            // si c'est un cas possible on le prend
-            if(probabilities[dir+1]) direction = dir;
-            dir--; // parcours en sens inverse
-        }
+	int dir = 1;
+	while (dir > -2 && direction == -2) {
+	    // si c'est un cas possible on le prend
+	    if(probabilities[dir+1]) direction = dir;
+	    dir--; // parcours en sens inverse
+	}
     }
 
     return direction;
 }
 
-bool iterJeu(jeu j, int deplacement){
+bool iterJeu(jeu * j, int deplacement){
 
-    deplacerProie(j);
-    deplacerChasseur(j, deplacement);
-    avanceGrille(j.grille);
-    return jeuFini(j);
+  deplacerProie(j);
+  deplacerChasseur(j, deplacement);
+  avanceGrille(j->grille);
+  return jeuFini(*j);
+  
 }
 
-void deplacerChasseur(jeu j, int deplacement){
-    deplacer(j, deplacement, 0);
+void deplacerChasseur(jeu * j, int deplacement){
+  deplacer(j, deplacement, 0);
 }
 
-void deplacerProie(jeu j){
-    /* calcul du comportement de la proie */
-    int deplacement = comportementProie(j);
-    /* vérifier tant que */
-    deplacer(j, deplacement, 1);
+void deplacerProie(jeu * j){
+
+  /* calcul du comportement de la proie */
+  int deplacement = comportementProie(*j);
+  /* vérifier tant que */
+  deplacer(j, deplacement, 1);
+
 }
 
 /* retourne un déplacement, donc un entier */
 int comportementProie(jeu j){
-    int deplacement;
 
-    float p = (float)rand()/(float)RAND_MAX;  // Génère un nombre aléatoire entre 0 et 1
+  int deplacement = 0;
 
-    if (p < INFLUENCEPREDATEUR) {
-        /* si le chasseur est derrière la proie */
-        if(j.chasseur == j.proie){
-            deplacement = (rand() % 2) * 2 - 1;  // Génère soit -1 soit 1
-        }
-        else if(j.chasseur < j.proie){
-            if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
-                deplacement = DIRDROITE;
-            }
-            else if(verifDeplacement(j.grille, DIRMILIEU, j.proie, 1)){
-                deplacement = DIRMILIEU;
-            }
-            else deplacement = DIRGAUCHE;
-        }
+  float p = (float)rand()/(float)RAND_MAX;  // Génère un nombre aléatoire entre 0 et 1
+
+  if (p < INFLUENCEPREDATEUR) {
+    /* si le chasseur est derrière la proie */
+    if(j.chasseur == j.proie){
+      deplacement = (rand() % 2) * 2 - 1;  // Génère soit -1 soit 1
     }
-    else if (p < INFLUENCEPREDATEUR + ALEATOIRE) {
-        deplacement = (rand() % 3) - 1;  // Génère un nombre aléatoire entre -1 et 1;
+    else if(j.chasseur < j.proie){
+      if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
+	deplacement = DIRDROITE;
+      }
+      else if(verifDeplacement(j.grille, DIRMILIEU, j.proie, 1)){
+	deplacement = DIRMILIEU;
+      }
+      else deplacement = DIRGAUCHE;
     }
-    else {
-        /* déplacement "intelligent" = prend la direction ou la croix est la plus loin*/
+  } 
+  else if (p < INFLUENCEPREDATEUR + ALEATOIRE) {
+    deplacement = (rand() % 3) - 1;  // Génère un nombre aléatoire entre -1 et 1;
+  } 
+  else {
+    /* déplacement "intelligent" = prend la direction ou la croix est la plus loin*/
 
-        int valDIRGAUCHE = distanceSurColonne(j, j.proie - 1);
-        int valDIRMILIEU = distanceSurColonne(j, j.proie);
-        int valDIRDROITE = distanceSurColonne(j, j.proie + 1);
+    int valDIRGAUCHE = distanceSurColonne(j, j.proie - 1);
+    int valDIRMILIEU = distanceSurColonne(j, j.proie);
+    int valDIRDROITE = distanceSurColonne(j, j.proie + 1);
 
-        /* choix du + grand */
-        deplacement = DIRGAUCHE;
-        int max = valDIRGAUCHE;
-        if (valDIRDROITE > max) {
-            deplacement = DIRDROITE;
-            max = valDIRDROITE;
-        }
-        if (valDIRMILIEU > max) {
-            deplacement = DIRMILIEU;
-        }
+    /* choix du + grand */
+    deplacement = DIRGAUCHE;
+    int max = valDIRGAUCHE;
+    if (valDIRDROITE > max) {
+      deplacement = DIRDROITE;
+      max = valDIRDROITE;
     }
-    return deplacement;
+    if (valDIRMILIEU > max) {
+      deplacement = DIRMILIEU;
+    }
+  }
+  return deplacement;
 }
 
 int retourneDeplacement(jeu j, int numLigne, int deplacement){
 
-    if(deplacement == DIRGAUCHE){
-        while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
-            deplacement--;
-    }
-    else if (deplacement == DIRDROITE){
-        while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
-            deplacement++;
-    }
-
-    return deplacement;
-
+  if(deplacement == DIRGAUCHE){
+    while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
+      deplacement--;
+  }
+  else if (deplacement == DIRDROITE){
+    while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
+      deplacement++;
 }
 
-void deplacer(jeu j, int deplacement, int numLigne){
+  return deplacement;
+  
+}
 
-    /* on bouge le prédateur */
-    if(numLigne == 0){
+void deplacer(jeu * j, int deplacement, int numLigne){
 
-        deplacement = retourneDeplacement(j, 0, deplacement);
+  /* on bouge le prédateur */
+  if(numLigne == 0){
 
-        j.chasseur = j.chasseur + deplacement;
+    deplacement = retourneDeplacement(*j, 0, deplacement);
 
-    }
+    j->chasseur = j->chasseur + deplacement;
 
-        /* on bouge la proix */
-    else {
+  }
 
-        deplacement = retourneDeplacement(j, 1, deplacement);
-        j.proie = j.proie + deplacement;
+  /* on bouge la proix */
+  else {
 
-    }
+    deplacement = retourneDeplacement(*j, 1, deplacement);
+    j->proie = j->proie + deplacement;
+
+  }
 }
 
 int obstacleGauche(jeu j) {
     int i = j.proie - 1;
     while (i >= 0 && !j.grille[1][i]) {
-        i--;
+	i--;
     }
     return i;
 }
@@ -293,83 +280,84 @@ int obstacleGauche(jeu j) {
 int obstacleDroite(jeu j) {
     int i = j.proie + 1;
     while (i < NB_COLONNES && !j.grille[1][i]) {
-        i++;
+	i++;
     }
     return i;
 }
 
 bool jeuFini(jeu j){
 
-    int posObstacleGauche = obstacleGauche(j);
-    int posObstacleDroite = obstacleDroite(j);
+  int posObstacleGauche = obstacleGauche(j);
+  int posObstacleDroite = obstacleDroite(j);
 
-    if(verifCroix(posObstacleGauche, posObstacleDroite, j.grille[2]) && chasseurBienPlace(j.chasseur, posObstacleGauche, posObstacleDroite)){
-        return true;
-    }
-    else return false;
+  if(verifCroix(posObstacleGauche, posObstacleDroite, j.grille[2]) && chasseurBienPlace(j.chasseur, posObstacleGauche, posObstacleDroite)){
+    return true;
+  }
+  else return false;
 }
 
 /* retourne 1 si les croix sont bien toutes présentes */
 bool verifCroix(int debut, int fin, int * ligne){
-    debut++;
-    while(debut < fin) {
-        if(ligne[debut] == 0)return 0;
-        debut++;
-    }
-    return 1;
+  debut++;
+  while(debut < fin) {
+    if(ligne[debut] == 0)return 0;
+      debut++;
+  }
+  return 1;
 }
 
 /* retourne 1 si les croix sont bien toutes présentes */
 bool chasseurBienPlace(int chasseur, int debut, int fin){
-    if (chasseur > debut && chasseur < fin) {
-        return 1;
+ if (chasseur > debut && chasseur < fin) {
+   return 1;
     }
-    else return 0;
+ else return 0;
 }
 
 /* renvoie 1 si VALIDE, renvoie 0 si PAS VALIDE, renvoie -1 si téléportation */
 bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){
 
-    /* verif côté gauche */
-    if(coordonnee + deplacement < 0) return 0;
-    /* verif côté droit */
-    if(coordonnee + deplacement > NB_COLONNES - 1) return 0;
-    /* verif en à la ligne N + 1 que la case est vide où il veut aller  */
-    if(grille[ligne + 1][coordonnee + deplacement] == 1) return 0;
+  /* verif côté gauche */
+  if(coordonnee + deplacement < 0) return 0;
+  /* verif côté droit */
+  if(coordonnee + deplacement > NB_COLONNES - 1) return 0;
+  /* verif en à la ligne N + 1 que la case est vide où il veut aller  */
+  if(grille[ligne + 1][coordonnee + deplacement] == 1) return 0;
 
-    /* si les trois cases devant lui sont prises, alors cas spécial de téléportation */
-    if((grille[ligne + 1][coordonnee + DIRGAUCHE] == 1)
-       &&
-       (grille[ligne + 1][coordonnee + DIRMILIEU] == 1)
-       &&
-       (grille[ligne + 1][coordonnee + DIRDROITE] == 1))
+  /* si les trois cases devant lui sont prises, alors cas spécial de téléportation */
+  if((grille[ligne + 1][coordonnee + DIRGAUCHE] == 1)
+     &&
+     (grille[ligne + 1][coordonnee + DIRMILIEU] == 1)
+     &&
+     (grille[ligne + 1][coordonnee + DIRDROITE] == 1))
     {
-        int indiceOuAller = coordonnee;
-        if (deplacement == DIRMILIEU)
-            return 0;
-        else if (deplacement == DIRGAUCHE) {
-            while (grille[ligne + 1][indiceOuAller] == 1){
-                indiceOuAller--;
-            }
-            if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
-                return 0;
-            else
-                return -1;
+      int indiceOuAller = coordonnee;
+      if (deplacement == DIRMILIEU)
+	return 0;
+      else if (deplacement == DIRGAUCHE) {
+	while (grille[ligne + 1][indiceOuAller] == 1){
+	  indiceOuAller--;
+	}
+	if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
+	  return 0;
+	else
+	  return -1;
+      }
+      else if(deplacement == DIRDROITE){
+        while (grille[ligne + 1][indiceOuAller] == 1) {
+          indiceOuAller++;
         }
-        else if(deplacement == DIRDROITE){
-            while (grille[ligne + 1][indiceOuAller] == 1) {
-                indiceOuAller++;
-            }
-            if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
-                return 0;
-            else return -1;
-        }
+        if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
+          return 0;
+        else return -1;
+      }
     }
 
-    return 1;
+  return 1;
 }
 
 void avanceGrille(int grille[][NB_COLONNES]){
+
     // Déplace toutes les lignes une ligne vers le bas
     for (int i = 0; i < NB_LIGNES - 1; i++) {
         for (int j = 0; j < NB_COLONNES; j++) {
@@ -379,11 +367,18 @@ void avanceGrille(int grille[][NB_COLONNES]){
 
     // Remplis la dernière ligne avec des nombres aléatoires 0 et 1
     creerLigne(grille[NB_LIGNES - 1]);
+
+
 }
 
 void creerLigne(int arr[NB_COLONNES]) {
+    srand(time(0)); // Initialise le générateur de nombres aléatoires
+
     // Remplis le tableau avec des nombres aléatoires 0 et 1
-    for (int j = 0; j < NB_COLONNES; j++){
-        arr[j] = rand() % NOMBRE_SPRITE + 1;
+    for (int j = 0; j < NB_COLONNES; j++) {
+	if((double)rand() / RAND_MAX < PROBA_OBSTACLE)
+	    arr[j] = rand() % NOMBRE_SPRITE + 1;
+	else
+	    arr[j] = 0;
     }
 }

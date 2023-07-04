@@ -249,7 +249,7 @@ void deplacer(jeu j, int deplacement, int numLigne){
   /* on bouge le prédateur */
   if(numLigne == 0){
 
-    deplacement = retourneDeplacement(0, deplacement);
+    deplacement = retourneDeplacement(j, 0, deplacement);
 
     j.chasseur = j.chasseur + deplacement;
 
@@ -258,7 +258,7 @@ void deplacer(jeu j, int deplacement, int numLigne){
   /* on bouge la proix */
   else {
 
-    deplacement = retourneDeplacement(1, deplacement);
+    deplacement = retourneDeplacement(j, 1, deplacement);
     j.proie = j.proie + deplacement;
 
   }

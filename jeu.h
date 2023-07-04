@@ -67,5 +67,5 @@ void creerLigne(int arr[NB_COLONNES]) ;
 int retourneDeplacement(int numLigne, int deplacement);
 void deplacer(jeu j, int deplacement, int numLigne);
 void deplacerChasseur(jeu j, int deplacement);
-void deplacerProie(jeu j, int deplacement);
+void deplacerProie(jeu j);
 int comportementProie(jeu j);

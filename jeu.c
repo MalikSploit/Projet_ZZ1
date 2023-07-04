@@ -19,6 +19,7 @@ int Jeu(bot robot){
 
     while (i > MAX_ITER && !fin) {
 	getSituationFromJeu(j, situation);
+	/* déplacement toujours faisable */
 	deplacement = deplacementFromBot(robot, situation);
 	fin = iterJeu(j, deplacement);
 	i++;
@@ -97,6 +98,7 @@ bool iterJeu(jeu j, int deplacement){
 void deplacerChasseur(jeu j, int deplacement){
   deplacer(j, deplacement, 0);
 }
+
 void deplacerProie(jeu j){
 
   /* calcul du comportement de la proie */
@@ -166,6 +168,26 @@ int retourneDeplacement(int numLigne, int deplacement){
 
   return deplacement;
   
+}
+
+void deplacer(jeu j, int deplacement, int numLigne){
+
+  /* on bouge le prédateur */
+  if(numLigne == 0){
+
+    deplacement = retourneDeplacement(0, deplacement);
+
+    j.chasseur = j.chasseur + deplacement;
+
+  }
+
+  /* on bouge la proix */
+  else {
+
+    deplacement = retourneDeplacement(1, deplacement);
+    j.proie = j.proie + deplacement;
+
+  }
 }
 
 bool jeuFini(jeu j){

@@ -3,7 +3,7 @@
 /* renvoie le score. Simule le jeu et run une de ces instance */
 int Jeu(bot robot){
     bool fin = false;
-    int i;
+    int i = 0;
     int deplacement;
     int situation[TAILLE_ETAT];
     
@@ -331,17 +331,17 @@ bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee
      &&
      (grille[ligne + 1][coordonnee + DIRDROITE] == 1))
     {
-    int indiceOuAller = coordonnee;
-    if (deplacement == DIRMILIEU)
-      return 0;
-    else if (deplacement == DIRGAUCHE) {
-      while (grille[ligne + 1][indiceOuAller] == 1){
-	indiceOuAller--;
-      }
-      if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
-        return 0;
-      else
-        return -1;
+      int indiceOuAller = coordonnee;
+      if (deplacement == DIRMILIEU)
+	return 0;
+      else if (deplacement == DIRGAUCHE) {
+	while (grille[ligne + 1][indiceOuAller] == 1){
+	  indiceOuAller--;
+	}
+	if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
+	  return 0;
+	else
+	  return -1;
       }
       else if(deplacement == DIRDROITE){
         while (grille[ligne + 1][indiceOuAller] == 1) {

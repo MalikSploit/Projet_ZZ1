@@ -232,30 +232,32 @@ int getHighScore() {
 
 int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, int score)
 {
+    SDL_Color greenColor = {0, 255, 0, 255}; // Define the color green.
+
     char scoreText[50];
     sprintf(scoreText, "Score: %d", score);
     SDL_Texture* scoreTexture = NULL;
-    SDL_Rect scoreRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 100, 100};
-    updateText(renderer, font, textColor, &scoreTexture, &scoreRect, scoreText);
+    SDL_Rect scoreRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 200, 50};
+    updateText(renderer, font, greenColor, &scoreTexture, &scoreRect, scoreText);
 
-    SDL_Texture* gameOverTexture = NULL;
-    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 100, 200, 50};
-    updateText(renderer, font, textColor, &gameOverTexture, &gameOverRect, "Game Over");
+    SDL_Surface* gameOverSurface = LoadImage("Images/GAME_OVER.png");
+    SDL_Texture* gameOverTexture = LoadTexture(renderer, gameOverSurface);  // Supposing you have a loadTexture function.
+    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 100, 200, 100};
 
     int highScore = getHighScore();
     char highScoreText[50];
     sprintf(highScoreText, "High Score: %d", highScore);
     SDL_Texture* highScoreTexture = NULL;
     SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2, 200, 50};
-    updateText(renderer, font, textColor, &highScoreTexture, &highScoreRect, highScoreText);
+    updateText(renderer, font, greenColor, &highScoreTexture, &highScoreRect, highScoreText);
 
     SDL_Texture* replayTexture = NULL;
     SDL_Rect replayRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 + 50, 200, 50};
-    updateText(renderer, font, textColor, &replayTexture, &replayRect, "Play Again");
+    updateText(renderer, font, greenColor, &replayTexture, &replayRect, "Play Again");
 
     SDL_Texture* quitTexture = NULL;
     SDL_Rect quitRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 + 100, 200, 50};
-    updateText(renderer, font, textColor, &quitTexture, &quitRect, "Quit");
+    updateText(renderer, font, greenColor, &quitTexture, &quitRect, "Quit");
 
     bool running = true;
     while (running)
@@ -315,6 +317,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, 
 
     return 0;
 }
+
 
 
 int LancerJeu()

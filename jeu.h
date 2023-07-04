@@ -46,3 +46,4 @@ void avanceGrille(int grille[][NB_COLONNES]);
 void creerLigne(int arr[NB_COLONNES]);
 void avanceGrille(int grille[][NB_COLONNES]);
 void deplacerChasseur(jeu j, int deplacement);
+void deplacerProie(jeu j, int deplacement);

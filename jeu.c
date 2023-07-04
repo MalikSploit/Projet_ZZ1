@@ -97,6 +97,14 @@ bool iterJeu(jeu j, int deplacement){
 void deplacerChasseur(jeu j, int deplacement){
   deplacer(j, deplacement, 0);
 }
+void deplacerProie(jeu j){
+
+  /* calcul du comportement de la proie */
+  int deplacement = comportementProie(j);
+  /* vérifier tant que */
+  deplacer(j, deplacement, 1);
+
+}
 bool jeuFini(jeu j){
 
 

@@ -22,11 +22,28 @@ int Jeu(bot robot){
 
 jeu initJeu() {
     jeu j;
+    int nombreObstacles = 0;
+
+    // Initialise the grid to 0
     for (int y = 0; y < NB_LIGNES; y++) {
-	for (int x = 0; x < NB_COLONNES; x++) {
-	    j.grille[y][x] = 0;
-	}
+        for (int x = 0; x < NB_COLONNES; x++) {
+            j.grille[y][x] = 0;
+        }
     }
+
+    // Ajouter les obstacles un par un à des positions aléatoires
+    while (nombreObstacles < MAX_OBSTACLES)
+    {
+        int x = rand() % NB_COLONNES;
+        int y = rand() % 6;  // Choisissez une ligne aléatoire parmi les 5 premières
+        // Vérifiez s'il n'y a pas déjà un obstacle ici
+        if (j.grille[y][x] == 0)
+        {
+            j.grille[y][x] = rand() % 8;  // Ajoute un obstacle
+            nombreObstacles++;
+        }
+    }
+
     j.chasseur = rand() % NB_COLONNES;
     j.proie = rand() % NB_COLONNES;
     return j;

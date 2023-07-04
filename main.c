@@ -1,10 +1,13 @@
 #include "Constantes.h"
 #include "main.h"
+#include "SDL_Initialisation.h"
 
 #define TAILLE_CELLULE_LARGEUR 361
 #define TAILLE_CELLULE_LONGUEUR 243
 
 #define ENEMY_CAR_COUNT 10
+
+const int MAX_OBSTACLES = 4; // change this to control the number of obstacles on the screen at once
 
 typedef struct UserCar
 {
@@ -40,7 +43,7 @@ UserCar initVoiture(SDL_Renderer *renderer)
     userCar.total_frames = 3;
 
     // Load the textures for the user car
-    const char* image_files[] = {"Images/Police_animation/1.png", "Images/Police_animation/2.png", "Images/Police_animation/3.png"};
+    const char* image_files[] = {"Images/Chasseur/1.png", "Images/Chasseur/2.png", "Images/Chasseur/3.png"};
     for (int i = 0; i < userCar.total_frames; ++i)
     {
         SDL_Surface *tempSurface = IMG_Load(image_files[i]);
@@ -181,74 +184,94 @@ void moveObstacles(SDL_Renderer *renderer, int grid[8][8], EnemyCar *obstacles, 
     }
 }
 
+void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
+             SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, TTF_Font* font,
+             UserCar userCar, EnemyCar obstacles[], SDL_Renderer* renderer, SDL_Window* window)
+{
+    // Free the loaded surface as it is no longer needed
+    SDL_FreeSurface(backgroundSurface);
+    SDL_DestroyTexture(backgroundTexture);
+    SDL_DestroyTexture(backgroundTexture2);
+    SDL_DestroyTexture(scoreTexture);
+    SDL_DestroyTexture(pauseTexture);
+    SDL_DestroyTexture(vitesseTexture);
+    TTF_CloseFont(font);
+
+    // Destroy user car textures
+    for(int i = 0; i < userCar.total_frames; ++i)
+    {
+        SDL_DestroyTexture(userCar.textures[i]);
+    }
+
+    // Destroy enemy car textures
+    for(int i = 0; i < MAX_OBSTACLES; i++)
+    {
+        SDL_DestroyTexture(obstacles[i].texture);
+    }
+
+    // Destroy renderer and window
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+
+    // Quit SDL subsystems
+    IMG_Quit();
+    SDL_Quit();
+    TTF_Quit();
+}
+
+
+void InitScore(SDL_Renderer* renderer, Uint32* lastScoreUpdateTime, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, UserCar* userCar, SDL_Color* textColor)
+{
+    Uint32 currentTime = SDL_GetTicks();
+
+    if (currentTime - *lastScoreUpdateTime >= 1000)
+    {
+        // if 1 second has passed
+        *score = *score + userCar->velocity;
+        *lastScoreUpdateTime = currentTime; // update the time of the last score update
+    }
+
+    // update the score text
+    char scoreText[20];
+    sprintf(scoreText, "Score: %d", *score);
+    updateText(renderer, font, *textColor, scoreTexture, scoreRect, scoreText);
+}
+
+void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor, SDL_Texture** vitesseTexture, SDL_Rect *vitesseRect, TTF_Font* font)
+{
+
+    char vitesseText[20];
+    sprintf(vitesseText, "Speed: %d km/h", userCar->velocity * 10);
+    updateText(renderer, font, *textColor, vitesseTexture, vitesseRect, vitesseText);
+}
+
+
 
 int LancerJeu()
 {
     // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        printf("SDL could not be initialized. SDL_Error: %s\n", SDL_GetError());
-        return -1;
-    }
+    initializeSDL();
 
     // Initialize SDL_image
-    int imgFlags = IMG_INIT_PNG;
-    if (!(IMG_Init(imgFlags) & imgFlags))
-    {
-        printf("SDL_image could not be initialized. SDL_image Error: %s\n", IMG_GetError());
-        return -1;
-    }
+    initializeIMG();
 
     // Create window
-    SDL_Window *window = SDL_CreateWindow("Highway Racer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (window == NULL)
-    {
-        printf("Window could not be created. SDL_Error: %s\n", SDL_GetError());
-        return -1;
-    }
+    SDL_Window *window = createWindow("Highway Racer");
 
     // Create renderer
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL)
-    {
-        printf("Renderer could not be created. SDL Error: %s\n", SDL_GetError());
-        return -1;
-    }
+    SDL_Renderer *renderer = createRenderer(window);
 
     // Load the background image
-    SDL_Surface *backgroundSurface = IMG_Load("Images/Game.png");
-    if (backgroundSurface == NULL)
-    {
-        printf("Unable to load image! SDL_image Error: %s\n", IMG_GetError());
-        return 1; // Return error
-    }
+    SDL_Surface *backgroundSurface = LoadImage("Images/Game.png");
 
     // Create a texture from the loaded surface
-    SDL_Texture *backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundSurface);
-    if (backgroundTexture == NULL)
-    {
-        printf("Unable to create texture from surface! SDL Error: %s\n", SDL_GetError());
-        return 1; // Return error
-    }
+    SDL_Texture *backgroundTexture = LoadTexture(renderer, backgroundSurface);
 
     // Create a second texture from the same surface for scrolling background
-    SDL_Texture *backgroundTexture2 = SDL_CreateTextureFromSurface(renderer, backgroundSurface);
-    if (backgroundTexture2 == NULL)
-    {
-        printf("Unable to create texture2 from surface! SDL Error: %s\n", SDL_GetError());
-        return 1; // Return error
-    }
+    SDL_Texture *backgroundTexture2 = LoadTexture(renderer, backgroundSurface);
 
-    if (TTF_Init() == -1)
-    {
-        printf("SDL_ttf could not be initialized. SDL_ttf Error: %s\n", TTF_GetError());
-        return -1;
-    }
-    TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 28);
-    if (font == NULL) {
-        printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
-        return -1;
-    }
+    initializeTTF();
+    TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
 
     SDL_Color textColor = {255, 255, 255, 255}; // white color
     SDL_Texture* scoreTexture = NULL;
@@ -257,7 +280,6 @@ int LancerJeu()
     SDL_Rect vitesseRect = {SCREEN_WIDTH - 200, 10, 0, 0}; // position for time, top right
 
     UserCar userCar = initVoiture(renderer);
-    const int MAX_OBSTACLES = 4; // change this to control the number of obstacles on the screen at once
     int numObstacles = MAX_OBSTACLES; // Keep track of the current number of obstacles
     EnemyCar obstacles[MAX_OBSTACLES];
 
@@ -344,25 +366,13 @@ int LancerJeu()
 
         if (!isPaused)
         {
-            Uint32 currentTime = SDL_GetTicks();
 
-            if (currentTime - lastScoreUpdateTime >= 1000)
-            {
-                // if 1 second has passed
-                score = score + userCar.velocity;
-                lastScoreUpdateTime = currentTime; // update the time of the last score update
+            InitScore(renderer, &lastScoreUpdateTime, &score, font, &scoreTexture, &scoreRect, &userCar, &textColor);
 
-                // update the score text
-                char scoreText[20];
-                sprintf(scoreText, "Score: %d", score);
-                updateText(renderer, font, textColor, &scoreTexture, &scoreRect, scoreText);
-            }
+            initVitesse(&userCar, renderer, &textColor, &vitesseTexture, &vitesseRect, font);
 
-            char vitesseText[20];
-            sprintf(vitesseText, "Speed: %d km/h", userCar.velocity * 10);
-            updateText(renderer, font, textColor, &vitesseTexture, &vitesseRect, vitesseText);
 
-            // Handle obstacle movements and user car collision
+             // Handle obstacle movements and user car collision
             moveObstacles(renderer, grid, obstacles, &numObstacles, &userCar, &running);
 
             bgScroll += userCar.velocity;  // Scroll background at car's velocity
@@ -403,35 +413,7 @@ int LancerJeu()
         SDL_RenderClear(renderer);
     }
 
-    // Free the loaded surface as it is no longer needed
-    SDL_FreeSurface(backgroundSurface);
-    SDL_DestroyTexture(backgroundTexture);
-    SDL_DestroyTexture(backgroundTexture2);
-    SDL_DestroyTexture(scoreTexture);
-    SDL_DestroyTexture(pauseTexture);
-    SDL_DestroyTexture(vitesseTexture);
-    TTF_CloseFont(font);
-
-    // Destroy user car textures
-    for(int i = 0; i < userCar.total_frames; ++i)
-    {
-        SDL_DestroyTexture(userCar.textures[i]);
-    }
-
-    // Destroy enemy car textures
-    for(int i = 0; i < MAX_OBSTACLES; i++)
-    {
-        SDL_DestroyTexture(obstacles[i].texture);
-    }
-
-    // Destroy renderer and window
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-
-    // Quit SDL subsystems
-    IMG_Quit();
-    SDL_Quit();
-    TTF_Quit();
+    cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, font, userCar, obstacles, renderer, window);
 
     return 1;
 }

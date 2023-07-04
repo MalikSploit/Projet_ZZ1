@@ -68,3 +68,4 @@ int retourneDeplacement(int numLigne, int deplacement);
 void deplacer(jeu j, int deplacement, int numLigne);
 void deplacerChasseur(jeu j, int deplacement);
 void deplacerProie(jeu j, int deplacement);
+int comportementProie(jeu j);

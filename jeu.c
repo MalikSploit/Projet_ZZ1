@@ -196,10 +196,10 @@ int comportementProie(jeu j){
       deplacement = (rand() % 2) * 2 - 1;  // Génère soit -1 soit 1
     }
     else if(j.chasseur < j.proie){
-      if(verifDeplacement(g, DIRDROITE, j.proie, 1)){
+      if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
 	deplacement = DIRDROITE;
       }
-      else if(verifDeplacement(g, DIRMILIEU, j.proie, 1)){
+      else if(verifDeplacement(j.grille, DIRMILIEU, j.proie, 1)){
 	deplacement = DIRMILIEU;
       }
       else deplacement = DIRGAUCHE;
@@ -216,7 +216,7 @@ int comportementProie(jeu j){
     int valDIRDROITE = distanceSurColonne(j, j.proie + 1);
 
     /* choix du + grand */
-    int deplacement = DIRGAUCHE;
+    deplacement = DIRGAUCHE;
     int max = valDIRGAUCHE;
     if (valDIRDROITE > max) {
       deplacement = DIRDROITE;
@@ -229,17 +229,16 @@ int comportementProie(jeu j){
   return deplacement;
 }
 
-int retourneDeplacement(int numLigne, int deplacement){
+int retourneDeplacement(jeu j, int numLigne, int deplacement){
 
   if(deplacement == DIRGAUCHE){
     while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
       deplacement--;
   }
-
-  else (deplacement == DIRDROITE){
-      while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
-	deplacement++;
-    }
+  else if (deplacement == DIRDROITE){
+    while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
+      deplacement++;
+}
 
   return deplacement;
   

@@ -130,16 +130,8 @@ void avanceGrille(int grille[][NB_COLONNES]){
     }
 
     // Remplis la dernière ligne avec des nombres aléatoires 0 et 1
-    for (int j = 0; j < NB_COLONNES; j++) {
-        grille[NB_LIGNES - 1][j] = rand() % 2;
-    }
+    creerLigne(grille[NB_LIGNES - 1]);
 
-    int derniere[NB_COLONNES] = {0};
-    creerLigne(derniere);
-
-    for (int j = 0; j < NB_COLONNES; j++) {
-      grille[NB_LIGNES - 1][j] = derniere[j];
-    }
 
 }
 

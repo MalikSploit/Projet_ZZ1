@@ -44,3 +44,4 @@ int deplacementFromBot(bot robot, int situation[4]);
 int distanceSurColonne(jeu j, int colonne);
 void avanceGrille(int grille[][NB_COLONNES]);
 void creerLigne(int arr[NB_COLONNES]);
+void avanceGrille(int grille[][NB_COLONNES]);

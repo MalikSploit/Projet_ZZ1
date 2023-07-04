@@ -1,4 +1,4 @@
-#include "main.h"
+#include "jeu_SDL.h"
 #include "SDL_Initialisation.h"
 
 UserCar initVoiture(SDL_Renderer *renderer)
@@ -230,7 +230,7 @@ int getHighScore() {
     return highScore;
 }
 
-int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, int score)
+int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 {
     SDL_Color greenColor = {0, 255, 0, 255}; // Define the color green.
 
@@ -241,8 +241,13 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, 
     updateText(renderer, font, greenColor, &scoreTexture, &scoreRect, scoreText);
 
     SDL_Surface* gameOverSurface = LoadImage("Images/GAME_OVER.png");
-    SDL_Texture* gameOverTexture = LoadTexture(renderer, gameOverSurface);  // Supposing you have a loadTexture function.
-    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 100, 200, 100};
+    SDL_Texture* gameOverTexture = LoadTexture(renderer, gameOverSurface);
+    // Get dimensions of Game Over texture
+    int gameOverWidth;
+    int gameOverHeight;
+    SDL_QueryTexture(gameOverTexture, NULL, NULL, &gameOverWidth, &gameOverHeight);
+    // Position and size of Game Over texture
+    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - gameOverWidth / 2, 50, gameOverWidth, gameOverHeight};
 
     int highScore = getHighScore();
     char highScoreText[50];
@@ -501,7 +506,7 @@ int LancerJeu()
         SDL_RenderClear(renderer);
     }
     // Ajouter ceci après votre boucle de jeu
-    int retry = gameOverScreen(renderer, font, textColor, score);
+    int retry = gameOverScreen(renderer, font, score);
     if (retry)
     {
         // Si le joueur veut rejouer, réexécuter la fonction LancerJeu

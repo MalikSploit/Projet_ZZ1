@@ -1,6 +1,6 @@
 #include "Menu.h"
 #include "SDL_Initialisation.h"
-#include "main.h"
+#include "jeu_SDL.h"
 
 
 void displayHelp()

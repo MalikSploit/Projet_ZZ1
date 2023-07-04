@@ -89,6 +89,17 @@ void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]){
     else situation[3] = EDROITE;
 }
 
+// teste si une regle matche une situation (en prenant en compte les jokers -1 dans la regle)
+bool matchRegleSituation(regle r, int situation[TAILLE_ETAT]) {
+    bool matches = true;
+    int i = 0;
+    while (matches && i < TAILLE_ETAT) {
+	if(situation[i] != r[i] && r[i] != -1) matches = false;
+	i++;
+    }
+    return matches;
+}
+
 // renvoyer ce que fait le bot dans le cas donne
 int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
     // trouver les regles qui matchent la situation

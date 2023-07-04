@@ -282,19 +282,16 @@ int obstacleDroite(jeu j) {
 
 bool jeuFini(jeu j){
 
-
   int posProie = j.proie;
 
   int posObstacleGauche = obstacleGauche(j);
   int posObstacleDroite = obstacleDroite(j);
 
-  if((posObstacleGauche && posObstacleDroite) && verifierSurLesCOlonneETLigne);
-
-    /* vérifier si le chasseur est compris entre les deux croix sur les côtés moins 1 */
-
-    
-
-    }
+  if(verifCroix(posObstacleGauche, posObstacleDroite, j.grille[2]) && chasseurBienPlace(j.chasseur, posObstacleGauche, posObstacleDroite)){
+    return true;
+  }
+  else return false;
+}
 
 /* retourne 1 si les croix sont bien toutes présentes */
 bool verifCroix(int debut, int fin, int * ligne){
@@ -308,7 +305,7 @@ bool verifCroix(int debut, int fin, int * ligne){
 
 /* retourne 1 si les croix sont bien toutes présentes */
 bool chasseurBienPlace(int chasseur, int debut, int fin){
- if (chasseur >= debut && chasseur <= fin) {
+ if (chasseur > debut && chasseur < fin) {
    return 1;
     }
  else return 0;

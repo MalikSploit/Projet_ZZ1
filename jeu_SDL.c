@@ -1,13 +1,13 @@
 #include "jeu_SDL.h"
 #include "SDL_Initialisation.h"
 
-UserCar initVoiture(SDL_Renderer *renderer)
+UserCar initVoiture(SDL_Renderer *renderer, int x, int y)
 {
     UserCar userCar;
 
     // Set up initial size and position of the user car
-    userCar.cell_x = 4;
-    userCar.cell_y = 7;
+    userCar.cell_x = x;
+    userCar.cell_y = 7 - y;
     userCar.rect.w = 140;
     userCar.rect.h = 140;
     userCar.current_frame = 0;
@@ -51,36 +51,35 @@ EnemyCar initObstacle(SDL_Renderer *renderer, int lane_x, int lane_y, char *obst
     return enemyCar;
 }
 
-bool checkCollision(int grid[8][8], int x, int y)
-{
-    return grid[x][y] == 1;
-}
 
-EnemyCar initRandomObstacle(SDL_Renderer *renderer, int grid[8][8])
+void initRandomObstacles(SDL_Renderer *renderer, int grid[8][8], EnemyCar obstacles[], int* numObstacles)
 {
-    // Generate a random lane (between 0 and 7)
-    int x = rand() % 8;
-    int y = rand() % 4;
+    // Track the current index in the obstacles array
+    int index = 0;
 
-    // Check if the cell is already occupied
-    while(checkCollision(grid, x, y))
+    // Iterate over each cell in the grid
+    for (int y = 0; y < 8; y++)
     {
-        x = rand() % 8;
-        y = rand() % 4;
+        for (int x = 0; x < 8; x++)
+        {
+            // If the cell's value is above zero
+            if (grid[y][x] > 0 && index < MAX_OBSTACLES)
+            {
+                // Construct the file path for the obstacle image
+                char obstacleImagePath[25];
+                sprintf(obstacleImagePath, "Images/Obstacle%d.png", grid[y][x]);
+
+                // Initialize the obstacle and add it to the obstacles array
+                obstacles[index] = initObstacle(renderer, x, y, obstacleImagePath);
+
+                // Increment the index for the next obstacle
+                index++;
+            }
+        }
     }
 
-    // Mark the cell as occupied
-    grid[x][y] = 1;
-
-    // Generate a random obstacle number (between 1 and 8)
-    int obstacleNumber = rand() % 7 + 1;
-
-    // Construct the file path for the obstacle image
-    char obstacleImagePath[25];
-    sprintf(obstacleImagePath, "Images/Obstacle%d.png", obstacleNumber);
-
-    // Initialize the obstacle
-    return initObstacle(renderer, x, y, obstacleImagePath);
+    // Update the number of obstacles
+    *numObstacles = index;
 }
 
 void drawObstacle(SDL_Renderer *renderer, EnemyCar *enemyCar)
@@ -114,37 +113,6 @@ void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL
     }
 }
 
-
-void moveObstacles(SDL_Renderer *renderer, int grid[8][8], EnemyCar *obstacles, int *numObstacles, UserCar *userCar, bool *running)
-{
-    for(int i = 0; i < *numObstacles; i++)
-    {
-        Uint32 current_time = SDL_GetTicks();
-        if (current_time - obstacles[i].last_update >= (Uint32)(5000 / (obstacles[i].speed + userCar->velocity)))
-        {
-            // Enough time has passed, update the position and remember the current time
-            obstacles[i].cell_y++;
-            obstacles[i].last_update = current_time;
-        }
-
-        // If the obstacle has moved off the bottom of the screen,
-        // move it back to the top and select a random lane.
-        if (obstacles[i].cell_y >= 8)
-        {
-            // Free the previous texture before creating a new one
-            SDL_DestroyTexture(obstacles[i].texture);
-
-            // Initialize a new obstacle
-            obstacles[i] = initRandomObstacle(renderer, grid);
-        }
-        // Check for collision with the user car
-        if (SDL_HasIntersection(&userCar->rect, &obstacles[i].rect))
-        {
-            *running = false; // end the game
-            break;
-        }
-    }
-}
 
 void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
              SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, TTF_Font* font,
@@ -206,7 +174,8 @@ void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor,
     updateText(renderer, font, *textColor, vitesseTexture, vitesseRect, vitesseText);
 }
 
-int getHighScore() {
+int getHighScore()
+{
     FILE *file = fopen("HighScore", "r");
     if (file == NULL)
     {
@@ -324,9 +293,14 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 }
 
 
-
 int LancerJeu()
 {
+    // Initialise le générateur de nombres pseudo aléatoires
+    srand(time(NULL));
+
+    //Init jeu
+    jeu j = initJeu();
+
     // Initialize SDL
     initializeSDL();
 
@@ -357,18 +331,13 @@ int LancerJeu()
     SDL_Rect scoreRect = {10, 10, 0, 0}; // position for score, top left
     SDL_Rect vitesseRect = {SCREEN_WIDTH - 260, 10, 0, 0}; // position for speed, top right
 
-    UserCar userCar = initVoiture(renderer);
-    int numObstacles = MAX_OBSTACLES; // Keep track of the current number of obstacles
+    UserCar userCar = initVoiture(renderer, j.chasseur, 0);
+    int numObstacles = 0; // Keep track of the current number of obstacles
     EnemyCar obstacles[MAX_OBSTACLES];
 
-    // Initialize a grid to keep track of which cells are occupied
-    int grid[8][8] = { { 0 } };
 
     // Initialize all the obstacles
-    for(int i = 0; i < MAX_OBSTACLES; i++)
-    {
-        obstacles[i] = initRandomObstacle(renderer, grid);
-    }
+    initRandomObstacles(renderer, j.grille, obstacles, &numObstacles);
 
     int bgScroll = 0;  // Initialize background scroll offset
 
@@ -381,10 +350,14 @@ int LancerJeu()
 
     bool running = true;
     SDL_Event e;
+    int deplacement = -2;
+
     while (running)
     {
         while (SDL_PollEvent(&e) != 0)
         {
+            deplacement = -2;
+
             if ((e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)))
             {
                 running = false;
@@ -408,34 +381,15 @@ int LancerJeu()
                 {
                     if (e.key.keysym.sym == SDLK_LEFT)
                     {
-                        if (userCar.cell_x > 0)
-                        {
-                            userCar.cell_x -= 1; // Move the car to the left
-                            break;
-                        }
+                        deplacement = -1;
                     }
                     else if (e.key.keysym.sym == SDLK_RIGHT)
                     {
-                        if (userCar.cell_x < 7)
-                        {
-                            userCar.cell_x += 1; // Move the car to the right
-                            break;
-                        }
+                        deplacement = 1;
                     }
                     else if (e.key.keysym.sym == SDLK_UP && !( SDL_GetModState() & KMOD_CTRL ))
                     {
-                        if (userCar.cell_y > 0) // Add some condition here to prevent the car from moving off the screen
-                        {
-                            userCar.cell_y -= 1; // Move the car forward (upwards on the screen)
-                        }
-                    }
-                    else if (e.key.keysym.sym == SDLK_DOWN && !( SDL_GetModState() & KMOD_CTRL ))
-                    {
-                        if (userCar.cell_y < 7)
-                        {
-                            userCar.cell_y += 1;
-                            break;
-                        }
+                        deplacement = 0;
                     }
                     else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_UP)
                     {
@@ -457,16 +411,22 @@ int LancerJeu()
             }
         }
 
+        if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
+        {
+            running = iterJeu(j, deplacement);
+        }
+        else if (deplacement != -2 && !verifDeplacement(j.grille, deplacement, j.chasseur, 0))
+        {
+            deplacement = -2;
+            printf("Deplacement invalide\n");
+        }
+
         if (!isPaused)
         {
 
             InitScore(renderer, &lastScoreUpdateTime, &score, font, &scoreTexture, &scoreRect, &userCar, &textColor);
 
             initVitesse(&userCar, renderer, &textColor, &vitesseTexture, &vitesseRect, font);
-
-
-             // Handle obstacle movements and user car collision
-            moveObstacles(renderer, grid, obstacles, &numObstacles, &userCar, &running);
 
             bgScroll += userCar.velocity;  // Scroll background at car's velocity
 
@@ -477,6 +437,7 @@ int LancerJeu()
             }
         }
 
+
         // Draw the scrolling backgrounds
         SDL_Rect bgQuad1 = { 0, bgScroll - SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT };
         SDL_Rect bgQuad2 = { 0, bgScroll, SCREEN_WIDTH, SCREEN_HEIGHT };
@@ -486,7 +447,7 @@ int LancerJeu()
         drawVoiture(renderer, &userCar);
 
         // Draw the obstacles
-        for(int i = 0; i < MAX_OBSTACLES; i++)
+        for(int i = 0; i < numObstacles; i++)
         {
             drawObstacle(renderer, &obstacles[i]);
         }
@@ -495,11 +456,13 @@ int LancerJeu()
         SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
         SDL_RenderCopy(renderer, vitesseTexture, NULL, &vitesseRect);
 
+
         // If game is paused, draw the pause message
         if (isPaused)
         {
             SDL_RenderCopy(renderer, pauseTexture, NULL, &pauseRect);
         }
+
 
         // Update screen
         SDL_RenderPresent(renderer);

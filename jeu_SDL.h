@@ -2,10 +2,7 @@
 #define PROJET_ZZ1_MAIN_H
 
 #include "Constantes.h"
-
-#define TAILLE_CELLULE_LARGEUR 361
-#define TAILLE_CELLULE_LONGUEUR 243
-#define MAX_OBSTACLES 4
+#include "jeu.h"
 
 typedef struct UserCar
 {
@@ -30,14 +27,13 @@ typedef struct
 
 
 int LancerJeu();
-UserCar initVoiture(SDL_Renderer *renderer);
+UserCar initVoiture(SDL_Renderer *renderer, int x, int y);
 EnemyCar initObstacle(SDL_Renderer *renderer, int lane_x, int lane_y, char *obstacleImagePath);
 bool checkCollision(int grid[8][8], int x, int y);
-EnemyCar initRandomObstacle(SDL_Renderer *renderer, int grid[8][8]);
+void initRandomObstacles(SDL_Renderer *renderer, int grid[8][8], EnemyCar obstacles[], int* numObstacles);
 void drawObstacle(SDL_Renderer *renderer, EnemyCar *enemyCar);
 void drawVoiture(SDL_Renderer *renderer, UserCar *userCar);
 void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL_Texture** texture, SDL_Rect* rect, const char* text);
-void moveObstacles(SDL_Renderer *renderer, int grid[8][8], EnemyCar *obstacles, int *numObstacles, UserCar *userCar, bool *running);
 void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
              SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, TTF_Font* font,
              UserCar userCar, EnemyCar obstacles[], SDL_Renderer* renderer, SDL_Window* window);

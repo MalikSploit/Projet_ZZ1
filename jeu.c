@@ -8,14 +8,7 @@ int Jeu(bot robot){
     int situation[TAILLE_ETAT];
     
     // initialisation du jeu
-    jeu j;
-    for (int y = 0; y < NB_LIGNES; y++) {
-	for (int x = 0; x < NB_COLONNES; x++) {
-	    j.grille[y][x] = 0;
-	}
-    }
-    j.chasseur = rand() % NB_COLONNES;
-    j.proie = rand() % NB_COLONNES;
+    jeu j = initJeu();
 
     while (i > MAX_ITER && !fin) {
 	getSituationFromJeu(j, situation);
@@ -25,6 +18,18 @@ int Jeu(bot robot){
 	i++;
     }
     return i;
+}
+
+jeu initJeu() {
+    jeu j;
+    for (int y = 0; y < NB_LIGNES; y++) {
+	for (int x = 0; x < NB_COLONNES; x++) {
+	    j.grille[y][x] = 0;
+	}
+    }
+    j.chasseur = rand() % NB_COLONNES;
+    j.proie = rand() % NB_COLONNES;
+    return j;
 }
 
 // renvoie la distance entre la proie et le plus proche obstacle sur la colonne donnee

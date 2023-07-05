@@ -37,7 +37,7 @@ void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL
 void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
              SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, SDL_Texture* highScoreTexture, TTF_Font* font, TTF_Font* font2,
              UserCar userCar, UserCar moto, EnemyCar obstacles[]);
-void InitScore(SDL_Renderer* renderer, Uint32* lastScoreUpdateTime, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, UserCar* userCar, SDL_Color* textColor);
+void InitScore(SDL_Renderer* renderer, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, SDL_Color* textColor, int deplacementEffectue);
 void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor, SDL_Texture** vitesseTexture, SDL_Rect *vitesseRect, TTF_Font* font);
 
 

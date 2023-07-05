@@ -193,8 +193,8 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
 
 bool iterJeu(jeu * j, int deplacement){
 
-    deplacerProie(j);
     deplacerChasseur(j, deplacement);
+    deplacerProie(j);
     avanceGrille(j->grille);
     return jeuFini(*j);
 }
@@ -221,11 +221,13 @@ int comportementProie(jeu j){
 
     if (p < INFLUENCEPREDATEUR) {
 
+	/* printf("mode fuite\n"); */
+
         /* si le chasseur est derrière la proie */
         if(j.chasseur == j.proie){
 	    if(verifDeplacement(j.grille, DIRGAUCHE, j.proie, 1)){
 		if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
-		    deplacement = (rand() % 2 ) * 2 - 1;
+		    deplacement = (rand() % 2) * 2 - 1;
 		}
 		else {
 		    deplacement = DIRGAUCHE;
@@ -261,6 +263,7 @@ int comportementProie(jeu j){
 
     /* si la proie à un comportement random */
     else if (p < INFLUENCEPREDATEUR + ALEATOIRE) {
+	/* printf("mode alea\n"); */
 	deplacement = (rand() % 3) - 1;
 	while(!verifDeplacement(j.grille, deplacement, j.proie, 1)) deplacement = (rand() % 3) - 1;
     }
@@ -268,6 +271,7 @@ int comportementProie(jeu j){
     /* déplacement "intelligent" = prend la direction ou la croix est la plus loin*/
     else {
 
+	/* printf("mode intelligent\n"); */
 
 	int distanceColonne[3];
 
@@ -291,25 +295,36 @@ int comportementProie(jeu j){
 	}
 
 	int choix = rand() % nbMouvPossible;
-	for (int i = 0; i < 3 && choix >= 0; i++) {
+	int i;
+	for (i = 0; i < 3 && choix >= 0; i++) {
 	    choix -= mouvementPossible[i];
 	}
-	deplacement = choix - 1;
+	deplacement = i - 2;
 
     }
+    /* printf("choix de la proie : %d\n", deplacement); */
+
     return deplacement;
 }
 
 int retourneDeplacement(jeu j, int numLigne, int deplacement){
+    
+    int posInit;
+    if (numLigne == 0)
+	posInit = j.chasseur;
+    else
+	posInit = j.proie;
 
     if(deplacement == DIRGAUCHE){
-        while(j.grille[numLigne + 1][j.chasseur + deplacement])
+        while(j.grille[numLigne + 1][posInit + deplacement])
             deplacement--;
     }
     else if (deplacement == DIRDROITE){
-        while(j.grille[numLigne + 1][j.chasseur + deplacement])
+        while(j.grille[numLigne + 1][posInit + deplacement])
             deplacement++;
     }
+
+    /* printf("deplacement effectif : %d\n", deplacement); */
 
     return deplacement;
 

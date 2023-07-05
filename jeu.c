@@ -291,10 +291,11 @@ int comportementProie(jeu j){
 	}
 
 	int choix = rand() % nbMouvPossible;
-	for (int i = 0; i < 3 && choix >= 0; i++) {
+	int i;
+	for (i = 0; i < 3 && choix >= 0; i++) {
 	    choix -= mouvementPossible[i];
 	}
-	deplacement = choix - 1;
+	deplacement = i - 1;
 
     }
     return deplacement;

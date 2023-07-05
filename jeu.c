@@ -374,7 +374,7 @@ bool verifCroix(int debut, int fin, int * ligne){
 
 /* retourne 1 si les croix sont bien toutes présentes */
 bool chasseurBienPlace(int chasseur, int debut, int fin){
-    if (chasseur > debut && chasseur < fin) {
+    if (chasseur >= debut && chasseur <= fin) {
         return 1;
     }
     else return 0;

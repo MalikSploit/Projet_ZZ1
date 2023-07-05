@@ -65,57 +65,6 @@ void drawMoto(SDL_Renderer *renderer, UserCar *moto)
     SDL_RenderCopy(renderer, moto->textures[0], NULL, &(moto->rect));
 }
 
-EnemyCar initObstacle(SDL_Renderer *renderer, int lane_x, int lane_y, char *obstacleImagePath)
-{
-    EnemyCar enemyCar;
-
-    // Set up initial size and position of the enemy car
-    enemyCar.cell_x = lane_x;
-    enemyCar.cell_y = lane_y;
-    enemyCar.rect.w = 140;
-    enemyCar.rect.h = 130;
-    enemyCar.last_update = SDL_GetTicks();
-
-    enemyCar.speed = rand() % 4;
-
-    // Load the texture for the enemy car
-    SDL_Surface *tempSurface = LoadImage(obstacleImagePath);
-
-    enemyCar.texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
-    SDL_FreeSurface(tempSurface);
-
-    return enemyCar;
-}
-
-void initRandomObstacles(SDL_Renderer *renderer, int grid[8][8], EnemyCar obstacles[], int* numObstacles)
-{
-    // Track the current index in the obstacles array
-    int index = 0;
-
-    // Iterate over each cell in the grid
-    for (int y = 0; y < 8; y++)
-    {
-        for (int x = 0; x < 8; x++)
-        {
-            // If the cell's value is above zero
-            if (grid[y][x] > 0)
-            {
-                // Construct the file path for the obstacle image
-                char obstacleImagePath[25];
-                sprintf(obstacleImagePath, "Images/Obstacle%d.png", grid[y][x]);
-
-                // Initialize the obstacle and add it to the obstacles array
-                obstacles[index] = initObstacle(renderer, x, y, obstacleImagePath);
-
-                // Increment the index for the next obstacle
-                index++;
-            }
-        }
-    }
-
-    // Update the number of obstacles
-    *numObstacles = index;
-}
 
 void initTexturesObstacles(SDL_Renderer *renderer) {
     for(int i = 0; i < NOMBRE_SPRITE; i++) {
@@ -143,7 +92,7 @@ void drawObstacles(SDL_Renderer *renderer, jeu g){
 void drawObstacle(SDL_Renderer *renderer, EnemyCar *enemyCar)
 {
     enemyCar->rect.x = enemyCar->cell_x * (TAILLE_CELLULE_LARGEUR/2) + 250;
-    enemyCar->rect.y = enemyCar->cell_y * (TAILLE_CELLULE_LONGUEUR/2); // start at the bottom of the screen
+    enemyCar->rect.y = enemyCar->cell_y * (TAILLE_CELLULE_LONGUEUR/2);
 
     // Render the enemy car
     SDL_RenderCopy(renderer, enemyCar->texture, NULL, &enemyCar->rect);
@@ -172,8 +121,8 @@ void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL
 }
 
 void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
-             SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, SDL_Texture* highScoreTexture, TTF_Font* font, TTF_Font* font2,
-             UserCar userCar, UserCar moto, EnemyCar obstacles[])
+             SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, SDL_Texture* highScoreTexture, TTF_Font* font, TTF_Font* gameOverFont,
+             UserCar userCar, UserCar moto, SDL_Texture* obstacle[])
 {
     // Free the loaded surface as it is no longer needed
     SDL_FreeSurface(backgroundSurface);
@@ -184,7 +133,7 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
     SDL_DestroyTexture(vitesseTexture);
     SDL_DestroyTexture(highScoreTexture);
     TTF_CloseFont(font);
-    TTF_CloseFont(font2);
+    TTF_CloseFont(gameOverFont);  // Free gameOverFont
 
     // Destroy user car textures and moto texture
     SDL_DestroyTexture(moto.textures[0]);
@@ -196,7 +145,7 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
     // Destroy enemy car textures
     for(int i = 0; i < MAX_OBSTACLES; i++)
     {
-        SDL_DestroyTexture(obstacles[i].texture);
+        SDL_DestroyTexture(obstacle[i]);
     }
 
     // Quit SDL subsystems
@@ -401,12 +350,7 @@ void LancerJeu(SDL_Renderer* renderer)
     // Initialisation de la moto proie
     UserCar moto = initMoto(renderer, j.proie, 1);
 
-    /* int numObstacles = 0; // Keep track of the current number of obstacles */
-    /* EnemyCar obstacles[MAX_OBSTACLES]; */
-
-    // Initialize all the obstacles
-    /* initRandomObstacles(renderer, j.grille, obstacles, &numObstacles); */
-
+    // Initialisation de la texture des obstacles
     initTexturesObstacles(renderer);
 
     int bgScroll = 0;  // Initialize background scroll offset
@@ -520,13 +464,7 @@ void LancerJeu(SDL_Renderer* renderer)
         drawMoto(renderer, &moto);
         drawVoiture(renderer, &userCar);
 
-        // Draw the obstacles
-        /* for(int i = 0; i < numObstacles; i++) */
-        /* { */
-            /* drawObstacle(renderer, &obstacles[i]); */
-        /* } */
-
-	drawObstacles(renderer, j);
+	    drawObstacles(renderer, j);
 
         // Draw the score and time
         SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
@@ -552,7 +490,7 @@ void LancerJeu(SDL_Renderer* renderer)
         LancerJeu(renderer);
     }
 
-    /* cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles); */
+    cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
 }
 
 

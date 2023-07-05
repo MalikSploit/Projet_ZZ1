@@ -16,9 +16,11 @@ typedef struct Button
 
 typedef struct
 {
-    char name[50];
-    int score;
-} PlayerScore;
+    char playerName[MAX_NAME_LENGTH];
+    int playerScore;
+    char botName[MAX_NAME_LENGTH];
+    int botScore;
+} HighScores;
 
 
 void drawButton(SDL_Renderer* renderer, Button* button);

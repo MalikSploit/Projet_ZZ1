@@ -2,6 +2,74 @@
 #include "SDL_Initialisation.h"
 #include "jeu_SDL.h"
 
+void initHighScore()
+{
+    FILE *logFile, *highscoreFile;
+    char line[MAX_LINE_LENGTH];
+    char playerName[MAX_NAME_LENGTH], botName[MAX_NAME_LENGTH];
+    int playerScore = INT_MAX, botScore = INT_MAX;
+    char name[MAX_NAME_LENGTH];
+    char scoreStr[MAX_NAME_LENGTH];
+    long scoreLong;
+
+    logFile = fopen("GameLog", "r");
+    if (logFile == NULL)
+    {
+        printf("Error opening file\n");
+        return;
+    }
+
+    while (fgets(line, sizeof(line), logFile))
+    {
+        sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
+
+        char *end;
+        scoreLong = strtol(scoreStr, &end, 10);
+
+        if (end == scoreStr)
+        {
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
+
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
+
+        int score = (int)scoreLong;
+        if (strstr(line, "Player"))
+        {
+            if (score < playerScore)
+            {
+                playerScore = score;
+                strcpy(playerName, name);
+            }
+        }
+        else
+        {
+            if (score < botScore)
+            {
+                botScore = score;
+                strcpy(botName, "Robocop");
+            }
+        }
+    }
+    fclose(logFile);
+
+    highscoreFile = fopen("HighScore", "w");
+    if (highscoreFile == NULL)
+    {
+        printf("Error opening file\n");
+        return;
+    }
+
+    fprintf(highscoreFile, "Player: %s; Score: %d\n", playerName, playerScore);
+    fprintf(highscoreFile, "Bot: %s; Score: %d\n", botName, botScore);
+    fclose(highscoreFile);
+}
+
 void displayHelp(SDL_Renderer* renderer)
 {
     // Load a font
@@ -71,20 +139,7 @@ void displayHelp(SDL_Renderer* renderer)
         while (SDL_PollEvent(&e) != 0)
         {
             // User requests quit
-            if (e.type == SDL_QUIT)
-            {
-                closeHelp = true;
-            }
-                // User presses a key
-            else if (e.type == SDL_KEYDOWN)
-            {
-                if (e.key.keysym.sym == SDLK_ESCAPE)
-                {
-                    closeHelp = true;
-                }
-            }
-                // User clicks the mouse
-            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN != 0 || (e.type == SDL_MOUSEBUTTONDOWN))
             {
                 closeHelp = true;
             }
@@ -109,28 +164,43 @@ void displayHighScore(SDL_Renderer* renderer)
         return;
     }
 
-    PlayerScore highScore;
-    highScore.score = 0;
+    HighScores highScores;
+    highScores.playerScore = INT_MAX;
+    highScores.botScore = INT_MAX;
 
     char line[100];
     while (fgets(line, sizeof(line), file) != NULL)
     {
-        // Parse the line
-        char *name = strtok(line, ";");
-        char *scoreStr = strtok(NULL, ";");
+        char name[MAX_NAME_LENGTH];
+        char scoreStr[MAX_NAME_LENGTH];
+        sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
 
-        // Remove "Player : " and "Score : " from the strings
-        name += strlen("Player : ");
-        scoreStr += strlen(" Score : ");
+        char* end;
+        long scoreLong = strtol(scoreStr, &end, 10);
 
-        // Convert the score to an integer
-        int score = atoi(scoreStr);
-
-        // Check if this score is higher than the current high score
-        if (score > highScore.score)
+        if (end == scoreStr)
         {
-            strcpy(highScore.name, name);
-            highScore.score = score;
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
+
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
+
+        int score = (int)scoreLong;
+
+        if (strstr(line, "Player"))
+        {
+            strcpy(highScores.playerName, name);
+            highScores.playerScore = score;
+        }
+        else
+        {  // Bot
+            strcpy(highScores.botName, name);
+            highScores.botScore = score;
         }
     }
 
@@ -144,27 +214,35 @@ void displayHighScore(SDL_Renderer* renderer)
         return;
     }
 
-    // Create the high score string
-    char highScoreText[100];
-    sprintf(highScoreText, "High score : %s with %d points", highScore.name, highScore.score);
+    // Create the high score strings
+    char highScorePlayerText[100], highScoreBotText[100];
+    sprintf(highScorePlayerText, "Best player score : %s with %d points", highScores.playerName, highScores.playerScore);
+    sprintf(highScoreBotText, "Best bot score : %s with %d points", highScores.botName, highScores.botScore);
 
-    // Render the high score
+    // Render the high scores
     SDL_Color textColor = { 255, 255, 255, 255 }; // White color
-    SDL_Surface* surface = TTF_RenderText_Blended(font, highScoreText, textColor);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
+    SDL_Surface* surfacePlayer = TTF_RenderText_Blended(font, highScorePlayerText, textColor);
+    SDL_Surface* surfaceBot = TTF_RenderText_Blended(font, highScoreBotText, textColor);
+    SDL_Texture* texturePlayer = SDL_CreateTextureFromSurface(renderer, surfacePlayer);
+    SDL_Texture* textureBot = SDL_CreateTextureFromSurface(renderer, surfaceBot);
+    SDL_FreeSurface(surfacePlayer);
+    SDL_FreeSurface(surfaceBot);
 
-    SDL_Rect textRect;
-    SDL_QueryTexture(texture, NULL, NULL, &textRect.w, &textRect.h);
-    textRect.x = (SCREEN_WIDTH - textRect.w) / 2; // Calculate the x coordinate to center the text
-    textRect.y = 50;
+    SDL_Rect textRectPlayer, textRectBot;
+    SDL_QueryTexture(texturePlayer, NULL, NULL, &textRectPlayer.w, &textRectPlayer.h);
+    SDL_QueryTexture(textureBot, NULL, NULL, &textRectBot.w, &textRectBot.h);
+    textRectPlayer.x = (SCREEN_WIDTH - textRectPlayer.w) / 2; // Calculate the x coordinate to center the text
+    textRectBot.x = (SCREEN_WIDTH - textRectBot.w) / 2; // Calculate the x coordinate to center the text
+    textRectPlayer.y = 50;
+    textRectBot.y = 100;
 
     // Clear the renderer
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    // Copy the texture with the high score to the renderer
-    SDL_RenderCopy(renderer, texture, NULL, &textRect);
+    // Copy the texture with the high scores to the renderer
+    SDL_RenderCopy(renderer, texturePlayer, NULL, &textRectPlayer);
+    SDL_RenderCopy(renderer, textureBot, NULL, &textRectBot);
 
     // Show the renderer contents on the screen
     SDL_RenderPresent(renderer);
@@ -176,7 +254,7 @@ void displayHighScore(SDL_Renderer* renderer)
     {
         while (SDL_PollEvent(&e) != 0)
         {
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN != 0 || (e.type == SDL_MOUSEBUTTONDOWN))
             {
                 highScoreOpen = false;
             }
@@ -184,7 +262,8 @@ void displayHighScore(SDL_Renderer* renderer)
     }
 
     // Clean up
-    SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(texturePlayer);
+    SDL_DestroyTexture(textureBot);
     TTF_CloseFont(font);
 }
 
@@ -239,6 +318,8 @@ int main()
     {
         return 1;
     }
+
+    initHighScore();
 
     int logo1Width, logo1Height;
     SDL_QueryTexture(logo1, NULL, NULL, &logo1Width, &logo1Height);

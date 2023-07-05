@@ -328,6 +328,7 @@ int main()
     SDL_QueryTexture(logo2, NULL, NULL, &logo2Width, &logo2Height);
 
     // Define buttons
+    SDL_Color WHITE = {255, 255, 255, 255}; // On hover change color to white
     Button buttons[5];
     for (int i = 0; i < 5; ++i)
     {
@@ -396,15 +397,37 @@ int main()
             {
                 quit = true;
             }
-            // User presses a key
-            else if (e.type == SDL_KEYDOWN)
+            // User hovers above the menu buttons
+            if (e.type == SDL_MOUSEMOTION)
             {
-                switch (e.key.keysym.sym)
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+
+                for (int i = 0; i < 5; ++i)
                 {
-                    case SDLK_q:
-                        quit = true;
-                        break;
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
+                    {
+
+                        // Change button text color and recreate the texture
+                        SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, WHITE);
+                        SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
+                        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+                        SDL_FreeSurface(surface);
+
+                        // Redraw the button
+                        drawButton(renderer, &buttons[i]);
+                        SDL_RenderPresent(renderer);
+                    }
+                    else
+                    {
+                        // If button is not clicked, reset its color to the original one
+                        SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, buttons[i].color);
+                        SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
+                        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+                        SDL_FreeSurface(surface);
+                    }
                 }
+
             }
             // User clicks the mouse
             else if (e.type == SDL_MOUSEBUTTONDOWN)
@@ -415,7 +438,16 @@ int main()
                 {
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
                     {
-                        printf("%s button clicked!\n", buttons[i].text);
+                        // Change button text color and recreate the texture
+                        SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, WHITE);
+                        SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
+                        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+                        SDL_FreeSurface(surface);
+
+                        // Redraw the button
+                        drawButton(renderer, &buttons[i]);
+                        SDL_RenderPresent(renderer);
+
                         if (strcmp(buttons[i].text, "Help") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
@@ -433,6 +465,7 @@ int main()
                         }
                         if (strcmp(buttons[i].text, "Simulation") == 0)
                         {
+
                         }
                         if (strcmp(buttons[i].text, "New Game") == 0)
                         {

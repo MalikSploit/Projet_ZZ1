@@ -1,4 +1,4 @@
-CC=clang
+CC=gcc
 LDFLAG=-lpthread -D_REENTRANT -lSDL2_ttf -lSDL2_image -lSDL2_gfx -lm -lSDL2_mixer -lSDL2
 CFLAG=-Wall -Wextra -g
 EXEC=jeu

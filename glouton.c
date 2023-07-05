@@ -30,11 +30,16 @@ void initialiserBot(bot unBot){
 
 }
 
-void * jeuPourThread(void * parameters) {
+void * jeuPourpThread(void * parameters) {
     bot * robot = (bot *) parameters;
     int * score = malloc(sizeof(int));
     *score = Jeu(*robot);
     return score;
+}
+
+int jeuPourThread(void * parameters) {
+    bot * robot = (bot *) parameters;
+    return Jeu(*robot);
 }
 
 void algoGlouton(bot unBot){
@@ -64,19 +69,23 @@ void algoGlouton(bot unBot){
 	unBot[ligne][colonne] = valeurPossibleRegle[colonne][k];
 
 	for (int thread = 0; thread < NUM_THREADS; thread++) {
-	    pthread_create(&threads[thread], NULL, jeuPourThread, &unBot);
+	    thrd_create(&threads[thread], jeuPourThread, &unBot);
+	    /* printf("lancement du thread\n"); */
 	}
 
 	scoreTotal = 0;
 
 	for (int thread = 0; thread < NUM_THREADS; thread++) {
-	    int *result;
-	    pthread_join(threads[thread], (void**) &result);
-	    scoreTotal += *result;
-	    free(result);
+	    int result;
+	    /* printf("deb attente du thread\n"); */
+	    thrd_join(threads[thread], &result);
+	    /* printf("fin attente du thread, result %d\n", result); */
+	    scoreTotal += result;
 	}
 
 	scoreActuel = (float)scoreTotal / NUM_THREADS;
+
+	/* printf("score trouve %d\n", scoreActuel); */
 	
 	if (scoreActuel < meilleurScore)
 	  {

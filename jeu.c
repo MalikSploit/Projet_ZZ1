@@ -5,7 +5,7 @@ int Jeu(bot robot){
     bool fin = false;
     int i = 0;
     int deplacement;
-    int situation[TAILLE_ETAT];
+    int situation[TAILLE_ETAT] = {0};
 
     // initialisation du jeu
     jeu j = initJeu();

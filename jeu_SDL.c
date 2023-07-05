@@ -558,7 +558,7 @@ void LancerJeu(SDL_Renderer* renderer)
 
 int main() {
     int seed = time(NULL);
-    /* seed = 1688562880; */
+    /* seed = 1688568071; */
     srand(seed);
     printf("%d\n", seed);
     

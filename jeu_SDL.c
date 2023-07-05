@@ -5,6 +5,7 @@
 
 SDL_Texture* obstacles[NOMBRE_SPRITE];
 
+
 //Fonction pour initialiser le chasseur
 UserCar initVoiture(SDL_Renderer *renderer, int x, int y)
 {
@@ -109,7 +110,10 @@ void drawVoiture(SDL_Renderer *renderer, UserCar *userCar)
 
 void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL_Texture** texture, SDL_Rect* rect, const char* text)
 {
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text, textColor);
+    // If the string is empty, render a space instead
+    const char* renderText = (text[0] != '\0') ? text : " ";
+
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, renderText, textColor);
     if (textSurface != NULL)
     {
         SDL_DestroyTexture(*texture); // Destroy the old texture first
@@ -186,19 +190,22 @@ int getHighScore()
     }
 
     char line[256];
-    int highScore = 0;
+    int highScore = INT_MAX; // Initialize to maximum integer value
     while (fgets(line, sizeof(line), file))
     {
-        // Assume that the line format is always "Player : Name; Score : X"
-        char *scoreStr = strstr(line, "Score : ");
+        // Assume that the line format is always "Player: Name; Score: X" or "Bot: Name; Score: X"
+        char *scoreStr = strstr(line, "Score: ");
         if (scoreStr != NULL)
         {
-            highScore = atoi(scoreStr + 8);  // Skip past "Score : " to get the score
+            int score = atoi(scoreStr + 7);  // Skip past "Score: " to get the score
+            if(score < highScore) {  // If the read score is less than the current highScore
+                highScore = score;  // Update highScore
+            }
         }
     }
 
     fclose(file);
-    return highScore;
+    return highScore == INT_MAX ? 0 : highScore;  // Return 0 if no scores were found
 }
 
 int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
@@ -303,6 +310,95 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 }
 
 
+char* EcranAccueil(SDL_Renderer* renderer)
+{
+    initializeTTF();
+    TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
+    TTF_Font* font_button = loadFont("Font/arial_bold.ttf", 35);
+
+    SDL_Color WHITE = {255, 255, 255, 255};
+    SDL_Color BLACK = {0, 0, 0, 255};
+
+    SDL_Texture* usernameTexture = NULL;
+    SDL_Rect usernameRect = {SCREEN_WIDTH / 2 - 250, SCREEN_HEIGHT / 2, 500, 40};
+
+    SDL_Texture* validateTexture = createTextTexture(renderer, font_button, WHITE, "Valider");
+    SDL_Rect validateRect = {SCREEN_WIDTH / 2 - 75, SCREEN_HEIGHT / 2 + 100, 150, 50};
+
+    SDL_Rect textBoxRect = {SCREEN_WIDTH / 2 - 250, SCREEN_HEIGHT / 2, 500, 50};
+
+    bool running = true;
+    SDL_Event e;
+
+    char username[50] = "";
+
+    while (running)
+    {
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_QUIT)
+            {
+                running = false;
+            }
+            else if (e.type == SDL_KEYDOWN)
+            {
+                if (e.key.keysym.sym == SDLK_RETURN)
+                {
+                    running = false;
+                }
+                else if (e.key.keysym.sym == SDLK_BACKSPACE)
+                {
+                    if (strlen(username) > 0)
+                    {
+                        username[strlen(username) - 1] = '\0';
+                    }
+                }
+                else if (e.key.keysym.sym >= SDLK_SPACE && e.key.keysym.sym <= SDLK_z)
+                {
+                    char ch[2] = { (char)e.key.keysym.sym, '\0' };
+                    if ((e.key.keysym.mod & KMOD_SHIFT) || (SDL_GetModState() & KMOD_CAPS))
+                    {
+                        ch[0] = toupper(ch[0]);
+                    }
+                    strncat(username, ch, 49 - strlen(username));
+                }
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
+                    y >= validateRect.y && y <= validateRect.y + validateRect.h)
+                {
+                    // Clicked on "Validate" button
+                    running = false;
+                }
+            }
+        }
+
+        updateText(renderer, font, BLACK, &usernameTexture, &usernameRect, username);
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &textBoxRect);
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+        SDL_RenderCopy(renderer, usernameTexture, NULL, &usernameRect);
+        SDL_RenderCopy(renderer, validateTexture, NULL, &validateRect);
+
+        SDL_RenderPresent(renderer);
+        SDL_RenderClear(renderer);
+    }
+
+    SDL_DestroyTexture(usernameTexture);
+    SDL_DestroyTexture(validateTexture);
+    TTF_CloseFont(font);
+    TTF_CloseFont(font_button);
+
+    return strdup(username);
+}
+
+
 void LancerJeu(SDL_Renderer* renderer)
 {
     // Initialise le générateur de nombres pseudo aléatoires
@@ -329,6 +425,10 @@ void LancerJeu(SDL_Renderer* renderer)
     initializeTTF();
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
     TTF_Font* gameOverFont = loadFont("Font/arial_bold.ttf", 38);
+
+    char* username = EcranAccueil(renderer);
+    printf("Username = %s\n", username);
+
 
     SDL_Color textColor = {255, 255, 255, 255}; // white color
     SDL_Texture* scoreTexture = NULL;

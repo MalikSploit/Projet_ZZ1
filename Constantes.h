@@ -10,14 +10,13 @@
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
-
 #define NB_LIGNES 8
 #define NB_COLONNES 8
-
+#define TAILLE_CELLULE_LARGEUR 361
+#define TAILLE_CELLULE_LONGUEUR 243
+#define MAX_OBSTACLES 6
 #define MAX_ITER 1000000
-
 #define NOMBRE_SPRITE 8
-
 #define PROBA_OBSTACLE 1
 
 typedef struct {

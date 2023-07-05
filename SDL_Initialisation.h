@@ -12,4 +12,5 @@ int initializeTTF();
 int initializeIMG();
 SDL_Surface* LoadImage(char *imagePath);
 SDL_Texture *LoadTexture(SDL_Renderer *renderer, SDL_Surface *backgroundSurface);
+SDL_Texture* createTextTexture(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, const char* text);
 #endif //PROJET_ZZ1_SDL_INITIALISATION_H

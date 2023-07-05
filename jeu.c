@@ -15,7 +15,7 @@ int Jeu(bot robot){
         /* déplacement toujours faisable */
         deplacement = deplacementFromBot(j, robot, situation);
         fin = iterJeu(&j, deplacement);
-        i++;
+	i++;
     }
     return i;
 }
@@ -147,7 +147,7 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
         // si la regle matche et que le deplacement est legal on attribue la probabilite
         if(matchRegleSituation(robot[i], situation) && verifDeplacement(j.grille, robot[i][TAILLE_ETAT], j.chasseur, 0)) {
             newProba = powf(robot[i][TAILLE_ETAT+1], IMPORTANCE_PRIORITES);
-            probabilities[robot[i][TAILLE_ETAT]] += newProba;
+            probabilities[robot[i][TAILLE_ETAT]+1] += newProba;
             probaTotale += newProba;
             regleExiste = true;
         }

@@ -68,7 +68,7 @@ void algoGlouton(bot unBot){
     melangeIndices(indices);
   }
 
-  printf("Score du meilleur bot d'algo Glouton %d", Jeu(unBot));
+  printf("Score du meilleur bot d'algo Glouton %d\n", Jeu(unBot));
 
 }
 

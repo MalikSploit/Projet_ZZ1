@@ -344,7 +344,7 @@ int main()
     }
     buttons[0].text = "New Game";
     buttons[1].text = "Simulation";
-    buttons[2].text = "Highscore";
+    buttons[2].text = "Scoreboard";
     buttons[3].text = "Help";
     buttons[4].text = "Quit";
 
@@ -438,16 +438,6 @@ int main()
                 {
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
                     {
-                        // Change button text color and recreate the texture
-                        SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, WHITE);
-                        SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
-                        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
-                        SDL_FreeSurface(surface);
-
-                        // Redraw the button
-                        drawButton(renderer, &buttons[i]);
-                        SDL_RenderPresent(renderer);
-
                         if (strcmp(buttons[i].text, "Help") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
@@ -458,7 +448,7 @@ int main()
                             quit = true;
                             break;
                         }
-                        if (strcmp(buttons[i].text, "Highscore") == 0)
+                        if (strcmp(buttons[i].text, "Scoreboard") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
                             displayHighScore(renderer);

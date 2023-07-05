@@ -250,27 +250,25 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     // Position and size of Quit text
     SDL_Rect quitRect = {SCREEN_WIDTH / 2 - quitWidth / 2, gameOverHeight + 360, quitWidth, quitHeight};
 
+    SDL_Color WHITE = {255, 255, 255, 255}; // On hover change color to white
+
     bool running = true;
     while (running)
     {
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0)
         {
-            if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
+            if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN))
             {
                 running = false;
             }
-            else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN)
-            {
-                running = false;
-            }
-
             if (e.type == SDL_MOUSEBUTTONDOWN)
             {
                 int x, y;
                 SDL_GetMouseState(&x, &y);
 
-                if (x > replayRect.x && x < replayRect.x + replayRect.w && y > replayRect.y && y < replayRect.y + replayRect.h) {
+                if (x > replayRect.x && x < replayRect.x + replayRect.w && y > replayRect.y && y < replayRect.y + replayRect.h)
+                {
                     // The user clicked on the "Play Again" button
                     SDL_DestroyTexture(gameOverTexture);
                     SDL_DestroyTexture(scoreTexture);
@@ -279,7 +277,8 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
                     SDL_DestroyTexture(quitTexture);
                     return 1;
                 }
-                else if (x > quitRect.x && x < quitRect.x + quitRect.w && y > quitRect.y && y < quitRect.y + quitRect.h) {
+                else if (x > quitRect.x && x < quitRect.x + quitRect.w && y > quitRect.y && y < quitRect.y + quitRect.h)
+                {
                     // The user clicked on the "Quit" button
                     SDL_DestroyTexture(gameOverTexture);
                     SDL_DestroyTexture(scoreTexture);
@@ -287,6 +286,32 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
                     SDL_DestroyTexture(replayTexture);
                     SDL_DestroyTexture(quitTexture);
                     return 0;
+                }
+            }
+            else if (e.type == SDL_MOUSEMOTION)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (x > replayRect.x && x < replayRect.x + replayRect.w && y > replayRect.y && y < replayRect.y + replayRect.h)
+                {
+                    SDL_DestroyTexture(replayTexture);
+                    replayTexture = createTextTexture(renderer, font, WHITE, "Play Again");
+                }
+                else
+                {
+                    SDL_DestroyTexture(replayTexture);
+                    replayTexture = createTextTexture(renderer, font, greenColor, "Play Again");
+                }
+
+                if (x > quitRect.x && x < quitRect.x + quitRect.w && y > quitRect.y && y < quitRect.y + quitRect.h)
+                {
+                    SDL_DestroyTexture(quitTexture);
+                    quitTexture = createTextTexture(renderer, font, WHITE, "Quit");
+                }
+                else
+                {
+                    SDL_DestroyTexture(quitTexture);
+                    quitTexture = createTextTexture(renderer, font, greenColor, "Quit");
                 }
             }
         }

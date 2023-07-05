@@ -458,12 +458,13 @@ void LancerJeu(SDL_Renderer* renderer)
 
         if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
         {
-            running = iterJeu(&j, deplacement);
+            running = !iterJeu(&j, deplacement);
+	    deplacement = -2;
         }
         else if (deplacement != -2 && !verifDeplacement(j.grille, deplacement, j.chasseur, 0))
         {
-            deplacement = -2;
             printf("Deplacement invalide\n");
+            deplacement = -2;
         }
 
         if (!isPaused)

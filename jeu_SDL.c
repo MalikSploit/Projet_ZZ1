@@ -94,7 +94,7 @@ void initRandomObstacles(SDL_Renderer *renderer, int grid[8][8], EnemyCar obstac
         for (int x = 0; x < 8; x++)
         {
             // If the cell's value is above zero
-            if (grid[y][x] > 0 && index < MAX_OBSTACLES)
+            if (grid[y][x] > 0)
             {
                 // Construct the file path for the obstacle image
                 char obstacleImagePath[25];
@@ -172,28 +172,24 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
         SDL_DestroyTexture(obstacles[i].texture);
     }
 
-
     // Quit SDL subsystems
     IMG_Quit();
     SDL_Quit();
     TTF_Quit();
 }
 
-void InitScore(SDL_Renderer* renderer, Uint32* lastScoreUpdateTime, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, UserCar* userCar, SDL_Color* textColor)
+void InitScore(SDL_Renderer* renderer, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, SDL_Color* textColor, int deplacementEffectue)
 {
-    Uint32 currentTime = SDL_GetTicks();
-
-    if (currentTime - *lastScoreUpdateTime >= 1000)
+    if (deplacementEffectue)
     {
         // if 1 second has passed
-        *score = *score + userCar->velocity;
-        *lastScoreUpdateTime = currentTime; // update the time of the last score update
-    }
+        *score += 1;
 
-    // update the score text
-    char scoreText[20];
-    sprintf(scoreText, "Score: %d", *score);
-    updateText(renderer, font, *textColor, scoreTexture, scoreRect, scoreText);
+        // update the score text
+        char scoreText[20];
+        sprintf(scoreText, "Score: %d", *score);
+        updateText(renderer, font, *textColor, scoreTexture, scoreRect, scoreText);
+    }
 }
 
 void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor, SDL_Texture** vitesseTexture, SDL_Rect *vitesseRect, TTF_Font* font)
@@ -386,8 +382,7 @@ void LancerJeu(SDL_Renderer* renderer)
 
     int bgScroll = 0;  // Initialize background scroll offset
 
-    int score = 0;
-    Uint32 lastScoreUpdateTime = SDL_GetTicks();
+    int score = -1;
 
     bool isPaused = false;
     SDL_Texture* pauseTexture = NULL;
@@ -396,6 +391,7 @@ void LancerJeu(SDL_Renderer* renderer)
     bool running = true;
     SDL_Event e;
     int deplacement = -2;
+    int deplacementEffectue = 1;
 
     while (running)
     {
@@ -459,7 +455,10 @@ void LancerJeu(SDL_Renderer* renderer)
         if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
         {
             running = !iterJeu(&j, deplacement);
-	    deplacement = -2;
+            userCar.cell_x = j.chasseur;
+            moto.cell_x = j.proie;
+            deplacement = -2;
+            deplacementEffectue = 1;
         }
         else if (deplacement != -2 && !verifDeplacement(j.grille, deplacement, j.chasseur, 0))
         {
@@ -469,7 +468,8 @@ void LancerJeu(SDL_Renderer* renderer)
 
         if (!isPaused)
         {
-            InitScore(renderer, &lastScoreUpdateTime, &score, font, &scoreTexture, &scoreRect, &userCar, &textColor);
+            InitScore(renderer, &score, font, &scoreTexture, &scoreRect, &textColor, deplacementEffectue);
+            deplacementEffectue = 0;
 
             initVitesse(&userCar, renderer, &textColor, &vitesseTexture, &vitesseRect, font);
 
@@ -511,6 +511,7 @@ void LancerJeu(SDL_Renderer* renderer)
         // Update screen
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
+
     }
     // Ajouter ceci après votre boucle de jeu
     int retry = gameOverScreen(renderer, gameOverFont, score);

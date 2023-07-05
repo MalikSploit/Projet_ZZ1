@@ -2,26 +2,8 @@
 #include "SDL_Initialisation.h"
 #include "jeu_SDL.h"
 
-
-void displayHelp()
+void displayHelp(SDL_Renderer* renderer)
 {
-    // Create a new window for the help screen
-    SDL_Window* helpWindow = SDL_CreateWindow("Help", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_SHOWN);
-    if (helpWindow == NULL)
-    {
-        printf("Help window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return;
-    }
-
-    // Create a renderer for the help window
-    SDL_Renderer* helpRenderer = SDL_CreateRenderer(helpWindow, -1, SDL_RENDERER_ACCELERATED);
-    if (helpRenderer == NULL)
-    {
-        printf("Help renderer could not be created! SDL Error: %s\n", SDL_GetError());
-        SDL_DestroyWindow(helpWindow);
-        return;
-    }
-
     // Load a font
     TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 29);
     if (font == NULL)
@@ -58,13 +40,13 @@ void displayHelp()
     for (int i = 0; i < numLines; i++)
     {
         SDL_Surface* surface = TTF_RenderText_Blended(font, instructions[i], textColor);
-        textures[i] = SDL_CreateTextureFromSurface(helpRenderer, surface);
+        textures[i] = SDL_CreateTextureFromSurface(renderer, surface);
         SDL_FreeSurface(surface);
     }
 
     // Clear the renderer
-    SDL_SetRenderDrawColor(helpRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(helpRenderer);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
 
     // Copy the textures to the renderer
     SDL_Rect textRect;
@@ -73,23 +55,38 @@ void displayHelp()
     for (int i = 0; i < numLines; i++)
     {
         SDL_QueryTexture(textures[i], NULL, NULL, &textRect.w, &textRect.h);
-        SDL_RenderCopy(helpRenderer, textures[i], NULL, &textRect);
+        SDL_RenderCopy(renderer, textures[i], NULL, &textRect);
         textRect.y += textRect.h + 5; // Move down for the next line (adjust the value to increase or decrease the line spacing)
     }
 
     // Show the renderer contents on the screen
-    SDL_RenderPresent(helpRenderer);
-
-    // Wait until user closes the help window
-    bool helpOpen = true;
+    SDL_RenderPresent(renderer);
+    // Event handler
     SDL_Event e;
-    while (helpOpen)
+
+    // Wait for the user to close the help screen
+    bool closeHelp = false;
+    while (!closeHelp)
     {
         while (SDL_PollEvent(&e) != 0)
         {
-            if ((e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(helpWindow)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)))
+            // User requests quit
+            if (e.type == SDL_QUIT)
             {
-                helpOpen = false;
+                closeHelp = true;
+            }
+                // User presses a key
+            else if (e.type == SDL_KEYDOWN)
+            {
+                if (e.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    closeHelp = true;
+                }
+            }
+                // User clicks the mouse
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                closeHelp = true;
             }
         }
     }
@@ -101,12 +98,10 @@ void displayHelp()
     }
     free(textures);
     TTF_CloseFont(font);
-    SDL_DestroyRenderer(helpRenderer);
-    SDL_DestroyWindow(helpWindow);
 }
 
 
-void displayHighScore()
+void displayHighScore(SDL_Renderer* renderer)
 {
     FILE *file = fopen("HighScore", "r");
     if (file == NULL) {
@@ -141,22 +136,6 @@ void displayHighScore()
 
     fclose(file);
 
-    // Create a new window for the high score
-    SDL_Window* highScoreWindow = SDL_CreateWindow("High Score", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN);
-    if (highScoreWindow == NULL)
-    {
-        printf("High Score window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return;
-    }
-
-    // Create a renderer for the high score window
-    SDL_Renderer* highScoreRenderer = SDL_CreateRenderer(highScoreWindow, -1, SDL_RENDERER_ACCELERATED);
-    if (highScoreRenderer == NULL) {
-        printf("High Score renderer could not be created! SDL Error: %s\n", SDL_GetError());
-        SDL_DestroyWindow(highScoreWindow);
-        return;
-    }
-
     // Load a font
     TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 24);
     if (font == NULL)
@@ -172,32 +151,32 @@ void displayHighScore()
     // Render the high score
     SDL_Color textColor = { 255, 255, 255, 255 }; // White color
     SDL_Surface* surface = TTF_RenderText_Blended(font, highScoreText, textColor);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(highScoreRenderer, surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
     SDL_Rect textRect;
     SDL_QueryTexture(texture, NULL, NULL, &textRect.w, &textRect.h);
-    textRect.x = (640 - textRect.w) / 2; // Calculate the x coordinate to center the text
+    textRect.x = (SCREEN_WIDTH - textRect.w) / 2; // Calculate the x coordinate to center the text
     textRect.y = 50;
 
     // Clear the renderer
-    SDL_SetRenderDrawColor(highScoreRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(highScoreRenderer);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
 
     // Copy the texture with the high score to the renderer
-    SDL_RenderCopy(highScoreRenderer, texture, NULL, &textRect);
+    SDL_RenderCopy(renderer, texture, NULL, &textRect);
 
     // Show the renderer contents on the screen
-    SDL_RenderPresent(highScoreRenderer);
+    SDL_RenderPresent(renderer);
 
-    // Wait until user closes the high score window
+    // Wait until user presses a key
     bool highScoreOpen = true;
     SDL_Event e;
     while (highScoreOpen)
     {
         while (SDL_PollEvent(&e) != 0)
         {
-            if ((e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(highScoreWindow)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)))
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
             {
                 highScoreOpen = false;
             }
@@ -207,8 +186,6 @@ void displayHighScore()
     // Clean up
     SDL_DestroyTexture(texture);
     TTF_CloseFont(font);
-    SDL_DestroyRenderer(highScoreRenderer);
-    SDL_DestroyWindow(highScoreWindow);
 }
 
 
@@ -221,34 +198,6 @@ void drawButton(SDL_Renderer* renderer, Button* button)
                             button->rect.y + (button->rect.h - textHeight) / 2,
                             textWidth, textHeight };
     SDL_RenderCopy(renderer, button->texture, NULL, &renderQuad);
-}
-
-void drawText(SDL_Renderer* renderer, TTF_Font* font, char* text, SDL_Color color, int x, int y)
-{
-
-    // Render text surface
-    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text, color);
-    if (textSurface == NULL) {
-        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
-        return;
-    }
-
-    // Create texture from surface pixels
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    if (textTexture == NULL) {
-        printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
-        return;
-    }
-
-    // Set text dimensions
-    SDL_Rect renderQuad = { x, y, textSurface->w, textSurface->h };
-
-    // Render text
-    SDL_RenderCopy(renderer, textTexture, NULL, &renderQuad);
-
-    // Free surface and texture
-    SDL_FreeSurface(textSurface);
-    SDL_DestroyTexture(textTexture);
 }
 
 
@@ -410,7 +359,8 @@ int main()
                         printf("%s button clicked!\n", buttons[i].text);
                         if (strcmp(buttons[i].text, "Help") == 0)
                         {
-                            displayHelp();
+                            SDL_RenderClear(renderer); // Clear the screen
+                            displayHelp(renderer);
                         }
                         if (strcmp(buttons[i].text, "Quit") == 0)
                         {
@@ -419,20 +369,17 @@ int main()
                         }
                         if (strcmp(buttons[i].text, "Highscore") == 0)
                         {
-                            displayHighScore();
+                            SDL_RenderClear(renderer); // Clear the screen
+                            displayHighScore(renderer);
                         }
                         if (strcmp(buttons[i].text, "Simulation") == 0)
                         {
-                            printf("t'es lent :)\n");
                         }
                         if (strcmp(buttons[i].text, "New Game") == 0)
                         {
-                            int status = LancerJeu();
-                            if (status == 1)
-                            {
-                                quit = true;
-                                break;
-                            }
+                            SDL_RenderClear(renderer); // Clear the screen
+                            LancerJeu(renderer);
+                            quit = true;
                         }
                     }
                 }

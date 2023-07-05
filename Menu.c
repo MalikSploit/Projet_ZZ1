@@ -314,6 +314,12 @@ int main()
     {
         return 1;
     }
+    SDL_Texture* bgTexture1 = loadLogo(renderer, "Images/Background.png");
+    SDL_Texture* bgTexture2 = loadLogo(renderer, "Images/Background.png");
+    if (bgTexture1 == NULL || bgTexture2 == NULL)
+    {
+        return 1;
+    }
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 38);
     if (font == NULL)
     {
@@ -325,6 +331,9 @@ int main()
 
     int logo2Width, logo2Height;
     SDL_QueryTexture(logo2, NULL, NULL, &logo2Width, &logo2Height);
+
+    SDL_Rect bgRect1 = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+    SDL_Rect bgRect2 = { SCREEN_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
     // Define buttons
     SDL_Color WHITE = {255, 255, 255, 255}; // On hover change color to white
@@ -363,12 +372,34 @@ int main()
     // Event handler
     SDL_Event e;
 
+    // Compteur de temps pour l'animation
+    double time = 0.0;
+
     // While application is running
     while (!quit)
     {
+        // Calcul de la nouvelle vitesse
+        double amplitude = 3.0 + 2.0 * sin(0.1 * time);  // Amplitude entre 1 et 5
+        int bgSpeed = (int)(amplitude * sin(time)) + 1;  // Vitesse variable
+
+        // Augmenter le compteur de temps (la vitesse de l'animation dépend du delta)
+        time += 0.01;
+
         // Clear screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
+        // Draw the background
+        SDL_RenderCopy(renderer, bgTexture1, NULL, &bgRect1);
+        SDL_RenderCopy(renderer, bgTexture2, NULL, &bgRect2);
+
+        // Move the background
+        bgRect1.x -= bgSpeed;
+        bgRect2.x -= bgSpeed;
+
+        // Check if the background has completely scrolled off the screen
+        if (bgRect1.x + SCREEN_WIDTH < 0) bgRect1.x = SCREEN_WIDTH;
+        if (bgRect2.x + SCREEN_WIDTH < 0) bgRect2.x = SCREEN_WIDTH;
 
         // Draw logo1 (High_Racer Text)
         SDL_Rect logo1Quad = { SCREEN_WIDTH / 2 - logo1Width / 2, 40, logo1Width, logo1Height };
@@ -474,6 +505,8 @@ int main()
     // Free resources and close SDL
     SDL_DestroyTexture(logo1);  // destroy the logo1 texture
     SDL_DestroyTexture(logo2);  // destroy the logo2 texture
+    SDL_DestroyTexture(bgTexture1);
+    SDL_DestroyTexture(bgTexture2);
 
     for (int i = 0; i < 5; ++i)
     {

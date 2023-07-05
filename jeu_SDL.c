@@ -336,7 +336,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 }
 
 
-char* EcranAccueil(SDL_Renderer* renderer, int *QuitterJeu)
+char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
 {
     initializeTTF();
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
@@ -362,7 +362,7 @@ char* EcranAccueil(SDL_Renderer* renderer, int *QuitterJeu)
     {
         while (SDL_PollEvent(&e) != 0)
         {
-            if (e.type == SDL_QUIT)
+            if ( (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) || (e.type == SDL_QUIT) )
             {
                 running = false;
                 *QuitterJeu = 1;
@@ -442,10 +442,9 @@ void logScore(const char* username, int score)
 
 void LancerJeu(SDL_Renderer* renderer)
 {
-
     //Demander le nom du joueur
     int quitterJeu = 0;
-    char* username = EcranAccueil(renderer, &quitterJeu);
+    char* username = DemanderUsername(renderer, &quitterJeu);
 
     if (!quitterJeu)
     {

@@ -10,6 +10,7 @@ TTF_Font* loadFont(char* fontPath, int size);
 int initializeSDL();
 int initializeTTF();
 int initializeIMG();
+SDL_Texture* loadTexture(SDL_Renderer* renderer, char* filepath);
 SDL_Surface* LoadImage(char *imagePath);
 SDL_Texture *LoadTexture(SDL_Renderer *renderer, SDL_Surface *backgroundSurface);
 SDL_Texture* createTextTexture(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, const char* text);

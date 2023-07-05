@@ -22,7 +22,6 @@ typedef struct
 
 
 void drawButton(SDL_Renderer* renderer, Button* button);
-SDL_Texture* loadTexture(SDL_Renderer* renderer, char* filepath);
 void displayHelp(SDL_Renderer* renderer);
 void displayHighScore(SDL_Renderer* renderer);
 

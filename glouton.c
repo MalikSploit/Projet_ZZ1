@@ -1,6 +1,4 @@
 #include "glouton.h"
-#include "Constantes.h"
-#include "jeu.h"
 
 int valeurPossibleRegle[TAILLE_ETAT + 2][7] = {
   {5, -1, 1, 2, 3, 4},
@@ -32,6 +30,13 @@ void initialiserBot(bot unBot){
 
 }
 
+void * jeuPourThread(void * parameters) {
+    bot * robot = (bot *) parameters;
+    int * score = malloc(sizeof(int));
+    *score = Jeu(*robot);
+    return score;
+}
+
 void algoGlouton(bot unBot){
 
   int indices[NOMBRE_INDICES];
@@ -51,10 +56,28 @@ void algoGlouton(bot unBot){
       int meilleurValeur = valeurPossibleRegle[colonne][1];
       int scoreActuel;
 
+      pthread_t threads[NUM_THREADS];
+      int scoreTotal;
+
       for (int k = 1; k <= valeurPossibleRegle[colonne][0]; k++) {
 
 	unBot[ligne][colonne] = valeurPossibleRegle[colonne][k];
-	scoreActuel = Jeu(unBot);
+
+	for (int thread = 0; thread < NUM_THREADS; thread++) {
+	    pthread_create(&threads[thread], NULL, jeuPourThread, &unBot);
+	}
+
+	scoreTotal = 0;
+
+	for (int thread = 0; thread < NUM_THREADS; thread++) {
+	    int *result;
+	    pthread_join(threads[thread], (void**) &result);
+	    scoreTotal += *result;
+	    free(result);
+	}
+
+	scoreActuel = (float)scoreTotal / NUM_THREADS;
+	
 	if (scoreActuel < meilleurScore)
 	  {
 	    meilleurScore = scoreActuel;

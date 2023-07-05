@@ -48,7 +48,7 @@ typedef regle bot[NB_REGLES];
 /* Comportement de la proie */
 
 /* Probabilité de fuir le prédateur */
-#define INFLUENCEPREDATEUR 0.4
+#define INFLUENCEPREDATEUR 0.7
 /* Probabilité d'avoir un comportement aléatoire */
 #define ALEATOIRE 0.1
 

@@ -1,4 +1,5 @@
 #include "jeu.h"
+#include "Constantes.h"
 
 /* renvoie le score. Simule le jeu et run une de ces instance */
 int Jeu(bot robot){
@@ -343,37 +344,42 @@ int verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee,
     if(coordonnee + deplacement < 0) return 0;
     /* verif côté droit */
     if(coordonnee + deplacement > NB_COLONNES - 1) return 0;
-    /* verif en à la ligne N + 1 que la case est vide où il veut aller  */
-    if(grille[ligne + 1][coordonnee + deplacement] == 1) return 0;
 
+    /* on vérif d'abord si il doit y avoir téléportation */
+    
     /* si les trois cases devant lui sont prises, alors cas spécial de téléportation */
-    if((grille[ligne + 1][coordonnee + DIRGAUCHE] == 1)
+    if((coordonnee + DIRGAUCHE < 0 || grille[ligne + 1][coordonnee + DIRGAUCHE] == 1)
        &&
        (grille[ligne + 1][coordonnee + DIRMILIEU] == 1)
        &&
-       (grille[ligne + 1][coordonnee + DIRDROITE] == 1))
+       (coordonnee + DIRDROITE > NB_COLONNES - 1 || grille[ligne + 1][coordonnee + DIRDROITE] == 1))
     {
         int indiceOuAller = coordonnee;
         if (deplacement == DIRMILIEU)
             return 0;
         else if (deplacement == DIRGAUCHE) {
-            while (grille[ligne + 1][indiceOuAller] == 1){
+            while (indiceOuAller >= 0 && grille[ligne + 1][indiceOuAller] == 1){
                 indiceOuAller--;
             }
-            if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
+            if (indiceOuAller < 0)
                 return 0;
             else
                 return -1;
         }
         else if(deplacement == DIRDROITE){
-            while (grille[ligne + 1][indiceOuAller] == 1) {
+            while (indiceOuAller < NB_COLONNES && grille[ligne + 1][indiceOuAller] == 1) {
                 indiceOuAller++;
             }
-            if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
+            if (indiceOuAller > NB_COLONNES - 1)
                 return 0;
             else return -1;
         }
     }
+
+
+    /* verif en à la ligne N + 1 que la case est vide où il veut aller  */
+    if(grille[ligne + 1][coordonnee + deplacement] == 1) return 0;
+
 
     return 1;
 }

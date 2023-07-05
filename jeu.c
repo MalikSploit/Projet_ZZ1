@@ -303,11 +303,11 @@ int comportementProie(jeu j){
 int retourneDeplacement(jeu j, int numLigne, int deplacement){
 
     if(deplacement == DIRGAUCHE){
-        while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
+        while(j.grille[numLigne + 1][j.chasseur + deplacement])
             deplacement--;
     }
     else if (deplacement == DIRDROITE){
-        while(j.grille[numLigne + 1][j.chasseur + deplacement] == 1)
+        while(j.grille[numLigne + 1][j.chasseur + deplacement])
             deplacement++;
     }
 
@@ -391,17 +391,17 @@ int verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee,
     /* on vérif d'abord si il doit y avoir téléportation */
     
     /* si les trois cases devant lui sont prises, alors cas spécial de téléportation */
-    if((coordonnee + DIRGAUCHE < 0 || grille[ligne + 1][coordonnee + DIRGAUCHE] == 1)
+    if((coordonnee + DIRGAUCHE < 0 || grille[ligne + 1][coordonnee + DIRGAUCHE])
        &&
-       (grille[ligne + 1][coordonnee + DIRMILIEU] == 1)
+       (grille[ligne + 1][coordonnee + DIRMILIEU])
        &&
-       (coordonnee + DIRDROITE > NB_COLONNES - 1 || grille[ligne + 1][coordonnee + DIRDROITE] == 1))
+       (coordonnee + DIRDROITE > NB_COLONNES - 1 || grille[ligne + 1][coordonnee + DIRDROITE]))
     {
         int indiceOuAller = coordonnee;
         if (deplacement == DIRMILIEU)
             return 0;
         else if (deplacement == DIRGAUCHE) {
-            while (indiceOuAller >= 0 && grille[ligne + 1][indiceOuAller] == 1){
+            while (indiceOuAller >= 0 && grille[ligne + 1][indiceOuAller]){
                 indiceOuAller--;
             }
             if (indiceOuAller < 0)
@@ -410,7 +410,7 @@ int verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee,
                 return -1;
         }
         else if(deplacement == DIRDROITE){
-            while (indiceOuAller < NB_COLONNES && grille[ligne + 1][indiceOuAller] == 1) {
+            while (indiceOuAller < NB_COLONNES && grille[ligne + 1][indiceOuAller]) {
                 indiceOuAller++;
             }
             if (indiceOuAller > NB_COLONNES - 1)
@@ -421,7 +421,7 @@ int verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee,
 
 
     /* verif en à la ligne N + 1 que la case est vide où il veut aller  */
-    if(grille[ligne + 1][coordonnee + deplacement] == 1) return 0;
+    if(grille[ligne + 1][coordonnee + deplacement]) return 0;
 
 
     return 1;

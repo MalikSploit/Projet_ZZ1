@@ -1,5 +1,5 @@
 #include "jeu.h"
-#include "Constantes.h"
+#include <stdlib.h>
 
 /* renvoie le score. Simule le jeu et run une de ces instance */
 int Jeu(bot robot){
@@ -23,7 +23,6 @@ int Jeu(bot robot){
 
 jeu initJeu() {
     jeu j;
-    int nombreObstacles = 0;
 
     // Initialise the grid to 0
     for (int y = 0; y < NB_LIGNES; y++) {
@@ -32,18 +31,20 @@ jeu initJeu() {
         }
     }
 
-    // Ajouter les obstacles un par un à des positions aléatoires
-    while (nombreObstacles < MAX_OBSTACLES)
-    {
-        int x = rand() % NB_COLONNES;
-        int y = rand() % 6;  // Choisissez une ligne aléatoire parmi les 5 premières
-        // Vérifiez s'il n'y a pas déjà un obstacle ici
-        if (j.grille[y][x] == 0)
-        {
-            j.grille[y][x] = rand() % 8;  // Ajoute un obstacle
-            nombreObstacles++;
-        }
-    }
+    /* int nombreObstacles = 0; */
+
+    /* // Ajouter les obstacles un par un à des positions aléatoires */
+    /* while (nombreObstacles < MAX_OBSTACLES) */
+    /* { */
+    /*     int x = rand() % NB_COLONNES; */
+    /*     int y = rand() % 6;  // Choisissez une ligne aléatoire parmi les 5 premières */
+    /*     // Vérifiez s'il n'y a pas déjà un obstacle ici */
+    /*     if (j.grille[y][x] == 0) */
+    /*     { */
+    /*         j.grille[y][x] = rand() % 8;  // Ajoute un obstacle */
+    /*         nombreObstacles++; */
+    /*     } */
+    /* } */
 
     j.chasseur = rand() % NB_COLONNES;
     j.proie = rand() % NB_COLONNES;
@@ -219,10 +220,24 @@ int comportementProie(jeu j){
     float p = (float)rand()/(float)RAND_MAX;  // Génère un nombre aléatoire entre 0 et 1
 
     if (p < INFLUENCEPREDATEUR) {
+
         /* si le chasseur est derrière la proie */
         if(j.chasseur == j.proie){
-            deplacement = (rand() % 2) * 2 - 1;  // Génère soit -1 soit 1
+	    if(verifDeplacement(j.grille, DIRGAUCHE, j.proie, 1)){
+		if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
+		    deplacement = (rand() % 2 ) * 2 - 1;
+		}
+		else {
+		    deplacement = DIRGAUCHE;
+		}
+	    }
+	    else if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
+		deplacement = DIRDROITE;
+	    }
+	    else deplacement = DIRMILIEU;
+
         }
+	/* si le chasseur est à sa droite */
         else if(j.chasseur < j.proie){
             if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
                 deplacement = DIRDROITE;
@@ -232,27 +247,55 @@ int comportementProie(jeu j){
             }
             else deplacement = DIRGAUCHE;
         }
+	/* si le chasseur est à sa gauche */
+	else{
+	    if(verifDeplacement(j.grille, DIRGAUCHE, j.proie, 1)){
+                deplacement = DIRGAUCHE;
+            }
+            else if(verifDeplacement(j.grille, DIRMILIEU, j.proie, 1)){
+                deplacement = DIRMILIEU;
+            }
+            else deplacement = DIRDROITE;
+	}
     }
-    else if (p < INFLUENCEPREDATEUR + ALEATOIRE) {
-        deplacement = (rand() % 3) - 1;  // Génère un nombre aléatoire entre -1 et 1;
-    }
-    else {
-        /* déplacement "intelligent" = prend la direction ou la croix est la plus loin*/
 
-        int valDIRGAUCHE = distanceSurColonne(j, j.proie - 1);
-        int valDIRMILIEU = distanceSurColonne(j, j.proie);
-        int valDIRDROITE = distanceSurColonne(j, j.proie + 1);
+    /* si la proie à un comportement random */
+    else if (p < INFLUENCEPREDATEUR + ALEATOIRE) {
+	deplacement = (rand() % 3) - 1;
+	while(!verifDeplacement(j.grille, deplacement, j.proie, 1)) deplacement = (rand() % 3) - 1;
+    }
+
+    /* déplacement "intelligent" = prend la direction ou la croix est la plus loin*/
+    else {
+
+
+	int distanceColonne[3];
+
+        distanceColonne[0] = distanceSurColonne(j, j.proie - 1);
+        distanceColonne[1] = distanceSurColonne(j, j.proie);
+        distanceColonne[2] = distanceSurColonne(j, j.proie + 1);
 
         /* choix du + grand */
-        deplacement = DIRGAUCHE;
-        int max = valDIRGAUCHE;
-        if (valDIRDROITE > max) {
-            deplacement = DIRDROITE;
-            max = valDIRDROITE;
-        }
-        if (valDIRMILIEU > max) {
-            deplacement = DIRMILIEU;
-        }
+	int max = distanceColonne[0];
+	for (int i = 1; i < 3; i++) {
+	    if(distanceColonne[i] > max) max = distanceColonne[i];
+	}
+
+	int mouvementPossible[3] = {0};
+	int nbMouvPossible = 0;
+	for (int i = 0; i < 3; i++) {
+	    if(distanceColonne[i] == max && verifDeplacement(j.grille, i - 1, j.proie, 1)){
+		nbMouvPossible++;
+		mouvementPossible[i] = 1;
+	    }
+	}
+
+	int choix = rand() % nbMouvPossible;
+	for (int i = 0; i < 3 && choix >= 0; i++) {
+	    choix -= mouvementPossible[i];
+	}
+	deplacement = choix - 1;
+
     }
     return deplacement;
 }

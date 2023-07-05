@@ -2,6 +2,7 @@
 #include "SDL_Initialisation.h"
 #include "Constantes.h"
 #include "jeu.h"
+#include "Menu.h"
 
 SDL_Texture* obstacles[NOMBRE_SPRITE];
 
@@ -423,6 +424,20 @@ char* EcranAccueil(SDL_Renderer* renderer)
     return strdup(username);
 }
 
+void logScore(const char* username, int score)
+{
+    FILE *file = fopen("GameLog", "a");
+    if (file != NULL)
+    {
+        fprintf(file, "Player : %s; Score : %d\n", username, score);
+        fclose(file);
+    }
+    else
+    {
+        printf("Failed to open the file.\n");
+    }
+}
+
 
 void LancerJeu(SDL_Renderer* renderer)
 {
@@ -451,9 +466,8 @@ void LancerJeu(SDL_Renderer* renderer)
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
     TTF_Font* gameOverFont = loadFont("Font/arial_bold.ttf", 38);
 
+    //Demander le nom du joueur
     char* username = EcranAccueil(renderer);
-    printf("Username = %s\n", username);
-
 
     SDL_Color textColor = {255, 255, 255, 255}; // white color
     SDL_Texture* scoreTexture = NULL;
@@ -607,6 +621,11 @@ void LancerJeu(SDL_Renderer* renderer)
         SDL_RenderClear(renderer);
 
     }
+
+    // Enregistrer le nom et le score du joueur
+    logScore(username, score);
+    initHighScore();
+
     // Ajouter ceci après votre boucle de jeu
     int retry = gameOverScreen(renderer, gameOverFont, score);
     if (retry)

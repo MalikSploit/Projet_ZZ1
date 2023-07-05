@@ -26,5 +26,6 @@ typedef struct
 void drawButton(SDL_Renderer* renderer, Button* button);
 void displayHelp(SDL_Renderer* renderer);
 void displayHighScore(SDL_Renderer* renderer);
+void initHighScore();
 
 #endif //PROJET_ZZ1_MENU_H

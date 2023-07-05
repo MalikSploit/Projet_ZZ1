@@ -2,6 +2,7 @@
 #include "SDL_Initialisation.h"
 #include "jeu_SDL.h"
 
+
 void initHighScore()
 {
     FILE *logFile, *highscoreFile;
@@ -319,8 +320,6 @@ int main()
         return 1;
     }
 
-    initHighScore();
-
     int logo1Width, logo1Height;
     SDL_QueryTexture(logo1, NULL, NULL, &logo1Width, &logo1Height);
 
@@ -354,6 +353,9 @@ int main()
         buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
         SDL_FreeSurface(surface);
     }
+
+    // Initialisation du high score a partir de GameLog
+    initHighScore();
 
     // Main loop flag
     bool quit = false;

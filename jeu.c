@@ -1,5 +1,4 @@
 #include "jeu.h"
-#include <stdlib.h>
 
 /* renvoie le score. Simule le jeu et run une de ces instance */
 int Jeu(bot robot){
@@ -16,7 +15,7 @@ int Jeu(bot robot){
         /* déplacement toujours faisable */
         deplacement = deplacementFromBot(j, robot, situation);
         fin = iterJeu(&j, deplacement);
-        i++;
+	i++;
     }
     return i;
 }
@@ -148,7 +147,7 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
         // si la regle matche et que le deplacement est legal on attribue la probabilite
         if(matchRegleSituation(robot[i], situation) && verifDeplacement(j.grille, robot[i][TAILLE_ETAT], j.chasseur, 0)) {
             newProba = powf(robot[i][TAILLE_ETAT+1], IMPORTANCE_PRIORITES);
-            probabilities[robot[i][TAILLE_ETAT]] += newProba;
+            probabilities[robot[i][TAILLE_ETAT]+1] += newProba;
             probaTotale += newProba;
             regleExiste = true;
         }
@@ -194,9 +193,14 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
 bool iterJeu(jeu * j, int deplacement){
 
     deplacerChasseur(j, deplacement);
+
+    /* récupération des indices de la proie pour savoir si le jeu est peut-être fini */
+    int departP = j->proie;
     deplacerProie(j);
+    int finP = j->proie;
+
     avanceGrille(j->grille);
-    return jeuFini(*j);
+    return jeuFini(*j, departP, finP);
 }
 
 void deplacerChasseur(jeu * j, int deplacement){
@@ -366,11 +370,21 @@ int obstacleDroite(jeu j) {
     return i;
 }
 
-bool jeuFini(jeu j){
+bool jeuFini(jeu j, int depart, int fin){
 
+    /* vérification si la proie se tp et chasseur derriere */
+    bool proieAttrapeTp = false;
+    if(depart - fin >= 2){
+	proieAttrapeTp = chasseurBienPlace(j.chasseur, fin, depart);
+    }
+    else if(fin - depart >= 2){
+	proieAttrapeTp = chasseurBienPlace(j.chasseur, depart, fin);
+    }
+    if(proieAttrapeTp) return true;
+    
+    /* verification si le chasseur est derriere et proie bloquée  */
     int posObstacleGauche = obstacleGauche(j);
     int posObstacleDroite = obstacleDroite(j);
-
     if(verifCroix(posObstacleGauche, posObstacleDroite, j.grille[2]) && chasseurBienPlace(j.chasseur, posObstacleGauche, posObstacleDroite)){
         return true;
     }
@@ -389,7 +403,7 @@ bool verifCroix(int debut, int fin, int * ligne){
 
 /* retourne 1 si les croix sont bien toutes présentes */
 bool chasseurBienPlace(int chasseur, int debut, int fin){
-    if (chasseur > debut && chasseur < fin) {
+    if (chasseur >= debut && chasseur <= fin) {
         return 1;
     }
     else return 0;
@@ -458,11 +472,22 @@ void avanceGrille(int grille[][NB_COLONNES]){
 }
 
 void creerLigne(int arr[NB_COLONNES]) {
+
+    /* il ne faut pas qu'il y ait des croix partout */
+    int nbCroixMise = 0;
+
     // Remplis le tableau avec des nombres aléatoires 0 et 1
     for (int j = 0; j < NB_COLONNES; j++) {
-        if((double)rand() / RAND_MAX < PROBA_OBSTACLE)
+        if((double)rand() / RAND_MAX < PROBA_OBSTACLE){
             arr[j] = rand() % NOMBRE_SPRITE + 1;
+	    nbCroixMise++;
+	}
         else
             arr[j] = 0;
+    }
+
+    /* si toutes les croix sont mise, alors on en enlève une aléatoirement */
+    if(nbCroixMise == NB_COLONNES){
+	arr[rand() % NB_COLONNES] = 0;
     }
 }

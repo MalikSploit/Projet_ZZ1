@@ -35,8 +35,8 @@ void drawObstacle(SDL_Renderer *renderer, EnemyCar *enemyCar);
 void drawVoiture(SDL_Renderer *renderer, UserCar *userCar);
 void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL_Texture** texture, SDL_Rect* rect, const char* text);
 void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
-             SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, TTF_Font* font,
-             UserCar userCar, EnemyCar obstacles[], SDL_Renderer* renderer, SDL_Window* window);
+             SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, SDL_Texture* highScoreTexture, TTF_Font* font, TTF_Font* font2,
+             UserCar userCar, UserCar moto, EnemyCar obstacles[], SDL_Renderer* renderer, SDL_Window* window);
 void InitScore(SDL_Renderer* renderer, Uint32* lastScoreUpdateTime, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, UserCar* userCar, SDL_Color* textColor);
 void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor, SDL_Texture** vitesseTexture, SDL_Rect *vitesseRect, TTF_Font* font);
 

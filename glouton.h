@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Constantes.h"
+#include "jeu.h"
 #include <stdio.h>
-#include <jeu.h>
 
 #define NOMBRE_GLOUTON 10
-#define NOMBRE_INDICES 40 // NB_REGLES * TAILLE_ETAT
+#define NOMBRE_INDICES NB_REGLES*(TAILLE_ETAT+2)
 
-bot creerBot();
-bot algoGlouton(bot unBot);
-void * permutation(int * indices);
-void * initIndices(int * indices);
+void initialiserBot(bot unBot);
+void algoGlouton(bot unBot);
+void melangeIndices(int * indices);
+void initIndices(int * indices);
 void swap(int *a, int *b);

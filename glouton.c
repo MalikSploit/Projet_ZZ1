@@ -1,73 +1,92 @@
 #include "glouton.h"
-#include <stdio.h>
+#include "Constantes.h"
+#include "jeu.h"
 
-bot creerBot(){
-    bot robot;
+int valeurPossibleRegle[TAILLE_ETAT + 2][7] = {
+  {5, -1, 1, 2, 3, 4},
+  {5, -1, 1, 2, 3, 4},
+  {5, -1, 1, 2, 3, 4},
+  {6, -1, 1, 2, 3, 4, 5},
+  {3, -1, 0, 1},
+  {5, 1, 2, 3, 4, 5}
+};
+
+void initialiserBot(bot unBot){
 
     for (int i = 0; i < NB_REGLES; i++) {
 	for (int j = 0; j <= 2; j++) {
-	    robot[i][j] = rand() % 5;
-	    if (robot[i][j] == 0) {
-		robot[i][j] = -1;
+	    unBot[i][j] = rand() % 5;
+	    if (unBot[i][j] == 0) {
+		unBot[i][j] = -1;
 	    }
 	}
 	
-	robot[i][3] = rand() % 6;
-	if (robot[i][3] == 0) {
-	    robot[i][3] = -1;
+	unBot[i][3] = rand() % 6;
+	if (unBot[i][3] == 0) {
+	    unBot[i][3] = -1;
 	}
 
-	robot[i][4] = rand() % 3 - 1;
-	robot[i][5] = (rand() % 5) + 1;
+	unBot[i][4] = rand() % 3 - 1;
+	unBot[i][5] = (rand() % 5) + 1;
     }
-
-    return robot;
 
 }
 
-/* Jeu(robot) */
-
-bot algoGlouton(bot unBot){
+void algoGlouton(bot unBot){
 
   int indices[NOMBRE_INDICES];
   initIndices(indices);
-  
 
-    for (int i = 0; i < NOMBRE_GLOUTON; i++) {
+  initialiserBot(unBot);
 
+  int ligne;
+  int colonne;
 
+  for (int i = 0; i < NOMBRE_GLOUTON; i++) { 
+    for (int j = 0; j < NOMBRE_INDICES; j++) {
+      colonne = indices[j] % (TAILLE_ETAT + 2);
+      ligne = indices[j] / (TAILLE_ETAT + 2);
 
-      /* on repermute les probas */
-      permutation(indices);
+      int meilleurScore = MAX_ITER;
+      int meilleurValeur = valeurPossibleRegle[colonne][1];
+      int scoreActuel;
+
+      for (int k = 1; k <= valeurPossibleRegle[colonne][0]; k++) {
+
+	unBot[ligne][colonne] = valeurPossibleRegle[colonne][k];
+	scoreActuel = Jeu(unBot);
+	if (scoreActuel < meilleurScore)
+	  {
+	    meilleurScore = scoreActuel;
+	    meilleurValeur = valeurPossibleRegle[colonne][k];
+	  }
+      }
+      unBot[ligne][colonne] = meilleurValeur;
     }
+      
+    /* on repermute les probas */
+    melangeIndices(indices);
+  }
 
-    printf("Score du meilleur bot d'algoGlouton %d", Jeu(unBot));
-    return unBot;
-
-}
-
-void * permutation(int * indices){
-
+  printf("Score du meilleur bot d'algo Glouton %d", Jeu(unBot));
 
 }
 
-void * initIndices(int * indices){
+void initIndices(int * indices){
 
   for (int i = 0; i < NOMBRE_INDICES; i++) {
     indices[i] = i;
   }
-  permutation(indices);
+  melangeIndices(indices);
 }
 
-// changement d'etat par swap de deux valeurs aleatoires
-void permutation(int * actuel) {
+void melangeIndices(int * indices){
 
-        int i = rand() % (NOMBRE_INDICES);
-	int j = rand() % (NOMBRE_INDICES);
-	while(j == i) j = rand() % (NOMBRE_INDICES);
-
-	swap(&actuel[i], &actuel[j]);
-
+  for (int j = NOMBRE_INDICES - 1; j > 0; j--) {
+    int k = rand() % (j + 1);
+    swap(&indices[j], &indices[k]);
+  }
+  
 }
 
 void swap(int *a, int *b) {

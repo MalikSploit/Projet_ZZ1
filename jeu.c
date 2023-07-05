@@ -1,4 +1,5 @@
 #include "jeu.h"
+#include "Constantes.h"
 
 /* renvoie le score. Simule le jeu et run une de ces instance */
 int Jeu(bot robot){
@@ -52,6 +53,9 @@ jeu initJeu() {
 // renvoie la distance entre la proie et le plus proche obstacle sur la colonne donnee
 // s'il n'y pas d'obstacle, renvoie NB_LIGNES-1
 int distanceSurColonne(jeu j, int colonne) {
+    if(colonne < 0 || colonne >= NB_COLONNES)
+	return 0;
+    
     int ligne = 1;
     bool trouve = false;
     // recherche du plus proche obstacle
@@ -75,7 +79,7 @@ int proximiteSurColonne(jeu j, int colonne) {
 
     // mettre a jour la situation en fonction du cas
     int result;
-    if (distance == 1) result = PROCHE;
+    if (distance <= 1) result = PROCHE;
     else if (distance <= 4) result = MOYEN;
     else if (distance < NB_LIGNES - 1) result = LOIN;
     else result = AUCUN;
@@ -131,6 +135,9 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
     // si aucune regle candidate, choisir un deplacement random parmi les legaux
 
     float probabilities[3];
+
+    for(int i = 0; i < 3; i++) probabilities[i] = 0;
+
     float probaTotale = 0;
     float newProba;
 
@@ -148,12 +155,12 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
 
     // si aucune regle n'a matche on attribue des probas egales a tous les deplacements legaux
     if (!regleExiste) {
-        for (int i = -1; i < 2; i++) {
-            if(verifDeplacement(j.grille, i, j.chasseur, 0)) {
-                probabilities[i] = 1;
-                probaTotale += 1;
-            }
-        }
+	for (int i = -1; i < 2; i++) {
+	    if(verifDeplacement(j.grille, i, j.chasseur, 0)) {
+		probabilities[i+1] = 1;
+		probaTotale += 1;
+	    }
+	}
     }
 
     // choix d'une direction en fonction des probabilites
@@ -331,43 +338,48 @@ bool chasseurBienPlace(int chasseur, int debut, int fin){
 }
 
 /* renvoie 1 si VALIDE, renvoie 0 si PAS VALIDE, renvoie -1 si téléportation */
-bool verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){
+int verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee, int ligne){
 
     /* verif côté gauche */
     if(coordonnee + deplacement < 0) return 0;
     /* verif côté droit */
     if(coordonnee + deplacement > NB_COLONNES - 1) return 0;
-    /* verif en à la ligne N + 1 que la case est vide où il veut aller  */
-    if(grille[ligne + 1][coordonnee + deplacement] == 1) return 0;
 
+    /* on vérif d'abord si il doit y avoir téléportation */
+    
     /* si les trois cases devant lui sont prises, alors cas spécial de téléportation */
-    if((grille[ligne + 1][coordonnee + DIRGAUCHE] == 1)
+    if((coordonnee + DIRGAUCHE < 0 || grille[ligne + 1][coordonnee + DIRGAUCHE] == 1)
        &&
        (grille[ligne + 1][coordonnee + DIRMILIEU] == 1)
        &&
-       (grille[ligne + 1][coordonnee + DIRDROITE] == 1))
+       (coordonnee + DIRDROITE > NB_COLONNES - 1 || grille[ligne + 1][coordonnee + DIRDROITE] == 1))
     {
         int indiceOuAller = coordonnee;
         if (deplacement == DIRMILIEU)
             return 0;
         else if (deplacement == DIRGAUCHE) {
-            while (grille[ligne + 1][indiceOuAller] == 1){
+            while (indiceOuAller >= 0 && grille[ligne + 1][indiceOuAller] == 1){
                 indiceOuAller--;
             }
-            if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
+            if (indiceOuAller < 0)
                 return 0;
             else
                 return -1;
         }
         else if(deplacement == DIRDROITE){
-            while (grille[ligne + 1][indiceOuAller] == 1) {
+            while (indiceOuAller < NB_COLONNES && grille[ligne + 1][indiceOuAller] == 1) {
                 indiceOuAller++;
             }
-            if (indiceOuAller < 0 || indiceOuAller > NB_COLONNES - 1)
+            if (indiceOuAller > NB_COLONNES - 1)
                 return 0;
             else return -1;
         }
     }
+
+
+    /* verif en à la ligne N + 1 que la case est vide où il veut aller  */
+    if(grille[ligne + 1][coordonnee + deplacement] == 1) return 0;
+
 
     return 1;
 }
@@ -388,8 +400,6 @@ void avanceGrille(int grille[][NB_COLONNES]){
 }
 
 void creerLigne(int arr[NB_COLONNES]) {
-    srand(time(0)); // Initialise le générateur de nombres aléatoires
-
     // Remplis le tableau avec des nombres aléatoires 0 et 1
     for (int j = 0; j < NB_COLONNES; j++) {
         if((double)rand() / RAND_MAX < PROBA_OBSTACLE)

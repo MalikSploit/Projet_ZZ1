@@ -2,6 +2,7 @@
 #define PROJET_ZZ1_MENU_H
 
 #include "Constantes.h"
+#include "jeu.h"
 
 typedef struct Button
 {

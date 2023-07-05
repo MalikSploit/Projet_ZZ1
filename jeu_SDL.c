@@ -213,13 +213,22 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 {
     SDL_Color greenColor = {0, 255, 0, 255}; // Define the color green.
 
+    // Load the Game Over background image
+    SDL_Surface* backgroundSurface = LoadImage("Images/Background_Game_Over.jpg");
+
+    // Create a texture from the loaded surface
+    SDL_Texture* backgroundTexture = LoadTexture(renderer, backgroundSurface);
+
+    // Position and size of Background texture. In this case, we want to cover the whole screen.
+    SDL_Rect backgroundRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+
     SDL_Surface* gameOverSurface = LoadImage("Images/GAME_OVER.png");
     SDL_Texture* gameOverTexture = LoadTexture(renderer, gameOverSurface);
     // Get dimensions of Game Over texture
     int gameOverWidth, gameOverHeight;
     SDL_QueryTexture(gameOverTexture, NULL, NULL, &gameOverWidth, &gameOverHeight);
     // Position and size of Game Over texture
-    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - gameOverWidth / 2, 50, gameOverWidth, gameOverHeight};
+    SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - gameOverWidth / 2, 250, gameOverWidth, gameOverHeight};
 
     // Create the score text and get its dimensions
     char scoreText[50];
@@ -228,7 +237,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     int scoreWidth, scoreHeight;
     SDL_QueryTexture(scoreTexture, NULL, NULL, &scoreWidth, &scoreHeight);
     // Position and size of Score text
-    SDL_Rect scoreRect = {SCREEN_WIDTH / 2 - scoreWidth / 2, gameOverHeight + 150, scoreWidth, scoreHeight};
+    SDL_Rect scoreRect = {SCREEN_WIDTH / 2 - scoreWidth / 2, gameOverHeight + 250, scoreWidth, scoreHeight};
 
     int highScore = getHighScore();
     char highScoreText[50];
@@ -237,19 +246,19 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     int highScoreWidth, highScoreHeight;
     SDL_QueryTexture(highScoreTexture, NULL, NULL, &highScoreWidth, &highScoreHeight);
     // Position and size of Highscore text
-    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 - highScoreWidth / 2, gameOverHeight + 220, highScoreWidth, highScoreHeight};
+    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 - highScoreWidth / 2, gameOverHeight + 320, highScoreWidth, highScoreHeight};
 
     SDL_Texture* replayTexture = createTextTexture(renderer, font, greenColor, "Play Again");
     int replayWidth, replayHeight;
     SDL_QueryTexture(replayTexture, NULL, NULL, &replayWidth, &replayHeight);
     // Position and size of Replay text
-    SDL_Rect replayRect = {SCREEN_WIDTH / 2 - replayWidth / 2, gameOverHeight + 290, replayWidth, replayHeight};
+    SDL_Rect replayRect = {SCREEN_WIDTH / 2 - replayWidth / 2, gameOverHeight + 390, replayWidth, replayHeight};
 
     SDL_Texture* quitTexture = createTextTexture(renderer, font, greenColor, "Quit");
     int quitWidth, quitHeight;
     SDL_QueryTexture(quitTexture, NULL, NULL, &quitWidth, &quitHeight);
     // Position and size of Quit text
-    SDL_Rect quitRect = {SCREEN_WIDTH / 2 - quitWidth / 2, gameOverHeight + 360, quitWidth, quitHeight};
+    SDL_Rect quitRect = {SCREEN_WIDTH / 2 - quitWidth / 2, gameOverHeight + 460, quitWidth, quitHeight};
 
     SDL_Color WHITE = {255, 255, 255, 255}; // On hover change color to white
 
@@ -317,11 +326,13 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
             }
         }
 
+        SDL_RenderCopy(renderer, backgroundTexture, NULL, &backgroundRect);
         SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverRect);
         SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
         SDL_RenderCopy(renderer, highScoreTexture, NULL, &highScoreRect);
         SDL_RenderCopy(renderer, replayTexture, NULL, &replayRect);
         SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);
+
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
     }
@@ -331,30 +342,42 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     SDL_DestroyTexture(highScoreTexture);
     SDL_DestroyTexture(replayTexture);
     SDL_DestroyTexture(quitTexture);
+    SDL_DestroyTexture(backgroundTexture);
 
     return 0;
 }
 
-
 char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
 {
     initializeTTF();
-    TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
+    TTF_Font* font = loadFont("Font/arial_bold.ttf", 32);
     TTF_Font* font_button = loadFont("Font/arial_bold.ttf", 35);
 
     SDL_Color WHITE = {255, 255, 255, 255};
     SDL_Color BLACK = {0, 0, 0, 255};
+    SDL_Color HOVER_COLOR = {255, 100, 0, 255};
+    SDL_Color BUTTON_COLOR = {100, 200, 100, 255};
+
+    SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/DemanderUsername_Background.jpg");
+    // Dim the background image by half
+    SDL_SetTextureColorMod(backgroundTexture, 128, 128, 128);
 
     SDL_Texture* usernameTexture = NULL;
     SDL_Rect usernameRect = {SCREEN_WIDTH / 2 - 250, SCREEN_HEIGHT / 2, 500, 40};
 
     SDL_Texture* validateTexture = createTextTexture(renderer, font_button, WHITE, "Valider");
-    SDL_Rect validateRect = {SCREEN_WIDTH / 2 - 75, SCREEN_HEIGHT / 2 + 100, 150, 50};
+    SDL_Texture* validateHoverTexture = createTextTexture(renderer, font_button, HOVER_COLOR, "Valider");
+
+    int validate_width, validate_height;
+    SDL_QueryTexture(validateTexture, NULL, NULL, &validate_width, &validate_height);
+    SDL_Rect validateRect = {SCREEN_WIDTH / 2 - validate_width / 2, SCREEN_HEIGHT / 2 + 100, validate_width, validate_height};
+    SDL_Rect validateBorderRect = {validateRect.x - 5, validateRect.y - 5, validateRect.w + 10, validateRect.h + 10};
 
     SDL_Rect textBoxRect = {SCREEN_WIDTH / 2 - 250, SCREEN_HEIGHT / 2, 500, 50};
 
     bool running = true;
     SDL_Event e;
+    bool buttonHovered = false;
 
     char username[50] = "";
 
@@ -401,29 +424,60 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
                     running = false;
                 }
             }
+            else if (e.type ==SDL_MOUSEMOTION)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
+                    y >= validateRect.y && y <= validateRect.y + validateRect.h)
+                {
+                    // Mouse is over "Validate" button
+                    buttonHovered = true;
+                }
+                else
+                {
+                    // Mouse is not over "Validate" button
+                    buttonHovered = false;
+                }
+            }
         }
 
         updateText(renderer, font, BLACK, &usernameTexture, &usernameRect, username);
+
+        SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &textBoxRect);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-
         SDL_RenderCopy(renderer, usernameTexture, NULL, &usernameRect);
-        SDL_RenderCopy(renderer, validateTexture, NULL, &validateRect);
+
+        if (buttonHovered)
+        {
+            SDL_SetRenderDrawColor(renderer, BUTTON_COLOR.r, BUTTON_COLOR.g, BUTTON_COLOR.b, BUTTON_COLOR.a);
+            SDL_RenderFillRect(renderer, &validateBorderRect);
+            SDL_RenderCopy(renderer, validateHoverTexture, NULL, &validateRect);
+        }
+        else
+        {
+            SDL_SetRenderDrawColor(renderer, BUTTON_COLOR.r, BUTTON_COLOR.g, BUTTON_COLOR.b, BUTTON_COLOR.a);
+            SDL_RenderFillRect(renderer, &validateBorderRect);
+            SDL_RenderCopy(renderer, validateTexture, NULL, &validateRect);
+        }
 
         SDL_RenderPresent(renderer);
-        SDL_RenderClear(renderer);
     }
 
     SDL_DestroyTexture(usernameTexture);
     SDL_DestroyTexture(validateTexture);
+    SDL_DestroyTexture(validateHoverTexture);
+    SDL_DestroyTexture(backgroundTexture);
     TTF_CloseFont(font);
     TTF_CloseFont(font_button);
 
     return strdup(username);
 }
+
 
 void logScore(const char* username, int score)
 {

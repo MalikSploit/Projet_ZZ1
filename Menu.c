@@ -314,8 +314,8 @@ int main()
     {
         return 1;
     }
-    SDL_Texture* bgTexture1 = loadLogo(renderer, "Images/Background.png");
-    SDL_Texture* bgTexture2 = loadLogo(renderer, "Images/Background.png");
+    SDL_Texture* bgTexture1 = loadLogo(renderer, "Images/Background_Menu.png");
+    SDL_Texture* bgTexture2 = loadLogo(renderer, "Images/Background_Menu.png");
     if (bgTexture1 == NULL || bgTexture2 == NULL)
     {
         return 1;

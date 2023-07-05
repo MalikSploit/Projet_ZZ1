@@ -12,13 +12,12 @@ bot creerBot(){
 	    }
 	}
 	
-	robot[i][3] = (rand() % 5) + 1;
-
-	robot[i][4] = rand() % 6;
-	if (robot[i][4] == 0) {
-	    robot[i][4] = -1;
+	robot[i][3] = rand() % 6;
+	if (robot[i][3] == 0) {
+	    robot[i][3] = -1;
 	}
 
+	robot[i][4] = rand() % 3 - 1;
 	robot[i][5] = (rand() % 5) + 1;
     }
 

@@ -1,5 +1,4 @@
 #include "jeu.h"
-#include <stdlib.h>
 
 /* renvoie le score. Simule le jeu et run une de ces instance */
 int Jeu(bot robot){
@@ -194,9 +193,14 @@ int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
 bool iterJeu(jeu * j, int deplacement){
 
     deplacerChasseur(j, deplacement);
+
+    /* récupération des indices de la proie pour savoir si le jeu est peut-être fini */
+    int departP = j->proie;
     deplacerProie(j);
+    int finP = j->proie;
+
     avanceGrille(j->grille);
-    return jeuFini(*j);
+    return jeuFini(*j, departP, finP);
 }
 
 void deplacerChasseur(jeu * j, int deplacement){
@@ -366,11 +370,21 @@ int obstacleDroite(jeu j) {
     return i;
 }
 
-bool jeuFini(jeu j){
+bool jeuFini(jeu j, int depart, int fin){
 
+    /* vérification si la proie se tp et chasseur derriere */
+    bool proieAttrapeTp = false;
+    if(depart - fin >= 2){
+	proieAttrapeTp = chasseurBienPlace(j.chasseur, fin, depart);
+    }
+    else if(fin - depart >= 2){
+	proieAttrapeTp = chasseurBienPlace(j.chasseur, depart, fin);
+    }
+    if(proieAttrapeTp) return true;
+    
+    /* verification si le chasseur est derriere et proie bloquée  */
     int posObstacleGauche = obstacleGauche(j);
     int posObstacleDroite = obstacleDroite(j);
-
     if(verifCroix(posObstacleGauche, posObstacleDroite, j.grille[2]) && chasseurBienPlace(j.chasseur, posObstacleGauche, posObstacleDroite)){
         return true;
     }

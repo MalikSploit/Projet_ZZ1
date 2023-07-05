@@ -22,9 +22,8 @@ typedef struct
 
 
 void drawButton(SDL_Renderer* renderer, Button* button);
-void drawText(SDL_Renderer* renderer, TTF_Font* font, char* text, SDL_Color color, int x, int y);
 SDL_Texture* loadTexture(SDL_Renderer* renderer, char* filepath);
-void displayHelp();
-void displayHighScore();
+void displayHelp(SDL_Renderer* renderer);
+void displayHighScore(SDL_Renderer* renderer);
 
 #endif //PROJET_ZZ1_MENU_H

@@ -50,7 +50,6 @@ UserCar initMoto(SDL_Renderer *renderer, int x, int y)
     return moto;
 }
 
-
 // Fonction pour dessiner la moto à l'écran
 void drawMoto(SDL_Renderer *renderer, UserCar *moto)
 {
@@ -83,7 +82,6 @@ EnemyCar initObstacle(SDL_Renderer *renderer, int lane_x, int lane_y, char *obst
 
     return enemyCar;
 }
-
 
 void initRandomObstacles(SDL_Renderer *renderer, int grid[8][8], EnemyCar obstacles[], int* numObstacles)
 {
@@ -146,10 +144,9 @@ void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL
     }
 }
 
-
 void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
              SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, SDL_Texture* highScoreTexture, TTF_Font* font, TTF_Font* font2,
-             UserCar userCar, UserCar moto, EnemyCar obstacles[], SDL_Renderer* renderer, SDL_Window* window)
+             UserCar userCar, UserCar moto, EnemyCar obstacles[])
 {
     // Free the loaded surface as it is no longer needed
     SDL_FreeSurface(backgroundSurface);
@@ -175,9 +172,6 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
         SDL_DestroyTexture(obstacles[i].texture);
     }
 
-    // Destroy renderer and window
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
 
     // Quit SDL subsystems
     IMG_Quit();
@@ -337,7 +331,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 }
 
 
-int LancerJeu()
+void LancerJeu(SDL_Renderer* renderer)
 {
     // Initialise le générateur de nombres pseudo aléatoires
     srand(time(NULL));
@@ -350,12 +344,6 @@ int LancerJeu()
 
     // Initialize SDL_image
     initializeIMG();
-
-    // Create window
-    SDL_Window *window = createWindow("Highway Racer");
-
-    // Create renderer
-    SDL_Renderer *renderer = createRenderer(window);
 
     // Load the background image
     SDL_Surface *backgroundSurface = LoadImage("Images/Game.png");
@@ -415,7 +403,7 @@ int LancerJeu()
         {
             deplacement = -2;
 
-            if ((e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)))
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
             {
                 running = false;
             }
@@ -528,10 +516,32 @@ int LancerJeu()
     if (retry)
     {
         // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
-        LancerJeu();
+        LancerJeu(renderer);
     }
 
-    cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles, renderer, window);
-
-    return 1;
+    cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
 }
+
+
+/* int main() { */
+/*     int seed = time(NULL); */
+/*     seed = 1688484772; */
+/*     srand(seed); */
+/*     printf("%d\n", seed); */
+
+/*     bot robot; */
+/*     for (int i = 0; i < NB_REGLES; i++) { */
+/* 	for (int j = 0; j <= 2; j++) { */
+/* 	    robot[i][j] = (rand() % 4) + 1; */
+/* 	} */
+/* 	robot[i][3] = (rand() % 5) + 1; */
+/* 	robot[i][4] = (rand() % 3) - 1; */
+/* 	robot[i][5] = (rand() % 5) + 1; */
+/*     } */
+/*     // to do rajouter les jokers */
+
+/*     printf("Bot aleatoire cree\n"); */
+/*     printf("score de ce bot : %d\n", Jeu(robot)); */
+
+/*     return 0; */
+/* } */

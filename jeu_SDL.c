@@ -336,7 +336,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 }
 
 
-char* EcranAccueil(SDL_Renderer* renderer)
+char* EcranAccueil(SDL_Renderer* renderer, int *QuitterJeu)
 {
     initializeTTF();
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
@@ -365,6 +365,7 @@ char* EcranAccueil(SDL_Renderer* renderer)
             if (e.type == SDL_QUIT)
             {
                 running = false;
+                *QuitterJeu = 1;
             }
             else if (e.type == SDL_KEYDOWN)
             {
@@ -441,200 +442,209 @@ void logScore(const char* username, int score)
 
 void LancerJeu(SDL_Renderer* renderer)
 {
-    // Initialise le générateur de nombres pseudo aléatoires
-    srand(time(NULL));
-
-    //Init jeu
-    jeu j = initJeu();
-
-    // Initialize SDL
-    initializeSDL();
-
-    // Initialize SDL_image
-    initializeIMG();
-
-    // Load the background image
-    SDL_Surface *backgroundSurface = LoadImage("Images/Game.png");
-
-    // Create a texture from the loaded surface
-    SDL_Texture *backgroundTexture = LoadTexture(renderer, backgroundSurface);
-
-    // Create a second texture from the same surface for scrolling background
-    SDL_Texture *backgroundTexture2 = LoadTexture(renderer, backgroundSurface);
-
-    initializeTTF();
-    TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
-    TTF_Font* gameOverFont = loadFont("Font/arial_bold.ttf", 38);
 
     //Demander le nom du joueur
-    char* username = EcranAccueil(renderer);
+    int quitterJeu = 0;
+    char* username = EcranAccueil(renderer, &quitterJeu);
 
-    SDL_Color textColor = {255, 255, 255, 255}; // white color
-    SDL_Texture* scoreTexture = NULL;
-    SDL_Texture* vitesseTexture = NULL;
-    SDL_Rect scoreRect = {10, 10, 0, 0}; // position for score, top left
-    SDL_Rect vitesseRect = {SCREEN_WIDTH - 260, 10, 0, 0}; // position for speed, top right
-
-    // Create the texture for high score
-    char highScoreText[30];
-    sprintf(highScoreText, "High Score: %d", getHighScore());
-    SDL_Texture* highScoreTexture = createTextTexture(renderer, font, textColor, highScoreText);
-    int highScoreWidth, highScoreHeight;
-    SDL_QueryTexture(highScoreTexture, NULL, NULL, &highScoreWidth, &highScoreHeight);
-    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 - highScoreWidth / 2, 10, highScoreWidth, highScoreHeight}; // position for highscore, top middle
-
-    // Initialisation de la voiture chasseur
-    UserCar userCar = initVoiture(renderer, j.chasseur, 0);
-
-    // Initialisation de la moto proie
-    UserCar moto = initMoto(renderer, j.proie, 1);
-
-    // Initialisation de la texture des obstacles
-    initTexturesObstacles(renderer);
-
-    int bgScroll = 0;  // Initialize background scroll offset
-
-    int score = -1;
-
-    bool isPaused = false;
-    SDL_Texture* pauseTexture = NULL;
-    SDL_Rect pauseRect = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, 100, 100}; // position for pause text, middle of the screen
-
-    bool running = true;
-    SDL_Event e;
-    int deplacement = -2;
-    int deplacementEffectue = 1;
-
-    while (running)
+    if (!quitterJeu)
     {
-        while (SDL_PollEvent(&e) != 0)
-        {
-            deplacement = -2;
+        // Initialise le générateur de nombres pseudo aléatoires
+        srand(time(NULL));
 
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+        //Init jeu
+        jeu j = initJeu();
+
+        // Initialize SDL
+        initializeSDL();
+
+        // Initialize SDL_image
+        initializeIMG();
+
+        // Load the background image
+        SDL_Surface *backgroundSurface = LoadImage("Images/Game.png");
+
+        // Create a texture from the loaded surface
+        SDL_Texture *backgroundTexture = LoadTexture(renderer, backgroundSurface);
+
+        // Create a second texture from the same surface for scrolling background
+        SDL_Texture *backgroundTexture2 = LoadTexture(renderer, backgroundSurface);
+
+        initializeTTF();
+        TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
+        TTF_Font* gameOverFont = loadFont("Font/arial_bold.ttf", 38);
+
+        SDL_Color textColor = {255, 255, 255, 255}; // white color
+        SDL_Texture* scoreTexture = NULL;
+        SDL_Texture* vitesseTexture = NULL;
+        SDL_Rect scoreRect = {10, 10, 0, 0}; // position for score, top left
+        SDL_Rect vitesseRect = {SCREEN_WIDTH - 260, 10, 0, 0}; // position for speed, top right
+
+        // Create the texture for high score
+        char highScoreText[30];
+        sprintf(highScoreText, "High Score: %d", getHighScore());
+        SDL_Texture* highScoreTexture = createTextTexture(renderer, font, textColor, highScoreText);
+        int highScoreWidth, highScoreHeight;
+        SDL_QueryTexture(highScoreTexture, NULL, NULL, &highScoreWidth, &highScoreHeight);
+        SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 - highScoreWidth / 2, 10, highScoreWidth, highScoreHeight}; // position for highscore, top middle
+
+        // Initialisation de la voiture chasseur
+        UserCar userCar = initVoiture(renderer, j.chasseur, 0);
+
+        // Initialisation de la moto proie
+        UserCar moto = initMoto(renderer, j.proie, 1);
+
+        // Initialisation de la texture des obstacles
+        initTexturesObstacles(renderer);
+
+        int bgScroll = 0;  // Initialize background scroll offset
+
+        int score = -1;
+
+        bool isPaused = false;
+        SDL_Texture* pauseTexture = NULL;
+        SDL_Rect pauseRect = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, 100, 100}; // position for pause text, middle of the screen
+
+        bool running = true;
+        SDL_Event e;
+        int deplacement = -2;
+        int deplacementEffectue = 1;
+
+        while (running)
+        {
+            while (SDL_PollEvent(&e) != 0)
             {
-                running = false;
-            }
-            else if (e.type == SDL_KEYDOWN)
-            {
-                if (e.key.keysym.sym == SDLK_p)
+                deplacement = -2;
+
+                if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
                 {
-                    isPaused = !isPaused; // Inverse l'état de pause
-                    if (isPaused)
-                    {
-                        updateText(renderer, font, textColor, &pauseTexture, &pauseRect, "Paused");
-                    }
-                    else
-                    {
-                        SDL_DestroyTexture(pauseTexture);
-                        pauseTexture = NULL;
-                    }
+                    running = false;
+                    quitterJeu = 1;
                 }
-                if (!isPaused)
+                else if (e.type == SDL_KEYDOWN)
                 {
-                    if (e.key.keysym.sym == SDLK_LEFT)
+                    if (e.key.keysym.sym == SDLK_p)
                     {
-                        deplacement = -1;
-                    }
-                    else if (e.key.keysym.sym == SDLK_RIGHT)
-                    {
-                        deplacement = 1;
-                    }
-                    else if (e.key.keysym.sym == SDLK_UP && !( SDL_GetModState() & KMOD_CTRL))
-                    {
-                        deplacement = 0;
-                    }
-                    else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_UP)
-                    {
-                        if (userCar.velocity <= 19)
+                        isPaused = !isPaused; // Inverse l'état de pause
+                        if (isPaused)
                         {
-                            userCar.velocity += 1;
-                            break;
+                            updateText(renderer, font, textColor, &pauseTexture, &pauseRect, "Paused");
+                        }
+                        else
+                        {
+                            SDL_DestroyTexture(pauseTexture);
+                            pauseTexture = NULL;
                         }
                     }
-                    else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_DOWN)
+                    if (!isPaused)
                     {
-                        if (userCar.velocity > 1)
+                        if (e.key.keysym.sym == SDLK_LEFT)
                         {
-                            userCar.velocity -= 1;
-                            break;
+                            deplacement = -1;
+                        }
+                        else if (e.key.keysym.sym == SDLK_RIGHT)
+                        {
+                            deplacement = 1;
+                        }
+                        else if (e.key.keysym.sym == SDLK_UP && !( SDL_GetModState() & KMOD_CTRL))
+                        {
+                            deplacement = 0;
+                        }
+                        else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_UP)
+                        {
+                            if (userCar.velocity <= 19)
+                            {
+                                userCar.velocity += 1;
+                                break;
+                            }
+                        }
+                        else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_DOWN)
+                        {
+                            if (userCar.velocity > 1)
+                            {
+                                userCar.velocity -= 1;
+                                break;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
-        {
-            running = !iterJeu(&j, deplacement);
-            userCar.cell_x = j.chasseur;
-            moto.cell_x = j.proie;
-            deplacement = -2;
-            deplacementEffectue = 1;
-        }
-        else if (deplacement != -2 && !verifDeplacement(j.grille, deplacement, j.chasseur, 0))
-        {
-            printf("Deplacement invalide\n");
-            deplacement = -2;
-        }
-
-        if (!isPaused)
-        {
-            InitScore(renderer, &score, font, &scoreTexture, &scoreRect, &textColor, deplacementEffectue);
-            deplacementEffectue = 0;
-
-            initVitesse(&userCar, renderer, &textColor, &vitesseTexture, &vitesseRect, font);
-
-            bgScroll += userCar.velocity;  // Scroll background at car's velocity
-
-            // Reset scroll offset when it is greater than or equal to the height of the screen
-            if (bgScroll >= SCREEN_HEIGHT)
+            if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
             {
-                bgScroll = 0;
+                running = !iterJeu(&j, deplacement);
+                userCar.cell_x = j.chasseur;
+                moto.cell_x = j.proie;
+                deplacement = -2;
+                deplacementEffectue = 1;
+            }
+            else if (deplacement != -2 && !verifDeplacement(j.grille, deplacement, j.chasseur, 0))
+            {
+                printf("Deplacement invalide\n");
+                deplacement = -2;
+            }
+
+            if (!isPaused)
+            {
+                InitScore(renderer, &score, font, &scoreTexture, &scoreRect, &textColor, deplacementEffectue);
+                deplacementEffectue = 0;
+
+                initVitesse(&userCar, renderer, &textColor, &vitesseTexture, &vitesseRect, font);
+
+                bgScroll += userCar.velocity;  // Scroll background at car's velocity
+
+                // Reset scroll offset when it is greater than or equal to the height of the screen
+                if (bgScroll >= SCREEN_HEIGHT)
+                {
+                    bgScroll = 0;
+                }
+            }
+
+            // Draw the scrolling backgrounds
+            SDL_Rect bgQuad1 = { 0, bgScroll - SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT };
+            SDL_Rect bgQuad2 = { 0, bgScroll, SCREEN_WIDTH, SCREEN_HEIGHT };
+            SDL_RenderCopy(renderer, backgroundTexture, NULL, &bgQuad1);
+            SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgQuad2);
+
+            drawMoto(renderer, &moto);
+            drawVoiture(renderer, &userCar);
+
+            drawObstacles(renderer, j);
+
+            // Draw the score and time
+            SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
+            SDL_RenderCopy(renderer, vitesseTexture, NULL, &vitesseRect);
+            SDL_RenderCopy(renderer, highScoreTexture, NULL, &highScoreRect);
+
+            // If game is paused, draw the pause message
+            if (isPaused)
+            {
+                SDL_RenderCopy(renderer, pauseTexture, NULL, &pauseRect);
+            }
+
+            // Update screen
+            SDL_RenderPresent(renderer);
+            SDL_RenderClear(renderer);
+
+        }
+
+        if (!quitterJeu)
+        {
+            // Enregistrer le nom et le score du joueur
+            logScore(username, score);
+            initHighScore();
+
+            // Ajouter ceci après votre boucle de jeu
+            int retry = gameOverScreen(renderer, gameOverFont, score);
+            if (retry)
+            {
+                // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
+                LancerJeu(renderer);
             }
         }
 
-        // Draw the scrolling backgrounds
-        SDL_Rect bgQuad1 = { 0, bgScroll - SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT };
-        SDL_Rect bgQuad2 = { 0, bgScroll, SCREEN_WIDTH, SCREEN_HEIGHT };
-        SDL_RenderCopy(renderer, backgroundTexture, NULL, &bgQuad1);
-        SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgQuad2);
-
-        drawMoto(renderer, &moto);
-        drawVoiture(renderer, &userCar);
-
-	    drawObstacles(renderer, j);
-
-        // Draw the score and time
-        SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
-        SDL_RenderCopy(renderer, vitesseTexture, NULL, &vitesseRect);
-        SDL_RenderCopy(renderer, highScoreTexture, NULL, &highScoreRect);
-
-        // If game is paused, draw the pause message
-        if (isPaused)
-        {
-            SDL_RenderCopy(renderer, pauseTexture, NULL, &pauseRect);
-        }
-
-        // Update screen
-        SDL_RenderPresent(renderer);
-        SDL_RenderClear(renderer);
-
+        cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
     }
-
-    // Enregistrer le nom et le score du joueur
-    logScore(username, score);
-    initHighScore();
-
-    // Ajouter ceci après votre boucle de jeu
-    int retry = gameOverScreen(renderer, gameOverFont, score);
-    if (retry)
-    {
-        // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
-        LancerJeu(renderer);
-    }
-
-    cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
 }
 
 

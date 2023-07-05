@@ -472,11 +472,22 @@ void avanceGrille(int grille[][NB_COLONNES]){
 }
 
 void creerLigne(int arr[NB_COLONNES]) {
+
+    /* il ne faut pas qu'il y ait des croix partout */
+    int nbCroixMise = 0;
+
     // Remplis le tableau avec des nombres aléatoires 0 et 1
     for (int j = 0; j < NB_COLONNES; j++) {
-        if((double)rand() / RAND_MAX < PROBA_OBSTACLE)
+        if((double)rand() / RAND_MAX < PROBA_OBSTACLE){
             arr[j] = rand() % NOMBRE_SPRITE + 1;
+	    nbCroixMise++;
+	}
         else
             arr[j] = 0;
+    }
+
+    /* si toutes les croix sont mise, alors on en enlève une aléatoirement */
+    if(nbCroixMise == NB_COLONNES){
+	arr[rand() % NB_COLONNES] = 0;
     }
 }

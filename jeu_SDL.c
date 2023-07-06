@@ -523,9 +523,6 @@ void LancerJeu(SDL_Renderer* renderer)
 
     if (!quitterJeu)
     {
-        // Initialise le générateur de nombres pseudo aléatoires
-        srand(time(NULL));
-
         //Init jeu
         jeu j = initJeu();
 

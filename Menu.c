@@ -409,6 +409,10 @@ void drawButton(SDL_Renderer* renderer, Button* button)
 
 int main()
 {
+    // Initialise le générateur de nombres pseudo aléatoires
+    srand(time(NULL));
+
+
     if (initializeSDL() == -1)
     {
         return 1;

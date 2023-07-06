@@ -42,21 +42,30 @@ int jeuPourThread(void * parameters) {
     return Jeu(*robot);
 }
 
-int averageScore(bot unBot) {
-    pthread_t threads[NUM_THREADS];
+int averageScore(bot unBot, bool multithread) {
     int scoreTotal = 0;
-    
-    for (int thread = 0; thread < NUM_THREADS; thread++) {
-	thrd_create(&threads[thread], jeuPourThread, &unBot);
+    int nbScores = multithread ? NUM_THREADS : NUM_REPETITIONS;
+
+    if(multithread) {
+	pthread_t threads[NUM_THREADS];
+	
+	for (int thread = 0; thread < NUM_THREADS; thread++) {
+	    thrd_create(&threads[thread], jeuPourThread, &unBot);
+	}
+
+	for (int thread = 0; thread < NUM_THREADS; thread++) {
+	    int result;
+	    thrd_join(threads[thread], &result);
+	    scoreTotal += result;
+	}
+    } else {
+	for(int i = 0; i < NUM_REPETITIONS; i++) {
+	    scoreTotal += Jeu(unBot);
+	}
     }
 
-    for (int thread = 0; thread < NUM_THREADS; thread++) {
-	int result;
-	thrd_join(threads[thread], &result);
-	scoreTotal += result;
-    }
-    
-    return (float)scoreTotal / NUM_THREADS;
+    return scoreTotal / nbScores;
+
 }
 
 void algoGlouton(bot unBot){
@@ -82,7 +91,7 @@ void algoGlouton(bot unBot){
 
 	unBot[ligne][colonne] = valeurPossibleRegle[colonne][k];
 	
-	scoreActuel = averageScore(unBot);
+	scoreActuel = averageScore(unBot, false);
 
 	if (scoreActuel < meilleurScore)
 	  {

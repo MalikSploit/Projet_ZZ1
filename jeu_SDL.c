@@ -219,6 +219,8 @@ int getHighScore()
 
 int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 {
+    int highScore = getHighScore();
+    
     SDL_Color greenColor = {0, 255, 0, 255}; // Define the color green.
 
     // Load the Game Over background image
@@ -230,24 +232,41 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     // Position and size of Background texture. In this case, we want to cover the whole screen.
     SDL_Rect backgroundRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
-    SDL_Surface* gameOverSurface = LoadImage("Images/GAME_OVER.png");
-    SDL_Texture* gameOverTexture = LoadTexture(renderer, gameOverSurface);
-    // Get dimensions of Game Over texture
     int gameOverWidth, gameOverHeight;
+    SDL_Texture* gameOverTexture = NULL;
+
+    // On charge l'image congratulation si l'utilisateur a un highscore
+    if (score < highScore)
+    {
+        gameOverTexture = loadTexture(renderer, "Images/Congratulations.png");
+    }
+    // On charge l'image prey captured s'il n'a pas de highscore
+    else if (score >= highScore)
+    {
+        gameOverTexture = loadTexture(renderer, "Images/Prey-Captured.png");
+    }
+
+    // Get dimensions of Game Over texture
     SDL_QueryTexture(gameOverTexture, NULL, NULL, &gameOverWidth, &gameOverHeight);
     // Position and size of Game Over texture
     SDL_Rect gameOverRect = {SCREEN_WIDTH / 2 - gameOverWidth / 2, 250, gameOverWidth, gameOverHeight};
 
     // Create the score text and get its dimensions
     char scoreText[50];
-    sprintf(scoreText, "Score: %d", score);
+    if (score < highScore)
+    {
+        sprintf(scoreText, "New High Score: %d", score);
+    }
+    else if (score >= highScore)
+    {
+        sprintf(scoreText, "Score: %d", score);
+    }
     SDL_Texture* scoreTexture = createTextTexture(renderer, font, greenColor, scoreText);
     int scoreWidth, scoreHeight;
     SDL_QueryTexture(scoreTexture, NULL, NULL, &scoreWidth, &scoreHeight);
     // Position and size of Score text
     SDL_Rect scoreRect = {SCREEN_WIDTH / 2 - scoreWidth / 2, gameOverHeight + 250, scoreWidth, scoreHeight};
-
-    int highScore = getHighScore();
+    
     char highScoreText[50];
     sprintf(highScoreText, "High Score: %d", highScore);
     SDL_Texture* highScoreTexture = createTextTexture(renderer, font, greenColor, highScoreText);
@@ -269,6 +288,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     SDL_Rect quitRect = {SCREEN_WIDTH / 2 - quitWidth / 2, gameOverHeight + 460, quitWidth, quitHeight};
 
     SDL_Color WHITE = {255, 255, 255, 255}; // On hover change color to white
+    Uint32 startTime = SDL_GetTicks(); // This gets the number of milliseconds since the SDL library was initialized.
 
     bool running = true;
     while (running)
@@ -331,6 +351,22 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
                     SDL_DestroyTexture(quitTexture);
                     quitTexture = createTextTexture(renderer, font, greenColor, "Quit");
                 }
+            }
+        }
+
+        if (score < highScore)
+        {
+            Uint32 elapsedTime = SDL_GetTicks() - startTime;
+
+            if ((elapsedTime / 500) % 2 == 0)  // We're dividing by 500 to convert milliseconds to half-seconds.
+            {
+                SDL_DestroyTexture(scoreTexture); // Destroy the previous texture
+                scoreTexture = createTextTexture(renderer, font, WHITE, scoreText);
+            }
+            else
+            {
+                SDL_DestroyTexture(scoreTexture); // Destroy the previous texture
+                scoreTexture = createTextTexture(renderer, font, greenColor, scoreText);
             }
         }
 

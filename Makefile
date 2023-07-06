@@ -1,6 +1,6 @@
-CC=clang
-LDFLAG=-lpthread -D_REENTRANT -lSDL2_ttf -lSDL2_image -lSDL2_gfx -lm -lSDL2_mixer -lSDL2
-CFLAG=-Wall -Wextra -g
+CC=gcc
+LDFLAGS=-pthread -D_REENTRANT -lSDL2_ttf -lSDL2_image -lSDL2_gfx -lm -lSDL2_mixer -lSDL2
+CFLAGS=-pthread -Wall -Wextra -g
 EXEC=jeu
 SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
@@ -8,10 +8,10 @@ OBJ=$(SRC:.c=.o)
 all:$(EXEC)
 
 $(EXEC):$(OBJ)
-	$(CC) -o $@ $^ $(LDFLAG)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o:%.c
-	$(CC) -o $@ -c $< $(CFLAG)
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 .PHONY:clean mrproper
 

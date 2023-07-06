@@ -462,9 +462,6 @@ int main()
     // Event handler
     SDL_Event e;
 
-    // Compteur de temps pour l'animation
-    double time = 0.0;
-
     bool faireSimulation = false;
     
     // While application is running

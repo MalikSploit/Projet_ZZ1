@@ -2,6 +2,125 @@
 #include "SDL_Initialisation.h"
 #include "jeu_SDL.h"
 
+
+void initHighScore()
+{
+    FILE *logFile, *highscoreFile;
+    char line[MAX_LINE_LENGTH];
+    char playerName[MAX_NAME_LENGTH], botName[MAX_NAME_LENGTH];
+    int playerScore = INT_MAX, botScore = INT_MAX;
+    char name[MAX_NAME_LENGTH];
+    char scoreStr[MAX_NAME_LENGTH];
+    long scoreLong;
+
+    logFile = fopen("GameLog", "r");
+    if (logFile == NULL)
+    {
+        printf("Error opening file\n");
+        return;
+    }
+
+    while (fgets(line, sizeof(line), logFile))
+    {
+        sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
+
+        char *end;
+        scoreLong = strtol(scoreStr, &end, 10);
+
+        if (end == scoreStr)
+        {
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
+
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
+
+        int score = (int)scoreLong;
+        if (strstr(line, "Player"))
+        {
+            if (score < playerScore)
+            {
+                playerScore = score;
+                strcpy(playerName, name);
+            }
+        }
+        else
+        {
+            if (score < botScore)
+            {
+                botScore = score;
+                strcpy(botName, "Robocop");
+            }
+        }
+    }
+    fclose(logFile);
+
+    highscoreFile = fopen("HighScore", "w");
+    if (highscoreFile == NULL)
+    {
+        printf("Error opening file\n");
+        return;
+    }
+
+    fprintf(highscoreFile, "Player: %s; Score: %d\n", playerName, playerScore);
+    fprintf(highscoreFile, "Bot: %s; Score: %d\n", botName, botScore);
+    fclose(highscoreFile);
+}
+
+void calculerMoyenneScores()
+{
+    FILE* fichier = fopen("GameLog", "r"); // Ouvrir le fichier de log en mode lecture
+    char ligne[256];
+    int totalScoreJoueur = 0, totalScoreBot = 0, countJoueur = 0, countBot = 0;
+
+    while (fgets(ligne, sizeof ligne, fichier))
+    {
+        char* nom = strtok(ligne, ";");
+        char* scoreStr = strtok(NULL, ";");
+
+        // Convertir le score en int, on saute les 8 premiers caractères " Score : "
+        char* end;
+        long scoreLong = strtol(scoreStr + 8, &end, 10);
+        if (end == scoreStr + 8)
+        {
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
+
+        int score = (int) scoreLong;
+
+        if (strstr(nom, "Player"))
+        {
+            totalScoreJoueur += score;
+            countJoueur++;
+        }
+        else if (strstr(nom, "Bot"))
+        {
+            totalScoreBot += score;
+            countBot++;
+        }
+    }
+    fclose(fichier); // Fermer le fichier de log
+
+    double moyenneScoreJoueur = (double) totalScoreJoueur / countJoueur;
+    double moyenneScoreBot = (double) totalScoreBot / countBot;
+
+    // Maintenant, nous allons écrire les moyennes dans un nouveau fichier
+    FILE* fichierMoyennes = fopen("moyennes", "w"); // Ouvrir le fichier de moyennes en mode écriture
+    fprintf(fichierMoyennes, "Moyenne du score du joueur : %.2f\n", moyenneScoreJoueur);
+    fprintf(fichierMoyennes, "Moyenne du score du bot : %.2f\n", moyenneScoreBot);
+    fclose(fichierMoyennes); // Fermer le fichier de moyennes
+}
+
 void displayHelp(SDL_Renderer* renderer)
 {
     // Load a font
@@ -12,13 +131,20 @@ void displayHelp(SDL_Renderer* renderer)
         return;
     }
 
+    SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/Help_Background.jpg");
+
     // Set the color for the text
     SDL_Color textColor = { 255, 255, 255, 255 }; // White color
 
+    // Image instructions
+    SDL_Texture* promptTexture = loadTexture(renderer, "Images/Instructions.png");
+    int prompt_width, prompt_height;
+    SDL_QueryTexture(promptTexture, NULL, NULL, &prompt_width, &prompt_height);
+    SDL_Rect promptRect = {SCREEN_WIDTH / 2 - prompt_width / 2, 50, prompt_width, prompt_height};
+
+
     // Set the text for the instructions
     const char* instructions[] = {
-            "Instructions:",
-            "",
             "Les extraterrestres se deplacent a la fois horizontalement et verticalement",
             "s'approchant du canon, quand ils arrivant au cote droit ou gauche.",
             "Le canon peut etre controle pour tirer des lasers afin de",
@@ -45,13 +171,16 @@ void displayHelp(SDL_Renderer* renderer)
     }
 
     // Clear the renderer
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+
+    // Render the background and the image instructions
+    SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+    SDL_RenderCopy(renderer, promptTexture, NULL, &promptRect);
 
     // Copy the textures to the renderer
     SDL_Rect textRect;
-    textRect.x = 50; // Adjust these values to move the text
-    textRect.y = 50;
+    textRect.x = 400;
+    textRect.y = 300;
     for (int i = 0; i < numLines; i++)
     {
         SDL_QueryTexture(textures[i], NULL, NULL, &textRect.w, &textRect.h);
@@ -71,20 +200,7 @@ void displayHelp(SDL_Renderer* renderer)
         while (SDL_PollEvent(&e) != 0)
         {
             // User requests quit
-            if (e.type == SDL_QUIT)
-            {
-                closeHelp = true;
-            }
-                // User presses a key
-            else if (e.type == SDL_KEYDOWN)
-            {
-                if (e.key.keysym.sym == SDLK_ESCAPE)
-                {
-                    closeHelp = true;
-                }
-            }
-                // User clicks the mouse
-            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN != 0 || (e.type == SDL_MOUSEBUTTONDOWN))
             {
                 closeHelp = true;
             }
@@ -98,6 +214,7 @@ void displayHelp(SDL_Renderer* renderer)
     }
     free(textures);
     TTF_CloseFont(font);
+    SDL_DestroyTexture(backgroundTexture);
 }
 
 
@@ -109,62 +226,148 @@ void displayHighScore(SDL_Renderer* renderer)
         return;
     }
 
-    PlayerScore highScore;
-    highScore.score = 0;
+    HighScores highScores;
+    highScores.playerScore = INT_MAX;
+    highScores.botScore = INT_MAX;
 
     char line[100];
     while (fgets(line, sizeof(line), file) != NULL)
     {
-        // Parse the line
-        char *name = strtok(line, ";");
-        char *scoreStr = strtok(NULL, ";");
+        char name[MAX_NAME_LENGTH];
+        char scoreStr[MAX_NAME_LENGTH];
+        sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
 
-        // Remove "Player : " and "Score : " from the strings
-        name += strlen("Player : ");
-        scoreStr += strlen(" Score : ");
+        char* end;
+        long scoreLong = strtol(scoreStr, &end, 10);
 
-        // Convert the score to an integer
-        int score = atoi(scoreStr);
-
-        // Check if this score is higher than the current high score
-        if (score > highScore.score)
+        if (end == scoreStr)
         {
-            strcpy(highScore.name, name);
-            highScore.score = score;
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
+
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
+
+        int score = (int)scoreLong;
+
+        if (strstr(line, "Player"))
+        {
+            strcpy(highScores.playerName, name);
+            highScores.playerScore = score;
+        }
+        else
+        {  // Bot
+            strcpy(highScores.botName, name);
+            highScores.botScore = score;
         }
     }
 
     fclose(file);
 
+    double averagePlayerScore, averageBotScore;
+    char buffer[256];
+    FILE *averageFile = fopen("moyennes", "r");
+    if (averageFile != NULL)
+    {
+        // Read player's average score
+        fgets(buffer, sizeof(buffer), averageFile);
+        averagePlayerScore = strtod(strchr(buffer, ':') + 2, NULL);
+        if (averagePlayerScore == 0)
+        {
+            printf("Error: could not convert player's average score to a float.\n");
+            return;
+        }
+
+        // Read bot's average score
+        fgets(buffer, sizeof(buffer), averageFile);
+        averageBotScore = strtod(strchr(buffer, ':') + 2, NULL);
+        if (averageBotScore == 0)
+        {
+            printf("Error: could not convert bot's average score to a float.\n");
+            return;
+        }
+    }
+    else
+    {
+        printf("Could not open averages file!\n");
+        return;
+    }
+
     // Load a font
-    TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 24);
+    TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 28);
     if (font == NULL)
     {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
         return;
     }
 
-    // Create the high score string
-    char highScoreText[100];
-    sprintf(highScoreText, "High score : %s with %d points", highScore.name, highScore.score);
+    SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/ScoreBoard_Background.jpg");
 
-    // Render the high score
+    // Create the high score and average score strings
+    char highScorePlayerText[100], highScoreBotText[100];
+    char averagePlayerText[100], averageBotText[100];
+    sprintf(highScorePlayerText, "Best player score : %s with %d points", highScores.playerName, highScores.playerScore);
+    sprintf(highScoreBotText, "Best bot score : %s with %d points", highScores.botName, highScores.botScore);
+    sprintf(averagePlayerText, "Average player score: %.2f points", averagePlayerScore);
+    sprintf(averageBotText, "Average bot score: %.2f points", averageBotScore);
+
+    // Render the high scores
     SDL_Color textColor = { 255, 255, 255, 255 }; // White color
-    SDL_Surface* surface = TTF_RenderText_Blended(font, highScoreText, textColor);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
+    SDL_Surface* surfacePlayer = TTF_RenderText_Blended(font, highScorePlayerText, textColor);
+    SDL_Surface* surfaceBot = TTF_RenderText_Blended(font, highScoreBotText, textColor);
+    SDL_Texture* texturePlayer = SDL_CreateTextureFromSurface(renderer, surfacePlayer);
+    SDL_Texture* textureBot = SDL_CreateTextureFromSurface(renderer, surfaceBot);
+    SDL_FreeSurface(surfacePlayer);
+    SDL_FreeSurface(surfaceBot);
 
-    SDL_Rect textRect;
-    SDL_QueryTexture(texture, NULL, NULL, &textRect.w, &textRect.h);
-    textRect.x = (SCREEN_WIDTH - textRect.w) / 2; // Calculate the x coordinate to center the text
-    textRect.y = 50;
+    // Render the Average score
+    SDL_Surface* surfacePlayerAvg = TTF_RenderText_Blended(font, averagePlayerText, textColor);
+    SDL_Surface* surfaceBotAvg = TTF_RenderText_Blended(font, averageBotText, textColor);
+    SDL_Texture* texturePlayerAvg = SDL_CreateTextureFromSurface(renderer, surfacePlayerAvg);
+    SDL_Texture* textureBotAvg = SDL_CreateTextureFromSurface(renderer, surfaceBotAvg);
+    SDL_FreeSurface(surfacePlayerAvg);
+    SDL_FreeSurface(surfaceBotAvg);
+
+    SDL_Rect textRectPlayer, textRectBot;
+    SDL_QueryTexture(texturePlayer, NULL, NULL, &textRectPlayer.w, &textRectPlayer.h);
+    SDL_QueryTexture(textureBot, NULL, NULL, &textRectBot.w, &textRectBot.h);
+    textRectPlayer.x = (SCREEN_WIDTH - textRectPlayer.w) / 2; // Calculate the x coordinate to center the text
+    textRectBot.x = (SCREEN_WIDTH - textRectBot.w) / 2; // Calculate the x coordinate to center the text
+    textRectPlayer.y = 400;
+    textRectBot.y = 450;
+
+    SDL_Rect textRectPlayerAvg, textRectBotAvg;
+    SDL_QueryTexture(texturePlayerAvg, NULL, NULL, &textRectPlayerAvg.w, &textRectPlayerAvg.h);
+    SDL_QueryTexture(textureBotAvg, NULL, NULL, &textRectBotAvg.w, &textRectBotAvg.h);
+    textRectPlayerAvg.x = (SCREEN_WIDTH - textRectPlayerAvg.w) / 2; // Calculate the x coordinate to center the text
+    textRectBotAvg.x = (SCREEN_WIDTH - textRectBotAvg.w) / 2; // Calculate the x coordinate to center the text
+    textRectPlayerAvg.y = 500; // Position these lower on the screen
+    textRectBotAvg.y = 550;
+
+    // Image Scoreboard
+    SDL_Texture* promptTexture = loadTexture(renderer, "Images/Scoreboard.png");
+    int prompt_width, prompt_height;
+    SDL_QueryTexture(promptTexture, NULL, NULL, &prompt_width, &prompt_height);
+    SDL_Rect ScoreboardRect = {SCREEN_WIDTH / 2 - prompt_width / 2, 150, prompt_width, prompt_height};
 
     // Clear the renderer
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    // Copy the texture with the high score to the renderer
-    SDL_RenderCopy(renderer, texture, NULL, &textRect);
+    //Render the background image
+    SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+    //Render the Scoreboard image
+    SDL_RenderCopy(renderer, promptTexture, NULL, &ScoreboardRect);
+    // Copy the texture with the high scores to the renderer
+    SDL_RenderCopy(renderer, texturePlayer, NULL, &textRectPlayer);
+    SDL_RenderCopy(renderer, textureBot, NULL, &textRectBot);
+    // Copy the texture with the average scores to the renderer
+    SDL_RenderCopy(renderer, texturePlayerAvg, NULL, &textRectPlayerAvg);
+    SDL_RenderCopy(renderer, textureBotAvg, NULL, &textRectBotAvg);
 
     // Show the renderer contents on the screen
     SDL_RenderPresent(renderer);
@@ -176,7 +379,7 @@ void displayHighScore(SDL_Renderer* renderer)
     {
         while (SDL_PollEvent(&e) != 0)
         {
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN != 0 || (e.type == SDL_MOUSEBUTTONDOWN))
             {
                 highScoreOpen = false;
             }
@@ -184,7 +387,11 @@ void displayHighScore(SDL_Renderer* renderer)
     }
 
     // Clean up
-    SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(texturePlayer);
+    SDL_DestroyTexture(textureBot);
+    SDL_DestroyTexture(texturePlayerAvg);
+    SDL_DestroyTexture(textureBotAvg);
+    SDL_DestroyTexture(promptTexture);
     TTF_CloseFont(font);
 }
 
@@ -234,6 +441,12 @@ int main()
     {
         return 1;
     }
+    SDL_Texture* bgTexture1 = loadLogo(renderer, "Images/Background_Menu.png");
+    SDL_Texture* bgTexture2 = loadLogo(renderer, "Images/Background_Menu.png");
+    if (bgTexture1 == NULL || bgTexture2 == NULL)
+    {
+        return 1;
+    }
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 38);
     if (font == NULL)
     {
@@ -246,7 +459,11 @@ int main()
     int logo2Width, logo2Height;
     SDL_QueryTexture(logo2, NULL, NULL, &logo2Width, &logo2Height);
 
+    SDL_Rect bgRect1 = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+    SDL_Rect bgRect2 = { SCREEN_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+
     // Define buttons
+    SDL_Color WHITE = {255, 255, 255, 255}; // On hover change color to white
     Button buttons[5];
     for (int i = 0; i < 5; ++i)
     {
@@ -262,7 +479,7 @@ int main()
     }
     buttons[0].text = "New Game";
     buttons[1].text = "Simulation";
-    buttons[2].text = "Highscore";
+    buttons[2].text = "Scoreboard";
     buttons[3].text = "Help";
     buttons[4].text = "Quit";
 
@@ -273,29 +490,57 @@ int main()
         SDL_FreeSurface(surface);
     }
 
+    // Initialisation du high score a partir de GameLog
+    initHighScore();
+
+    // On calcule la moyenne du score des joueurs et des bots
+    calculerMoyenneScores();
+
     // Main loop flag
     bool quit = false;
 
     // Event handler
     SDL_Event e;
 
+    // Compteur de temps pour l'animation
+    double time = 0.0;
+
     // While application is running
     while (!quit)
     {
+        // Calcul de la nouvelle vitesse
+        double amplitude = 3.0 + 2.0 * sin(0.1 * time);  // Amplitude entre 1 et 5
+        int bgSpeed = (int)(amplitude * sin(time)) + 1;  // Vitesse variable
+
+        // La vitesse de l'animation dépend du delta
+        time += 0.01;
+
         // Clear screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
+        // Draw the background
+        SDL_RenderCopy(renderer, bgTexture1, NULL, &bgRect1);
+        SDL_RenderCopy(renderer, bgTexture2, NULL, &bgRect2);
+
+        // Move the background
+        bgRect1.x -= bgSpeed;
+        bgRect2.x -= bgSpeed;
+
+        // Check if the background has completely scrolled off the screen
+        if (bgRect1.x + SCREEN_WIDTH < 0) bgRect1.x = SCREEN_WIDTH;
+        if (bgRect2.x + SCREEN_WIDTH < 0) bgRect2.x = SCREEN_WIDTH;
 
         // Draw logo1 (High_Racer Text)
         SDL_Rect logo1Quad = { SCREEN_WIDTH / 2 - logo1Width / 2, 40, logo1Width, logo1Height };
         SDL_RenderCopy(renderer, logo1, NULL, &logo1Quad);
 
         // Define the new dimensions
-        int newLogo2Width = logo2Width / 2;
-        double newLogo2Height = logo2Height / 2.3;
+        double newLogo2Width = logo2Width / 1.5;
+        double newLogo2Height = logo2Height / 1.3;
 
         // Draw logo2 (Menu Image)
-        SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - newLogo2Width / 2, 20 + logo1Height, newLogo2Width, (int)newLogo2Height };
+        SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - (int)newLogo2Width / 2, 20 + logo1Height, (int)newLogo2Width, (int)newLogo2Height };
         SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad);
 
         // Draw buttons
@@ -315,15 +560,37 @@ int main()
             {
                 quit = true;
             }
-            // User presses a key
-            else if (e.type == SDL_KEYDOWN)
+            // User hovers above the menu buttons
+            if (e.type == SDL_MOUSEMOTION)
             {
-                switch (e.key.keysym.sym)
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+
+                for (int i = 0; i < 5; ++i)
                 {
-                    case SDLK_q:
-                        quit = true;
-                        break;
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
+                    {
+
+                        // Change button text color and recreate the texture
+                        SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, WHITE);
+                        SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
+                        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+                        SDL_FreeSurface(surface);
+
+                        // Redraw the button
+                        drawButton(renderer, &buttons[i]);
+                        SDL_RenderPresent(renderer);
+                    }
+                    else
+                    {
+                        // If button is not clicked, reset its color to the original one
+                        SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, buttons[i].color);
+                        SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
+                        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+                        SDL_FreeSurface(surface);
+                    }
                 }
+
             }
             // User clicks the mouse
             else if (e.type == SDL_MOUSEBUTTONDOWN)
@@ -334,7 +601,6 @@ int main()
                 {
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
                     {
-                        printf("%s button clicked!\n", buttons[i].text);
                         if (strcmp(buttons[i].text, "Help") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
@@ -345,13 +611,14 @@ int main()
                             quit = true;
                             break;
                         }
-                        if (strcmp(buttons[i].text, "Highscore") == 0)
+                        if (strcmp(buttons[i].text, "Scoreboard") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
                             displayHighScore(renderer);
                         }
                         if (strcmp(buttons[i].text, "Simulation") == 0)
                         {
+
                         }
                         if (strcmp(buttons[i].text, "New Game") == 0)
                         {
@@ -368,6 +635,8 @@ int main()
     // Free resources and close SDL
     SDL_DestroyTexture(logo1);  // destroy the logo1 texture
     SDL_DestroyTexture(logo2);  // destroy the logo2 texture
+    SDL_DestroyTexture(bgTexture1);
+    SDL_DestroyTexture(bgTexture2);
 
     for (int i = 0; i < 5; ++i)
     {

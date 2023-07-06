@@ -7,6 +7,7 @@
 #include <SDL2/SDL_image.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
@@ -18,6 +19,8 @@
 #define MAX_ITER 1000
 #define NOMBRE_SPRITE 8
 #define PROBA_OBSTACLE 0.15
+#define MAX_LINE_LENGTH 150
+#define MAX_NAME_LENGTH 50
 
 typedef struct {
     int grille[NB_LIGNES][NB_COLONNES]; // 0 : case vide, 1 : obstacle

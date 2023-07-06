@@ -91,15 +91,6 @@ void drawObstacles(SDL_Renderer *renderer, jeu g){
     }
 }
 
-void drawObstacle(SDL_Renderer *renderer, EnemyCar *enemyCar)
-{
-    enemyCar->rect.x = enemyCar->cell_x * (TAILLE_CELLULE_LARGEUR/2) + 250;
-    enemyCar->rect.y = enemyCar->cell_y * (TAILLE_CELLULE_LONGUEUR/2);
-
-    // Render the enemy car
-    SDL_RenderCopy(renderer, enemyCar->texture, NULL, &enemyCar->rect);
-}
-
 void drawVoiture(SDL_Renderer *renderer, UserCar *userCar)
 {
     userCar->rect.x = userCar->cell_x * (TAILLE_CELLULE_LARGEUR/2) + 250;
@@ -198,8 +189,25 @@ int getHighScore()
         char *scoreStr = strstr(line, "Score: ");
         if (scoreStr != NULL)
         {
-            int score = atoi(scoreStr + 7);  // Skip past "Score: " to get the score
-            if(score < highScore) {  // If the read score is less than the current highScore
+            char* end;
+            long scoreLong = strtol(scoreStr + 7, &end, 10);
+
+            if (end == scoreStr + 7)
+            {
+                printf("Error: could not convert score to an integer.\n");
+                return -1;
+            }
+
+            if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+            {
+                printf("Error: score is out of range for an integer.\n");
+                return -1;
+            }
+
+            int score = (int)scoreLong;
+            if(score < highScore)
+            {
+                // If the read score is less than the current highScore
                 highScore = score;  // Update highScore
             }
         }
@@ -411,12 +419,15 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
                 }
                 else if (e.key.keysym.sym >= SDLK_SPACE && e.key.keysym.sym <= SDLK_z)
                 {
-                    char ch[2] = { (char)e.key.keysym.sym, '\0' };
-                    if ((e.key.keysym.mod & KMOD_SHIFT) || (SDL_GetModState() & KMOD_CAPS))
+                    if(e.key.keysym.sym <= 126) // Check if the value is within ASCII range
                     {
-                        ch[0] = toupper(ch[0]);
+                        char ch[2] = { (char)e.key.keysym.sym, '\0' };
+                        if ((e.key.keysym.mod & KMOD_SHIFT) || (SDL_GetModState() & KMOD_CAPS))
+                        {
+                            ch[0] = (char)toupper(ch[0]);
+                        }
+                        strncat(username, ch, 28 - strlen(username));
                     }
-                    strncat(username, ch, 28 - strlen(username));
                 }
             }
             else if (e.type == SDL_MOUSEBUTTONDOWN)
@@ -491,7 +502,7 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
 
 void logScore(const char* username, int score)
 {
-    FILE *file = fopen("GameLog", "a");
+    FILE *file = fopen("DataLog/GameLog", "a");
     if (file != NULL)
     {
         fprintf(file, "Player : %s; Score : %d\n", username, score);
@@ -716,7 +727,7 @@ void LancerJeu(SDL_Renderer* renderer)
 /*     /\* seed = 1688568071; *\/ */
 /*     srand(seed); */
 /*     printf("%d\n", seed); */
-    
+
 /*     bot robot; */
 /*     algoGlouton(robot); */
 
@@ -726,9 +737,9 @@ void LancerJeu(SDL_Renderer* renderer)
 /* 	} */
 /* 	printf("\n"); */
 /*     } */
-    
+
 /*     /\* printf("Bot aleatoire cree\n"); *\/ */
 /*     /\* printf("score de ce bot : %d\n", Jeu(robot)); *\/ */
-    
+
 /*     return 0; */
 /* } */

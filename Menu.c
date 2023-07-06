@@ -200,7 +200,7 @@ void displayHelp(SDL_Renderer* renderer)
         while (SDL_PollEvent(&e) != 0)
         {
             // User requests quit
-            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN != 0 || (e.type == SDL_MOUSEBUTTONDOWN))
+            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN  || (e.type == SDL_MOUSEBUTTONDOWN))
             {
                 closeHelp = true;
             }
@@ -379,7 +379,7 @@ void displayHighScore(SDL_Renderer* renderer)
     {
         while (SDL_PollEvent(&e) != 0)
         {
-            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN != 0 || (e.type == SDL_MOUSEBUTTONDOWN))
+            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONDOWN)
             {
                 highScoreOpen = false;
             }

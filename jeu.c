@@ -88,7 +88,7 @@ int proximiteSurColonne(jeu j, int colonne) {
 }
 
 // modifier la situation en fonction du jeu
-void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]){
+void getSituationFromJeu(jeu j, int * situation){
     // colonne a gauche de la proie
     if (j.proie == 0) {
         // si la proie est collee au bord, c'est comme s'il y avait un obstacle sur la case suivante

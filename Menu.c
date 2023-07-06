@@ -13,7 +13,7 @@ void initHighScore()
     char scoreStr[MAX_NAME_LENGTH];
     long scoreLong;
 
-    logFile = fopen("GameLog", "r");
+    logFile = fopen("DataLog/GameLog", "r");
     if (logFile == NULL)
     {
         printf("Error opening file\n");
@@ -59,7 +59,7 @@ void initHighScore()
     }
     fclose(logFile);
 
-    highscoreFile = fopen("HighScore", "w");
+    highscoreFile = fopen("DataLog/HighScore", "w");
     if (highscoreFile == NULL)
     {
         printf("Error opening file\n");
@@ -73,7 +73,7 @@ void initHighScore()
 
 void calculerMoyenneScores()
 {
-    FILE* fichier = fopen("GameLog", "r"); // Ouvrir le fichier de log en mode lecture
+    FILE* fichier = fopen("DataLog/GameLog", "r"); // Ouvrir le fichier de log en mode lecture
     char ligne[256];
     int totalScoreJoueur = 0, totalScoreBot = 0, countJoueur = 0, countBot = 0;
 
@@ -115,7 +115,7 @@ void calculerMoyenneScores()
     double moyenneScoreBot = (double) totalScoreBot / countBot;
 
     // Maintenant, nous allons écrire les moyennes dans un nouveau fichier
-    FILE* fichierMoyennes = fopen("moyennes", "w"); // Ouvrir le fichier de moyennes en mode écriture
+    FILE* fichierMoyennes = fopen("DataLog/moyennes", "w"); // Ouvrir le fichier de moyennes en mode écriture
     fprintf(fichierMoyennes, "Moyenne du score du joueur : %.2f\n", moyenneScoreJoueur);
     fprintf(fichierMoyennes, "Moyenne du score du bot : %.2f\n", moyenneScoreBot);
     fclose(fichierMoyennes); // Fermer le fichier de moyennes
@@ -220,7 +220,7 @@ void displayHelp(SDL_Renderer* renderer)
 
 void displayHighScore(SDL_Renderer* renderer)
 {
-    FILE *file = fopen("HighScore", "r");
+    FILE *file = fopen("DataLog/HighScore", "r");
     if (file == NULL) {
         printf("Could not open HighScore file!\n");
         return;
@@ -270,7 +270,7 @@ void displayHighScore(SDL_Renderer* renderer)
 
     double averagePlayerScore, averageBotScore;
     char buffer[256];
-    FILE *averageFile = fopen("moyennes", "r");
+    FILE *averageFile = fopen("DataLog/moyennes", "r");
     if (averageFile != NULL)
     {
         // Read player's average score

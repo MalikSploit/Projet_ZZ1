@@ -183,7 +183,7 @@ void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor,
 
 int getHighScore()
 {
-    FILE *file = fopen("HighScore", "r");
+    FILE *file = fopen("DataLog/HighScore", "r");
     if (file == NULL)
     {
         printf("Could not open high score file\n");

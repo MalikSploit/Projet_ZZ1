@@ -11,6 +11,9 @@ UserCar initVoiture(SDL_Renderer *renderer, int x, int y)
     // Set up initial size and position of the user car
     userCar.cell_x = x;
     userCar.cell_y = 7 - y;
+    // Initialize draw_x and draw_y for smooth animation
+    userCar.draw_x = userCar.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 250;
+    userCar.draw_y = userCar.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
     userCar.rect.w = 140;
     userCar.rect.h = 130;
     userCar.current_frame = 0;
@@ -43,6 +46,10 @@ UserCar initMoto(SDL_Renderer *renderer, int x, int y)
     moto.rect.w = 70;
     moto.rect.h = 100;
 
+    // Initialisez les valeurs de dessin avec les valeurs de cellule actuelles
+    moto.draw_x = moto.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 285;
+    moto.draw_y = moto.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
+
     // Chargez la texture pour la moto
     SDL_Surface *tempSurface = LoadImage("Images/Proie.png");
 
@@ -55,14 +62,13 @@ UserCar initMoto(SDL_Renderer *renderer, int x, int y)
 // Fonction pour dessiner la moto à l'écran
 void drawMoto(SDL_Renderer *renderer, UserCar *moto)
 {
-    // Mettez à jour la position du rectangle en fonction de la position cellulaire
-    moto->rect.x = moto->cell_x * (TAILLE_CELLULE_LARGEUR/2) + 285;
-    moto->rect.y = moto->cell_y * (TAILLE_CELLULE_LONGUEUR/2); // start at the bottom of the screen
+    // Mettez à jour la position du rectangle en fonction des valeurs de dessin
+    moto->rect.x = (int)moto->draw_x;
+    moto->rect.y = (int)moto->draw_y;
 
     // Dessinez la texture de la moto à l'écran
     SDL_RenderCopy(renderer, moto->textures[0], NULL, &(moto->rect));
 }
-
 
 void initTexturesObstacles(SDL_Renderer *renderer) {
     for(int i = 0; i < NOMBRE_SPRITE; i++) {
@@ -72,26 +78,43 @@ void initTexturesObstacles(SDL_Renderer *renderer) {
     }
 }
 
-void drawObstacles(SDL_Renderer *renderer, jeu g){
-    for(int i = 0; i < NB_LIGNES; i++){
-	for(int j = 0; j < NB_COLONNES; j++) {
-	    if(g.grille[i][j]) {
-		SDL_Rect posObstacle = {j * (TAILLE_CELLULE_LARGEUR/2) + 250,
-		    (7-i) * (TAILLE_CELLULE_LONGUEUR/2),
-		    140,
-		    130
-		};
-		SDL_RenderCopy(renderer, obstacles[g.grille[i][j]-1], NULL, &posObstacle);
-	    }
-	}
+void drawObstacles(SDL_Renderer *renderer, jeu g) {
+    static double draw_x[NB_LIGNES][NB_COLONNES] = {0}; // Positions de dessin réelles des obstacles
+    static double draw_y[NB_LIGNES][NB_COLONNES] = {0};
+
+    for(int i = 0; i < NB_LIGNES; i++) {
+        for(int j = 0; j < NB_COLONNES; j++) {
+            if(g.grille[i][j]) {
+                // Si l'obstacle vient d'apparaître, initialisez ses coordonnées de dessin
+                if(draw_x[i][j] == 0 && draw_y[i][j] == 0) {
+                    draw_x[i][j] = j * ((double)TAILLE_CELLULE_LARGEUR/2) + 250;
+                    draw_y[i][j] = (7-i) * ((double)TAILLE_CELLULE_LONGUEUR/2);
+                }
+
+                // Mise à jour de la position de dessin en fonction de la vitesse
+                draw_x[i][j] += (j * ((double)TAILLE_CELLULE_LARGEUR/2) + 250 - draw_x[i][j]) * 0.1;
+                draw_y[i][j] += ((7-i) * ((double)TAILLE_CELLULE_LONGUEUR/2) - draw_y[i][j]) * 0.1;
+
+                SDL_Rect posObstacle = {(int)draw_x[i][j], (int)draw_y[i][j], 140, 130};
+                SDL_RenderCopy(renderer, obstacles[g.grille[i][j]-1], NULL, &posObstacle);
+            }
+            else {
+                // Si l'obstacle a disparu, réinitialisez ses coordonnées de dessin
+                draw_x[i][j] = 0;
+                draw_y[i][j] = 0;
+            }
+        }
     }
 }
 
 void drawVoiture(SDL_Renderer *renderer, UserCar *userCar)
 {
-    userCar->rect.x = userCar->cell_x * (TAILLE_CELLULE_LARGEUR/2) + 250;
-    userCar->rect.y = userCar->cell_y * (TAILLE_CELLULE_LONGUEUR/2); // start at the bottom of the screen
+    // Mettez à jour la position du rectangle en fonction des valeurs de dessin
+    userCar->rect.x = (int)userCar->draw_x;
+    userCar->rect.y = (int)userCar->draw_y;
+
     SDL_RenderCopy(renderer, userCar->textures[userCar->current_frame], NULL, &userCar->rect);
+
     // Update the frame for the next draw
     userCar->current_frame = (userCar->current_frame + 1) % userCar->total_frames;
 }
@@ -263,7 +286,7 @@ void initHighScore()
             if (score < botScore)
             {
                 botScore = score;
-                strcpy(botName, "Robocop");
+                strcpy(botName, name);
             }
         }
     }
@@ -808,6 +831,17 @@ void logScore(const char* username, int score, bool humain)
             SDL_Rect bgQuad2 = { 0, bgScroll, SCREEN_WIDTH, SCREEN_HEIGHT };
             SDL_RenderCopy(renderer, backgroundTexture, NULL, &bgQuad1);
             SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgQuad2);
+
+            // Ajouter ceci avant de dessiner la voiture et la moto
+            double target_x = userCar.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 250;
+            double target_y = userCar.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
+            userCar.draw_x += (target_x - userCar.draw_x) * 0.1;
+            userCar.draw_y += (target_y - userCar.draw_y) * 0.1;
+
+            target_x = moto.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 285;
+            target_y = moto.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
+            moto.draw_x += (target_x - moto.draw_x) * 0.1;
+            moto.draw_y += (target_y - moto.draw_y) * 0.1;
 
             drawMoto(renderer, &moto);
             drawVoiture(renderer, &userCar);

@@ -1,4 +1,5 @@
 #include "simulation.h"
+#include <stdio.h>
 
 void recupererNomBot(SDL_Renderer* renderer, int * quitterJeu, char *filename) {
   FILE *fichier;
@@ -46,6 +47,55 @@ void recupererBot(SDL_Renderer* renderer, int * quitterJeu, bot leBot, char * fi
   fclose(fichier);
 }
 
+
+void sauvegarderNomBot(char *filename) {
+  FILE *fichier;
+  int reponse = 0;
+  char nomBot[100] = "";
+
+  /* demandeNom du bot */
+  printf("Voulez vous sauvegarder votre bot ? 0: NON, 1: OUI\n");
+  scanf("%d", &reponse);
+
+
+  if(reponse){
+    do {
+      printf("Donner le nom du bot :\n");
+      scanf("%s", nomBot);
+      sprintf(filename, "bots/%s", nomBot);
+      fichier = fopen(filename, "r");
+      if (fichier != NULL) {
+	printf("Le bot existe déjà, veuillez choisir un autre nom\n");
+	// Fermer le fichier, si il exister
+	fclose(fichier);
+      }
+    } while (fichier != NULL);
+  }
+  else filename = NULL;
+}
+
+void sauvegarderBot(bot leBot, char * filename) {
+  FILE *fichier;
+
+  sauvegarderNomBot(filename);
+
+  if(filename != NULL){
+    fichier = fopen(filename, "w+");
+    if (fichier == NULL) {
+      printf("Échec de l'ouverture du fichier: %s\n", filename);
+      exit(1);
+    }
+
+    for (int i = 0; i < NB_REGLES; i++) {
+      for (int j = 0; j < TAILLE_ETAT + 2; j++) {
+	fprintf(fichier, "%d ", leBot[i][j]);
+      }
+      	fprintf(fichier, "\n");
+    }
+    fclose(fichier);    
+  }
+}
+
 void lancerSimulation(){
 
   printf("Quelle simulation lancer ?\n");
@@ -78,5 +128,8 @@ void lancerSimulation(){
   }
 
   printf("score du bot temoin : %d\n", averageScore(temoin, false));
+
+  char filename[100] = "";
+  sauvegarderBot(robot, filename);
 
 }

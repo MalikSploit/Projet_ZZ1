@@ -1,16 +1,18 @@
 #include "simulation.h"
 
-void recupererNomBot(SDL_Renderer* renderer, int * quitterJeu, char *nomBot) {
+void recupererNomBot(SDL_Renderer* renderer, int * quitterJeu, char *filename) {
   FILE *fichier;
 
   /* demandeNom du bot */
 
     char *pathBackgroud = "Images/DemanderBot_Background.jpg";
     char *pathMessage = "Images/Entrer-votre-Bot.png";
+    char *nomBot;
 
   do {
     nomBot = DemanderQqch(renderer, quitterJeu, pathBackgroud, pathMessage);
-    fichier = fopen(nomBot, "r");
+    sprintf(filename, "bots/%s", nomBot);
+    fichier = fopen(filename, "r");
     if (fichier == NULL) {
       printf("Le fichier n'existe pas ou n'a pas pu être ouvert. Veuillez réessayer.\n");
     }
@@ -20,15 +22,14 @@ void recupererNomBot(SDL_Renderer* renderer, int * quitterJeu, char *nomBot) {
   fclose(fichier);
 }
 
-void recupererBot(SDL_Renderer* renderer, int * quitterJeu, bot leBot) {
+void recupererBot(SDL_Renderer* renderer, int * quitterJeu, bot leBot, char * filename) {
   FILE *fichier;
-  char nomBot[100] = "";
 
-  recupererNomBot(renderer, quitterJeu, nomBot);
+  recupererNomBot(renderer, quitterJeu, filename);
 
-  fichier = fopen(nomBot, "r");
+  fichier = fopen(filename, "r");
   if (fichier == NULL) {
-    printf("Échec de l'ouverture du fichier: %s\n", nomBot);
+    printf("Échec de l'ouverture du fichier: %s\n", filename);
     exit(1);
   }
 

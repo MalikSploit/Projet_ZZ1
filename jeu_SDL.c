@@ -500,13 +500,16 @@ char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud,
 }
 
 
-void logScore(const char* username, int score)
+void logScore(const char* username, int score, bool humain)
 {
     FILE *file = fopen("DataLog/GameLog", "a");
     if (file != NULL)
     {
-        fprintf(file, "Player : %s; Score : %d\n", username, score);
-        fclose(file);
+	if(humain)
+	    fprintf(file, "Player : %s; Score : %d\n", username, score);
+        else
+	    fprintf(file, "Bot : %s; Score : %d\n", username, score);	    
+	fclose(file);
     }
     else
     {
@@ -515,15 +518,22 @@ void logScore(const char* username, int score)
 }
 
 
-void LancerJeu(SDL_Renderer* renderer, bot robot)
+void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
 {
-    //Demander le nom du joueur
-    int quitterJeu = 0;
-    char *pathBackgroud = "Images/DemanderUsername_Background.jpg";
-    char *pathMessage = "Images/Entrer-votre-nom.png";
-    char *username = DemanderQqch(renderer, &quitterJeu, pathBackgroud, pathMessage);
-
     bool humain = (robot == NULL);
+
+    int quitterJeu = 0;
+
+    //recuperer le nom du joueur/bot
+    char *username;
+
+    if(humain) {
+	char *pathBackgroud = "Images/DemanderUsername_Background.jpg";
+	char *pathMessage = "Images/Entrer-votre-nom.png";
+	username = DemanderQqch(renderer, &quitterJeu, pathBackgroud, pathMessage);
+    } else {
+	username = botname;
+    }
 
     if (!quitterJeu)
     {
@@ -719,7 +729,7 @@ void LancerJeu(SDL_Renderer* renderer, bot robot)
         if (!quitterJeu)
         {
             // Enregistrer le nom et le score du joueur
-            logScore(username, score);
+            logScore(username, score, humain);
             initHighScore();
 
             // Ajouter ceci après votre boucle de jeu
@@ -727,7 +737,7 @@ void LancerJeu(SDL_Renderer* renderer, bot robot)
             if (retry)
             {
                 // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
-                LancerJeu(renderer, robot);
+                LancerJeu(renderer, robot, botname);
             }
         }
 

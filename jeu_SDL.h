@@ -26,7 +26,7 @@ typedef struct
 } EnemyCar;
 
 
-void LancerJeu(SDL_Renderer* renderer, bot robot);
+void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname);
 UserCar initVoiture(SDL_Renderer *renderer, int x, int y);
 EnemyCar initObstacle(SDL_Renderer *renderer, int lane_x, int lane_y, char *obstacleImagePath);
 bool checkCollision(int grid[8][8], int x, int y);

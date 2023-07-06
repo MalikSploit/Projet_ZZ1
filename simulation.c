@@ -1,5 +1,50 @@
 #include "simulation.h"
 
+void recupererNomBot(SDL_Renderer* renderer, int * quitterJeu, char *nomBot) {
+  FILE *fichier;
+
+  /* demandeNom du bot */
+
+    char *pathBackgroud = "Images/DemanderBot_Background.jpg";
+    char *pathMessage = "Images/Entrer-votre-Bot.png";
+
+  do {
+    nomBot = DemanderQqch(renderer, quitterJeu, pathBackgroud, pathMessage);
+    fichier = fopen(nomBot, "r");
+    if (fichier == NULL) {
+      printf("Le fichier n'existe pas ou n'a pas pu être ouvert. Veuillez réessayer.\n");
+    }
+  } while (fichier == NULL);
+
+  // Fermer le fichier, car nous vérifions seulement s'il existe
+  fclose(fichier);
+}
+
+void recupererBot(SDL_Renderer* renderer, int * quitterJeu, bot leBot) {
+  FILE *fichier;
+  char nomBot[100] = "";
+
+  recupererNomBot(renderer, quitterJeu, nomBot);
+
+  fichier = fopen(nomBot, "r");
+  if (fichier == NULL) {
+    printf("Échec de l'ouverture du fichier: %s\n", nomBot);
+    exit(1);
+  }
+
+  for (int i = 0; i < NB_REGLES; i++) {
+    for (int j = 0; j < TAILLE_ETAT + 2; j++) {
+      if (fscanf(fichier, "%d", &leBot[i][j]) != 1) {
+        printf("Échec de la lecture du nombre à la ligne %d, colonne %d\n", i, j);
+        fclose(fichier);
+        exit(1);
+      }
+    }
+  }
+
+  fclose(fichier);
+}
+
 void lancerSimulation(){
 
   printf("Quelle simulation lancer ?\n");

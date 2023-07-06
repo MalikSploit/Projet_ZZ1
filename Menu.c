@@ -505,6 +505,8 @@ int main()
     // Compteur de temps pour l'animation
     double time = 0.0;
 
+    bool faireSimulation = false;
+    
     // While application is running
     while (!quit)
     {
@@ -617,9 +619,12 @@ int main()
                             displayHighScore(renderer);
                         }
                         if (strcmp(buttons[i].text, "Simulation") == 0)
-                        {
+			  {
 
-                        }
+			    quit = true;
+			    faireSimulation = true;
+
+			  }
                         if (strcmp(buttons[i].text, "New Game") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
@@ -650,5 +655,10 @@ int main()
     IMG_Quit();  // quit SDL_image
     SDL_Quit();
 
+
+    if(faireSimulation) lancerSimulation();
+
+
     return 0;
 }
+

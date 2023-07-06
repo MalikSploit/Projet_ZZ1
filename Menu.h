@@ -3,6 +3,7 @@
 
 #include "Constantes.h"
 #include "jeu.h"
+#include "simulation.h"
 
 typedef struct Button
 {

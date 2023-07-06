@@ -710,25 +710,3 @@ void LancerJeu(SDL_Renderer* renderer)
     }
 }
 
-
-/* int main() { */
-/*     int seed = time(NULL); */
-/*     /\* seed = 1688568071; *\/ */
-/*     srand(seed); */
-/*     printf("%d\n", seed); */
-    
-/*     bot robot; */
-/*     algoGlouton(robot); */
-
-/*     for(int i = 0; i < NB_REGLES; i++){ */
-/* 	for(int j = 0; j < TAILLE_ETAT + 2; j++) { */
-/* 	    printf("%d ", robot[i][j]); */
-/* 	} */
-/* 	printf("\n"); */
-/*     } */
-    
-/*     /\* printf("Bot aleatoire cree\n"); *\/ */
-/*     /\* printf("score de ce bot : %d\n", Jeu(robot)); *\/ */
-    
-/*     return 0; */
-/* } */

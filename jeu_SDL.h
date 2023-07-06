@@ -39,6 +39,7 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
              UserCar userCar, UserCar moto, SDL_Texture* obstacles[]);
 void InitScore(SDL_Renderer* renderer, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, SDL_Color* textColor, int deplacementEffectue);
 void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor, SDL_Texture** vitesseTexture, SDL_Rect *vitesseRect, TTF_Font* font);
+char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud, char *pathMessage);
 
 
 #endif //PROJET_ZZ1_MAIN_H

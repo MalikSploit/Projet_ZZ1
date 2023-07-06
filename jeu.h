@@ -6,8 +6,6 @@
 #include <stdbool.h>
 #include <time.h>
 
-/* #include <strings.h> */
-
 #include <math.h>
 
 // types regle et bot

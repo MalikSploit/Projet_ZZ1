@@ -236,6 +236,73 @@ int getHighScore()
     return highScore == INT_MAX ? 0 : highScore;  // Return 0 if no scores were found
 }
 
+void initHighScore()
+{
+    FILE *logFile, *highscoreFile;
+    char line[MAX_LINE_LENGTH];
+    char playerName[MAX_NAME_LENGTH], botName[MAX_NAME_LENGTH];
+    int playerScore = INT_MAX, botScore = INT_MAX;
+    char name[MAX_NAME_LENGTH];
+    char scoreStr[MAX_NAME_LENGTH];
+    long scoreLong;
+
+    logFile = fopen("DataLog/GameLog", "r");
+    if (logFile == NULL)
+    {
+        printf("Error opening file\n");
+        return;
+    }
+
+    while (fgets(line, sizeof(line), logFile))
+    {
+        sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
+
+        char *end;
+        scoreLong = strtol(scoreStr, &end, 10);
+
+        if (end == scoreStr)
+        {
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
+
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
+
+        int score = (int)scoreLong;
+        if (strstr(line, "Player"))
+        {
+            if (score < playerScore)
+            {
+                playerScore = score;
+                strcpy(playerName, name);
+            }
+        }
+        else
+        {
+            if (score < botScore)
+            {
+                botScore = score;
+                strcpy(botName, "Robocop");
+            }
+        }
+    }
+    fclose(logFile);
+
+    highscoreFile = fopen("DataLog/HighScore", "w");
+    if (highscoreFile == NULL)
+    {
+        printf("Error opening file\n");
+        return;
+    }
+
+    fprintf(highscoreFile, "Player: %s; Score: %d\n", playerName, playerScore);
+    fprintf(highscoreFile, "Bot: %s; Score: %d\n", botName, botScore);
+    fclose(highscoreFile);
+}
 
 int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 {
@@ -411,7 +478,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     return 0;
 }
 
-char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu, Mix_Chunk* buttonSound)
+  char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud, char *pathMessage)
 {
     initializeTTF();
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 32);
@@ -422,12 +489,12 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu, Mix_Chunk* butto
     SDL_Color HOVER_COLOR = {255, 100, 0, 255};
     SDL_Color BUTTON_COLOR = {100, 200, 100, 255};
 
-    SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/DemanderUsername_Background.jpg");
+    SDL_Texture *backgroundTexture = loadTexture(renderer, pathBackgroud);
     // Dim the background image by half
     SDL_SetTextureColorMod(backgroundTexture, 100, 100, 100);
 
     // Image qui demande a l'utilisateur d'entrer son nom
-    SDL_Texture* promptTexture = loadTexture(renderer, "Images/Entrer-votre-nom.png");
+    SDL_Texture* promptTexture = loadTexture(renderer, pathMessage);
     int prompt_width, prompt_height;
     SDL_QueryTexture(promptTexture, NULL, NULL, &prompt_width, &prompt_height);
     SDL_Rect promptRect = {SCREEN_WIDTH / 2 - prompt_width / 2, SCREEN_HEIGHT / 2 - prompt_height - 50, prompt_width, prompt_height};
@@ -493,7 +560,7 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu, Mix_Chunk* butto
                 if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
                     y >= validateRect.y && y <= validateRect.y + validateRect.h)
                 {
-                    playButtonSound(buttonSound);
+                    /* playButtonSound(buttonSound); */
                     // Clicked on "Validate" button
                     running = false;
                 }
@@ -557,13 +624,16 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu, Mix_Chunk* butto
 }
 
 
-void logScore(const char* username, int score)
+void logScore(const char* username, int score, bool humain)
 {
     FILE *file = fopen("DataLog/GameLog", "a");
     if (file != NULL)
     {
-        fprintf(file, "Player : %s; Score : %d\n", username, score);
-        fclose(file);
+	if(humain)
+	    fprintf(file, "Player : %s; Score : %d\n", username, score);
+        else
+	    fprintf(file, "Bot : %s; Score : %d\n", username, score);	    
+	fclose(file);
     }
     else
     {
@@ -572,21 +642,31 @@ void logScore(const char* username, int score)
 }
 
 
-void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound)
+    void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
 {
-    //Demander le nom du joueur
+    bool humain = (robot == NULL);
+
     int quitterJeu = 0;
-    char* username = DemanderUsername(renderer, &quitterJeu, buttonSound);
+
+    //recuperer le nom du joueur/bot
+    char *username;
+
+    if(humain) {
+	char *pathBackgroud = "Images/DemanderUsername_Background.jpg";
+	char *pathMessage = "Images/Entrer-votre-nom.png";
+	username = DemanderQqch(renderer, &quitterJeu, pathBackgroud, pathMessage);
+    } else {
+	username = botname;
+    }
 
     if (!quitterJeu)
     {
-        // Load button sound
+            // Load button sound
         Mix_Chunk* buttonSound2 = Mix_LoadWAV("Musiques/Error_Click.wav");
-        if(buttonSound == NULL)
+        if(buttonSound2 == NULL)
         {
             printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
         }
-
         //Init jeu
         jeu j = initJeu();
 
@@ -645,6 +725,9 @@ void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound)
         int deplacement = -2;
         int deplacementEffectue = 1;
 
+	int situation[TAILLE_ETAT];
+	int frames = 500;
+
         while (running)
         {
             while (SDL_PollEvent(&e) != 0)
@@ -675,15 +758,15 @@ void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound)
                     {
                         if (e.key.keysym.sym == SDLK_LEFT)
                         {
-                            deplacement = -1;
+                            if(humain) deplacement = -1;
                         }
                         else if (e.key.keysym.sym == SDLK_RIGHT)
                         {
-                            deplacement = 1;
+                            if(humain) deplacement = 1;
                         }
                         else if (e.key.keysym.sym == SDLK_UP && !( SDL_GetModState() & KMOD_CTRL))
                         {
-                            deplacement = 0;
+                            if(humain) deplacement = 0;
                         }
                         else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_UP)
                         {
@@ -704,6 +787,14 @@ void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound)
                     }
                 }
             }
+
+	    frames--;
+
+	    if(!humain && frames == 0) {
+		getSituationFromJeu(j, situation);
+		deplacement = deplacementFromBot(j, robot, situation);
+		frames = -45 * userCar.velocity + 950;
+	    }
 
             if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
             {
@@ -772,12 +863,14 @@ void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound)
             SDL_RenderPresent(renderer);
             SDL_RenderClear(renderer);
 
+	    /* if(!humain) SDL_Delay(20); */
+
         }
 
         if (!quitterJeu)
         {
             // Enregistrer le nom et le score du joueur
-            logScore(username, score);
+            logScore(username, score, humain);
             initHighScore();
 
             // Ajouter ceci après votre boucle de jeu
@@ -785,7 +878,7 @@ void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound)
             if (retry)
             {
                 // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
-                LancerJeu(renderer, buttonSound);
+                LancerJeu(renderer, robot, botname);
             }
         }
         cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
@@ -793,25 +886,13 @@ void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound)
     }
 }
 
-
-/* int main() { */
-/*     int seed = time(NULL); */
-/*     /\* seed = 1688568071; *\/ */
-/*     srand(seed); */
-/*     printf("%d\n", seed); */
-
-/*     bot robot; */
-/*     algoGlouton(robot); */
-
-/*     for(int i = 0; i < NB_REGLES; i++){ */
-/* 	for(int j = 0; j < TAILLE_ETAT + 2; j++) { */
-/* 	    printf("%d ", robot[i][j]); */
-/* 	} */
-/* 	printf("\n"); */
-/*     } */
-
-/*     /\* printf("Bot aleatoire cree\n"); *\/ */
-/*     /\* printf("score de ce bot : %d\n", Jeu(robot)); *\/ */
-
-/*     return 0; */
-/* } */
+void playButtonSound(Mix_Chunk* buttonSound)
+{
+    // Augmente le volume du son du bouton. La valeur doit être entre 0 et 128.
+    Mix_VolumeChunk(buttonSound, 128); // met le volume au maximum
+    // Play sound effect
+    if(Mix_PlayChannel(-1, buttonSound, 0) == -1)
+    {
+        printf("Failed to play button sound! SDL_mixer Error: %s\n", Mix_GetError());
+    }
+}

@@ -3,11 +3,14 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <stdbool.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
+#include "SDL_Initialisation.h"
+
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080

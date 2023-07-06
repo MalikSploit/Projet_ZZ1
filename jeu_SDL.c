@@ -1,11 +1,7 @@
 #include "jeu_SDL.h"
-#include "SDL_Initialisation.h"
 #include "Constantes.h"
-#include "jeu.h"
-#include "Menu.h"
 
 SDL_Texture* obstacles[NOMBRE_SPRITE];
-
 
 //Fonction pour initialiser le chasseur
 UserCar initVoiture(SDL_Renderer *renderer, int x, int y)
@@ -217,6 +213,7 @@ int getHighScore()
     return highScore == INT_MAX ? 0 : highScore;  // Return 0 if no scores were found
 }
 
+
 int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 {
     int highScore = getHighScore();
@@ -391,7 +388,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     return 0;
 }
 
-char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
+char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu, Mix_Chunk* buttonSound)
 {
     initializeTTF();
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 32);
@@ -473,6 +470,7 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
                 if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
                     y >= validateRect.y && y <= validateRect.y + validateRect.h)
                 {
+                    playButtonSound(buttonSound);
                     // Clicked on "Validate" button
                     running = false;
                 }
@@ -551,16 +549,20 @@ void logScore(const char* username, int score)
 }
 
 
-void LancerJeu(SDL_Renderer* renderer)
+void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound)
 {
     //Demander le nom du joueur
     int quitterJeu = 0;
-    char* username = DemanderUsername(renderer, &quitterJeu);
+    char* username = DemanderUsername(renderer, &quitterJeu, buttonSound);
 
     if (!quitterJeu)
     {
-        // Initialise le générateur de nombres pseudo aléatoires
-        srand(time(NULL));
+        // Load button sound
+        Mix_Chunk* buttonSound2 = Mix_LoadWAV("Musiques/Error_Click.wav");
+        if(buttonSound == NULL)
+        {
+            printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
+        }
 
         //Init jeu
         jeu j = initJeu();
@@ -690,7 +692,7 @@ void LancerJeu(SDL_Renderer* renderer)
             }
             else if (deplacement != -2 && !verifDeplacement(j.grille, deplacement, j.chasseur, 0))
             {
-                printf("Deplacement invalide\n");
+                playButtonSound(buttonSound2);
                 deplacement = -2;
             }
 
@@ -749,11 +751,11 @@ void LancerJeu(SDL_Renderer* renderer)
             if (retry)
             {
                 // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
-                LancerJeu(renderer);
+                LancerJeu(renderer, buttonSound);
             }
         }
-
         cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
+        Mix_FreeChunk(buttonSound2);
     }
 }
 

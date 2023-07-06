@@ -1,5 +1,4 @@
 #include "Menu.h"
-#include "SDL_Initialisation.h"
 #include "jeu_SDL.h"
 
 
@@ -407,8 +406,22 @@ void drawButton(SDL_Renderer* renderer, Button* button)
     SDL_RenderCopy(renderer, button->texture, NULL, &renderQuad);
 }
 
+void playButtonSound(Mix_Chunk* buttonSound)
+{
+    // Augmente le volume du son du bouton. La valeur doit être entre 0 et 128.
+    Mix_VolumeChunk(buttonSound, 128); // met le volume au maximum
+    // Play sound effect
+    if(Mix_PlayChannel(-1, buttonSound, 0) == -1)
+    {
+        printf("Failed to play button sound! SDL_mixer Error: %s\n", Mix_GetError());
+    }
+}
+
 int main()
 {
+    // Initialise le générateur de nombres pseudo aléatoires
+    srand(time(NULL));
+
     if (initializeSDL() == -1)
     {
         return 1;
@@ -452,6 +465,30 @@ int main()
     {
         return 1;
     }
+    // Initialize SDL2_mixer
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+    {
+        printf("SDL2_mixer could not initialize! SDL2_mixer Error: %s\n", Mix_GetError());
+        return 1;
+    }
+    // Load the music
+    Mix_Music *bgMusic = Mix_LoadMUS("Musiques/Background_Music.wav");
+    if(bgMusic == NULL)
+    {
+        printf("Failed to load beat music! SDL2_mixer Error: %s\n", Mix_GetError());
+        return 1;
+    }
+    Mix_VolumeMusic(50); // Sets the volume to half
+    // Play the background music
+    Mix_PlayMusic(bgMusic, -1);  // Play indefinitely
+
+    // Load button sound
+    Mix_Chunk* buttonSound = Mix_LoadWAV("Musiques/Mouse_Click.wav");
+    if(buttonSound == NULL)
+    {
+        printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
+        return 1;
+    }
 
     int logo1Width, logo1Height;
     SDL_QueryTexture(logo1, NULL, NULL, &logo1Width, &logo1Height);
@@ -464,11 +501,11 @@ int main()
 
     // Define buttons
     SDL_Color WHITE = {255, 255, 255, 255}; // On hover change color to white
-    Button buttons[5];
-    for (int i = 0; i < 5; ++i)
+    Button buttons[6];
+    for (int i = 0; i < 6; ++i)
     {
         buttons[i].rect.x = SCREEN_WIDTH / 2 - 50;
-        buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 140;
+        buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 50;
         buttons[i].rect.w = 100;
         buttons[i].rect.h = 50;
         buttons[i].color.r = 0;
@@ -478,12 +515,13 @@ int main()
         buttons[i].font = font;
     }
     buttons[0].text = "New Game";
-    buttons[1].text = "Simulation";
-    buttons[2].text = "Scoreboard";
-    buttons[3].text = "Help";
-    buttons[4].text = "Quit";
+    buttons[1].text = "Run a Bot";
+    buttons[2].text = "Simulation";
+    buttons[3].text = "Scoreboard";
+    buttons[4].text = "Help";
+    buttons[5].text = "Quit";
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 6; ++i)
     {
         SDL_Surface* surface = TTF_RenderText_Blended(font, buttons[i].text, buttons[i].color);
         buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -499,22 +537,14 @@ int main()
     // Main loop flag
     bool quit = false;
 
+    // Calcul de la nouvelle vitesse
+    int bgSpeed = 1;
+
     // Event handler
     SDL_Event e;
-
-    // Compteur de temps pour l'animation
-    double time = 0.0;
-
     // While application is running
     while (!quit)
     {
-        // Calcul de la nouvelle vitesse
-        double amplitude = 3.0 + 2.0 * sin(0.1 * time);  // Amplitude entre 1 et 5
-        int bgSpeed = (int)(amplitude * sin(time)) + 1;  // Vitesse variable
-
-        // La vitesse de l'animation dépend du delta
-        time += 0.01;
-
         // Clear screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -536,15 +566,15 @@ int main()
         SDL_RenderCopy(renderer, logo1, NULL, &logo1Quad);
 
         // Define the new dimensions
-        double newLogo2Width = logo2Width / 1.5;
-        double newLogo2Height = logo2Height / 1.3;
+        double newLogo2Width = logo2Width / 1.6;
+        double newLogo2Height = logo2Height / 1.6;
 
         // Draw logo2 (Menu Image)
         SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - (int)newLogo2Width / 2, 20 + logo1Height, (int)newLogo2Width, (int)newLogo2Height };
         SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad);
 
         // Draw buttons
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 6; ++i)
         {
             drawButton(renderer, &buttons[i]);
         }
@@ -566,7 +596,7 @@ int main()
                 int x, y;
                 SDL_GetMouseState(&x, &y);
 
-                for (int i = 0; i < 5; ++i)
+                for (int i = 0; i < 6; ++i)
                 {
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
                     {
@@ -595,9 +625,11 @@ int main()
             // User clicks the mouse
             else if (e.type == SDL_MOUSEBUTTONDOWN)
             {
+                playButtonSound(buttonSound);
+
                 int x, y;
                 SDL_GetMouseState(&x, &y);
-                for (int i = 0; i < 5; ++i)
+                for (int i = 0; i < 6; ++i)
                 {
                     if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
                     {
@@ -611,6 +643,10 @@ int main()
                             quit = true;
                             break;
                         }
+                        if (strcmp(buttons[i].text, "Run a Bot") == 0)
+                        {
+
+                        }
                         if (strcmp(buttons[i].text, "Scoreboard") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
@@ -623,7 +659,7 @@ int main()
                         if (strcmp(buttons[i].text, "New Game") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
-                            LancerJeu(renderer);
+                            LancerJeu(renderer, buttonSound);
                             quit = true;
                         }
                     }
@@ -649,6 +685,9 @@ int main()
     TTF_Quit();
     IMG_Quit();  // quit SDL_image
     SDL_Quit();
+    Mix_FreeMusic(bgMusic);
+    Mix_FreeChunk(buttonSound);
+    Mix_CloseAudio();
 
     return 0;
 }

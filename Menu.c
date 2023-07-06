@@ -74,15 +74,16 @@ void displayHelp(SDL_Renderer* renderer)
 
     // Set the text for the instructions
     const char* instructions[] = {
-	"Les extraterrestres se deplacent a la fois horizontalement et verticalement",
-	"s'approchant du canon, quand ils arrivant au cote droit ou gauche.",
-	"Le canon peut etre controle pour tirer des lasers afin de",
-	"detruire les extraterrestres, tandis que les extraterrestres",
-	"tireront au hasard sur le canon.",
-	"Si un extraterrestre est abattu par le canon, il est detruit",
-	"si le canon est touche, une vie est perdue.",
-	"Utiliser les fleches droites et gauches pour se deplacer.",
-	"Appuyer sur le bouton espace pour tirer",
+      "Le voleur vient de s'echapper en moto !",
+      "",
+      "Rattrapez-le en le bloquant avec votre voiture de police.",
+      "Pour rattraper la moto, vous devez reussir a la bloquer avec le moins de",
+      "coups possibles.",
+      "Pour ce faire, vous devez reussir a placer votre voiture derriere la ",
+      "moto lorsqu'elle est encerclee.",
+      "",
+      "Le jeu se joue au tour par tour avec les fleches directionnelles",
+      "(gauche, droit, et haut).",
     };
     int numLines = sizeof(instructions) / sizeof(instructions[0]);
 

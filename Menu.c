@@ -131,13 +131,20 @@ void displayHelp(SDL_Renderer* renderer)
         return;
     }
 
+    SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/Help_Background.jpg");
+
     // Set the color for the text
     SDL_Color textColor = { 255, 255, 255, 255 }; // White color
 
+    // Image instructions
+    SDL_Texture* promptTexture = loadTexture(renderer, "Images/Instructions.png");
+    int prompt_width, prompt_height;
+    SDL_QueryTexture(promptTexture, NULL, NULL, &prompt_width, &prompt_height);
+    SDL_Rect promptRect = {SCREEN_WIDTH / 2 - prompt_width / 2, 50, prompt_width, prompt_height};
+
+
     // Set the text for the instructions
     const char* instructions[] = {
-            "Instructions:",
-            "",
             "Les extraterrestres se deplacent a la fois horizontalement et verticalement",
             "s'approchant du canon, quand ils arrivant au cote droit ou gauche.",
             "Le canon peut etre controle pour tirer des lasers afin de",
@@ -164,13 +171,16 @@ void displayHelp(SDL_Renderer* renderer)
     }
 
     // Clear the renderer
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+
+    // Render the background and the image instructions
+    SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+    SDL_RenderCopy(renderer, promptTexture, NULL, &promptRect);
 
     // Copy the textures to the renderer
     SDL_Rect textRect;
-    textRect.x = 50; // Adjust these values to move the text
-    textRect.y = 50;
+    textRect.x = 400;
+    textRect.y = 300;
     for (int i = 0; i < numLines; i++)
     {
         SDL_QueryTexture(textures[i], NULL, NULL, &textRect.w, &textRect.h);
@@ -204,6 +214,7 @@ void displayHelp(SDL_Renderer* renderer)
     }
     free(textures);
     TTF_CloseFont(font);
+    SDL_DestroyTexture(backgroundTexture);
 }
 
 
@@ -488,7 +499,7 @@ int main()
         double amplitude = 3.0 + 2.0 * sin(0.1 * time);  // Amplitude entre 1 et 5
         int bgSpeed = (int)(amplitude * sin(time)) + 1;  // Vitesse variable
 
-        // Augmenter le compteur de temps (la vitesse de l'animation dépend du delta)
+        // La vitesse de l'animation dépend du delta
         time += 0.01;
 
         // Clear screen

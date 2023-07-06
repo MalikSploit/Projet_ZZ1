@@ -355,7 +355,7 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     return 0;
 }
 
-char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
+char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud, char *pathMessage)
 {
     initializeTTF();
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 32);
@@ -366,12 +366,12 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
     SDL_Color HOVER_COLOR = {255, 100, 0, 255};
     SDL_Color BUTTON_COLOR = {100, 200, 100, 255};
 
-    SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/DemanderUsername_Background.jpg");
+    SDL_Texture *backgroundTexture = loadTexture(renderer, pathBackgroud);
     // Dim the background image by half
     SDL_SetTextureColorMod(backgroundTexture, 100, 100, 100);
 
     // Image qui demande a l'utilisateur d'entrer son nom
-    SDL_Texture* promptTexture = loadTexture(renderer, "Images/Entrer-votre-nom.png");
+    SDL_Texture* promptTexture = loadTexture(renderer, pathMessage);
     int prompt_width, prompt_height;
     SDL_QueryTexture(promptTexture, NULL, NULL, &prompt_width, &prompt_height);
     SDL_Rect promptRect = {SCREEN_WIDTH / 2 - prompt_width / 2, SCREEN_HEIGHT / 2 - prompt_height - 50, prompt_width, prompt_height};
@@ -519,7 +519,9 @@ void LancerJeu(SDL_Renderer* renderer, bot robot)
 {
     //Demander le nom du joueur
     int quitterJeu = 0;
-    char* username = DemanderUsername(renderer, &quitterJeu);
+    char *pathBackgroud = "Images/DemanderUsername_Background.jpg";
+    char *pathMessage = "Images/Entrer-votre-nom.png";
+    char *username = DemanderQqch(renderer, &quitterJeu, pathBackgroud, pathMessage);
 
     bool humain = (robot == NULL);
 

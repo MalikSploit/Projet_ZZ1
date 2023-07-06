@@ -200,186 +200,186 @@ void drawButton(SDL_Renderer* renderer, Button* button)
     SDL_RenderCopy(renderer, button->texture, NULL, &renderQuad);
 }
 
-/* int main() */
-/* { */
-/*     if (initializeSDL() == -1) */
-/*     { */
-/*         return 1; */
-/*     } */
-/*     if (initializeTTF() == -1) */
-/*     { */
-/*         return 1; */
-/*     } */
-/*     if (initializeIMG() == -1) */
-/*     { */
-/*         return 1; */
-/*     } */
-/*     SDL_Window* window = createWindow("Highway Racer"); */
-/*     if (window == NULL) */
-/*     { */
-/*         return 1; */
-/*     } */
-/*     SDL_Renderer* renderer = createRenderer(window); */
-/*     if (renderer == NULL) */
-/*     { */
-/*         return 1; */
-/*     } */
-/*     SDL_Texture* logo1 = loadLogo(renderer, "Images/Highway-Racer.png"); */
-/*     if (logo1 == NULL) */
-/*     { */
-/*         return 1; */
-/*     } */
-/*     SDL_Texture* logo2 = loadLogo(renderer, "Images/Menu_Image.jpg"); */
-/*     if (logo2 == NULL) */
-/*     { */
-/*         return 1; */
-/*     } */
-/*     TTF_Font* font = loadFont("Font/arial_bold.ttf", 38); */
-/*     if (font == NULL) */
-/*     { */
-/*         return 1; */
-/*     } */
+int main()
+{
+    if (initializeSDL() == -1)
+    {
+        return 1;
+    }
+    if (initializeTTF() == -1)
+    {
+        return 1;
+    }
+    if (initializeIMG() == -1)
+    {
+        return 1;
+    }
+    SDL_Window* window = createWindow("Highway Racer");
+    if (window == NULL)
+    {
+        return 1;
+    }
+    SDL_Renderer* renderer = createRenderer(window);
+    if (renderer == NULL)
+    {
+        return 1;
+    }
+    SDL_Texture* logo1 = loadLogo(renderer, "Images/Highway-Racer.png");
+    if (logo1 == NULL)
+    {
+        return 1;
+    }
+    SDL_Texture* logo2 = loadLogo(renderer, "Images/Menu_Image.jpg");
+    if (logo2 == NULL)
+    {
+        return 1;
+    }
+    TTF_Font* font = loadFont("Font/arial_bold.ttf", 38);
+    if (font == NULL)
+    {
+        return 1;
+    }
 
-/*     int logo1Width, logo1Height; */
-/*     SDL_QueryTexture(logo1, NULL, NULL, &logo1Width, &logo1Height); */
+    int logo1Width, logo1Height;
+    SDL_QueryTexture(logo1, NULL, NULL, &logo1Width, &logo1Height);
 
-/*     int logo2Width, logo2Height; */
-/*     SDL_QueryTexture(logo2, NULL, NULL, &logo2Width, &logo2Height); */
+    int logo2Width, logo2Height;
+    SDL_QueryTexture(logo2, NULL, NULL, &logo2Width, &logo2Height);
 
-/*     // Define buttons */
-/*     Button buttons[5]; */
-/*     for (int i = 0; i < 5; ++i) */
-/*     { */
-/*         buttons[i].rect.x = SCREEN_WIDTH / 2 - 50; */
-/*         buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 140; */
-/*         buttons[i].rect.w = 100; */
-/*         buttons[i].rect.h = 50; */
-/*         buttons[i].color.r = 0; */
-/*         buttons[i].color.g = 255; */
-/*         buttons[i].color.b = 0; */
-/*         buttons[i].color.a = 255; */
-/*         buttons[i].font = font; */
-/*     } */
-/*     buttons[0].text = "New Game"; */
-/*     buttons[1].text = "Simulation"; */
-/*     buttons[2].text = "Highscore"; */
-/*     buttons[3].text = "Help"; */
-/*     buttons[4].text = "Quit"; */
+    // Define buttons
+    Button buttons[5];
+    for (int i = 0; i < 5; ++i)
+    {
+        buttons[i].rect.x = SCREEN_WIDTH / 2 - 50;
+        buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 140;
+        buttons[i].rect.w = 100;
+        buttons[i].rect.h = 50;
+        buttons[i].color.r = 0;
+        buttons[i].color.g = 255;
+        buttons[i].color.b = 0;
+        buttons[i].color.a = 255;
+        buttons[i].font = font;
+    }
+    buttons[0].text = "New Game";
+    buttons[1].text = "Simulation";
+    buttons[2].text = "Highscore";
+    buttons[3].text = "Help";
+    buttons[4].text = "Quit";
 
-/*     for (int i = 0; i < 5; ++i) */
-/*     { */
-/*         SDL_Surface* surface = TTF_RenderText_Blended(font, buttons[i].text, buttons[i].color); */
-/*         buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface); */
-/*         SDL_FreeSurface(surface); */
-/*     } */
+    for (int i = 0; i < 5; ++i)
+    {
+        SDL_Surface* surface = TTF_RenderText_Blended(font, buttons[i].text, buttons[i].color);
+        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+    }
 
-/*     // Main loop flag */
-/*     bool quit = false; */
+    // Main loop flag
+    bool quit = false;
 
-/*     // Event handler */
-/*     SDL_Event e; */
+    // Event handler
+    SDL_Event e;
 
-/*     // While application is running */
-/*     while (!quit) */
-/*     { */
-/*         // Clear screen */
-/*         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); */
-/*         SDL_RenderClear(renderer); */
+    // While application is running
+    while (!quit)
+    {
+        // Clear screen
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
 
-/*         // Draw logo1 (High_Racer Text) */
-/*         SDL_Rect logo1Quad = { SCREEN_WIDTH / 2 - logo1Width / 2, 40, logo1Width, logo1Height }; */
-/*         SDL_RenderCopy(renderer, logo1, NULL, &logo1Quad); */
+        // Draw logo1 (High_Racer Text)
+        SDL_Rect logo1Quad = { SCREEN_WIDTH / 2 - logo1Width / 2, 40, logo1Width, logo1Height };
+        SDL_RenderCopy(renderer, logo1, NULL, &logo1Quad);
 
-/*         // Define the new dimensions */
-/*         int newLogo2Width = logo2Width / 2; */
-/*         double newLogo2Height = logo2Height / 2.3; */
+        // Define the new dimensions
+        int newLogo2Width = logo2Width / 2;
+        double newLogo2Height = logo2Height / 2.3;
 
-/*         // Draw logo2 (Menu Image) */
-/*         SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - newLogo2Width / 2, 20 + logo1Height, newLogo2Width, (int)newLogo2Height }; */
-/*         SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad); */
+        // Draw logo2 (Menu Image)
+        SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - newLogo2Width / 2, 20 + logo1Height, newLogo2Width, (int)newLogo2Height };
+        SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad);
 
-/*         // Draw buttons */
-/*         for (int i = 0; i < 5; ++i) */
-/*         { */
-/*             drawButton(renderer, &buttons[i]); */
-/*         } */
+        // Draw buttons
+        for (int i = 0; i < 5; ++i)
+        {
+            drawButton(renderer, &buttons[i]);
+        }
 
-/*         // Update screen */
-/*         SDL_RenderPresent(renderer); */
+        // Update screen
+        SDL_RenderPresent(renderer);
 
-/*         // Handle events on queue */
-/*         while (SDL_PollEvent(&e) != 0) */
-/*         { */
-/*             // User requests quit */
-/*             if (e.type == SDL_QUIT || (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))) */
-/*             { */
-/*                 quit = true; */
-/*             } */
-/*             // User presses a key */
-/*             else if (e.type == SDL_KEYDOWN) */
-/*             { */
-/*                 switch (e.key.keysym.sym) */
-/*                 { */
-/*                     case SDLK_q: */
-/*                         quit = true; */
-/*                         break; */
-/*                 } */
-/*             } */
-/*             // User clicks the mouse */
-/*             else if (e.type == SDL_MOUSEBUTTONDOWN) */
-/*             { */
-/*                 int x, y; */
-/*                 SDL_GetMouseState(&x, &y); */
-/*                 for (int i = 0; i < 5; ++i) */
-/*                 { */
-/*                     if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect))) */
-/*                     { */
-/*                         printf("%s button clicked!\n", buttons[i].text); */
-/*                         if (strcmp(buttons[i].text, "Help") == 0) */
-/*                         { */
-/*                             SDL_RenderClear(renderer); // Clear the screen */
-/*                             displayHelp(renderer); */
-/*                         } */
-/*                         if (strcmp(buttons[i].text, "Quit") == 0) */
-/*                         { */
-/*                             quit = true; */
-/*                             break; */
-/*                         } */
-/*                         if (strcmp(buttons[i].text, "Highscore") == 0) */
-/*                         { */
-/*                             SDL_RenderClear(renderer); // Clear the screen */
-/*                             displayHighScore(renderer); */
-/*                         } */
-/*                         if (strcmp(buttons[i].text, "Simulation") == 0) */
-/*                         { */
-/*                         } */
-/*                         if (strcmp(buttons[i].text, "New Game") == 0) */
-/*                         { */
-/*                             SDL_RenderClear(renderer); // Clear the screen */
-/*                             LancerJeu(renderer); */
-/*                             quit = true; */
-/*                         } */
-/*                     } */
-/*                 } */
-/*             } */
-/*         } */
-/*     } */
+        // Handle events on queue
+        while (SDL_PollEvent(&e) != 0)
+        {
+            // User requests quit
+            if (e.type == SDL_QUIT || (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)))
+            {
+                quit = true;
+            }
+            // User presses a key
+            else if (e.type == SDL_KEYDOWN)
+            {
+                switch (e.key.keysym.sym)
+                {
+                    case SDLK_q:
+                        quit = true;
+                        break;
+                }
+            }
+            // User clicks the mouse
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                for (int i = 0; i < 5; ++i)
+                {
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
+                    {
+                        printf("%s button clicked!\n", buttons[i].text);
+                        if (strcmp(buttons[i].text, "Help") == 0)
+                        {
+                            SDL_RenderClear(renderer); // Clear the screen
+                            displayHelp(renderer);
+                        }
+                        if (strcmp(buttons[i].text, "Quit") == 0)
+                        {
+                            quit = true;
+                            break;
+                        }
+                        if (strcmp(buttons[i].text, "Highscore") == 0)
+                        {
+                            SDL_RenderClear(renderer); // Clear the screen
+                            displayHighScore(renderer);
+                        }
+                        if (strcmp(buttons[i].text, "Simulation") == 0)
+                        {
+                        }
+                        if (strcmp(buttons[i].text, "New Game") == 0)
+                        {
+                            SDL_RenderClear(renderer); // Clear the screen
+                            LancerJeu(renderer);
+                            quit = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-/*     // Free resources and close SDL */
-/*     SDL_DestroyTexture(logo1);  // destroy the logo1 texture */
-/*     SDL_DestroyTexture(logo2);  // destroy the logo2 texture */
+    // Free resources and close SDL
+    SDL_DestroyTexture(logo1);  // destroy the logo1 texture
+    SDL_DestroyTexture(logo2);  // destroy the logo2 texture
 
-/*     for (int i = 0; i < 5; ++i) */
-/*     { */
-/*         SDL_DestroyTexture(buttons[i].texture); */
-/*     } */
-/*     TTF_CloseFont(font); */
-/*     SDL_DestroyRenderer(renderer); */
-/*     SDL_DestroyWindow(window); */
+    for (int i = 0; i < 5; ++i)
+    {
+        SDL_DestroyTexture(buttons[i].texture);
+    }
+    TTF_CloseFont(font);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
 
-/*     TTF_Quit(); */
-/*     IMG_Quit();  // quit SDL_image */
-/*     SDL_Quit(); */
+    TTF_Quit();
+    IMG_Quit();  // quit SDL_image
+    SDL_Quit();
 
-/*     return 0; */
-/* } */
+    return 0;
+}

@@ -6,7 +6,7 @@
 #include <threads.h>
 
 #define NOMBRE_GLOUTON 100
-#define NUM_THREADS 3
+#define NUM_THREADS 18
 #define NOMBRE_INDICES NB_REGLES*(TAILLE_ETAT+2)
 
 void initialiserBot(bot unBot);

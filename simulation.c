@@ -75,15 +75,15 @@ void sauvegarderNomBot(char *filename) {
 	    }
 	} while (fichier != NULL);
     }
-    else filename = NULL;
 }
 
-void sauvegarderBot(bot leBot, char * filename) {
+void sauvegarderBot(bot leBot) {
     FILE *fichier;
+    char filename[100] = "";
 
     sauvegarderNomBot(filename);
 
-    if(filename != NULL){
+    if(strlen(filename) > 0){
 	fichier = fopen(filename, "w+");
 	if (fichier == NULL) {
 	    printf("Échec de l'ouverture du fichier: %s\n", filename);
@@ -133,7 +133,6 @@ void lancerSimulation(){
 
     printf("score du bot temoin : %d\n", averageScore(temoin, false));
 
-    char filename[100] = "";
-    sauvegarderBot(robot, filename);
+    sauvegarderBot(robot);
 
 }

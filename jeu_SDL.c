@@ -515,11 +515,13 @@ void logScore(const char* username, int score)
 }
 
 
-void LancerJeu(SDL_Renderer* renderer)
+void LancerJeu(SDL_Renderer* renderer, bot robot)
 {
     //Demander le nom du joueur
     int quitterJeu = 0;
     char* username = DemanderUsername(renderer, &quitterJeu);
+
+    bool humain = (robot == NULL);
 
     if (!quitterJeu)
     {
@@ -581,6 +583,9 @@ void LancerJeu(SDL_Renderer* renderer)
         int deplacement = -2;
         int deplacementEffectue = 1;
 
+	int situation[TAILLE_ETAT];
+	int frames = 500;
+
         while (running)
         {
             while (SDL_PollEvent(&e) != 0)
@@ -611,15 +616,15 @@ void LancerJeu(SDL_Renderer* renderer)
                     {
                         if (e.key.keysym.sym == SDLK_LEFT)
                         {
-                            deplacement = -1;
+                            if(humain) deplacement = -1;
                         }
                         else if (e.key.keysym.sym == SDLK_RIGHT)
                         {
-                            deplacement = 1;
+                            if(humain) deplacement = 1;
                         }
                         else if (e.key.keysym.sym == SDLK_UP && !( SDL_GetModState() & KMOD_CTRL))
                         {
-                            deplacement = 0;
+                            if(humain) deplacement = 0;
                         }
                         else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_UP)
                         {
@@ -640,6 +645,14 @@ void LancerJeu(SDL_Renderer* renderer)
                     }
                 }
             }
+
+	    frames--;
+
+	    if(!humain && frames == 0) {
+		getSituationFromJeu(j, situation);
+		deplacement = deplacementFromBot(j, robot, situation);
+		frames = -45 * userCar.velocity + 950;
+	    }
 
             if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
             {
@@ -697,6 +710,8 @@ void LancerJeu(SDL_Renderer* renderer)
             SDL_RenderPresent(renderer);
             SDL_RenderClear(renderer);
 
+	    /* if(!humain) SDL_Delay(20); */
+
         }
 
         if (!quitterJeu)
@@ -710,7 +725,7 @@ void LancerJeu(SDL_Renderer* renderer)
             if (retry)
             {
                 // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
-                LancerJeu(renderer);
+                LancerJeu(renderer, robot);
             }
         }
 

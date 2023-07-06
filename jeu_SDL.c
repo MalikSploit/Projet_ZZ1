@@ -286,7 +286,7 @@ void initHighScore()
             if (score < botScore)
             {
                 botScore = score;
-                strcpy(botName, "Robocop");
+                strcpy(botName, name);
             }
         }
     }

@@ -346,7 +346,7 @@ void deplacer(jeu * j, int deplacement, int numLigne){
 
     }
 
-        /* on bouge la proix */
+    /* on bouge la proix */
     else {
 
         deplacement = retourneDeplacement(*j, 1, deplacement);
@@ -426,28 +426,28 @@ int verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee,
        (grille[ligne + 1][coordonnee + DIRMILIEU])
        &&
        (coordonnee + DIRDROITE > NB_COLONNES - 1 || grille[ligne + 1][coordonnee + DIRDROITE]))
-    {
-        int indiceOuAller = coordonnee;
-        if (deplacement == DIRMILIEU)
-            return 0;
-        else if (deplacement == DIRGAUCHE) {
-            while (indiceOuAller >= 0 && grille[ligne + 1][indiceOuAller]){
-                indiceOuAller--;
-            }
-            if (indiceOuAller < 0)
-                return 0;
-            else
-                return -1;
-        }
-        else if(deplacement == DIRDROITE){
-            while (indiceOuAller < NB_COLONNES && grille[ligne + 1][indiceOuAller]) {
-                indiceOuAller++;
-            }
-            if (indiceOuAller > NB_COLONNES - 1)
-                return 0;
-            else return -1;
-        }
-    }
+	{
+	    int indiceOuAller = coordonnee;
+	    if (deplacement == DIRMILIEU)
+		return 0;
+	    else if (deplacement == DIRGAUCHE) {
+		while (indiceOuAller >= 0 && grille[ligne + 1][indiceOuAller]){
+		    indiceOuAller--;
+		}
+		if (indiceOuAller < 0)
+		    return 0;
+		else
+		    return -1;
+	    }
+	    else if(deplacement == DIRDROITE){
+		while (indiceOuAller < NB_COLONNES && grille[ligne + 1][indiceOuAller]) {
+		    indiceOuAller++;
+		}
+		if (indiceOuAller > NB_COLONNES - 1)
+		    return 0;
+		else return -1;
+	    }
+	}
 
 
     /* verif en à la ligne N + 1 que la case est vide où il veut aller  */

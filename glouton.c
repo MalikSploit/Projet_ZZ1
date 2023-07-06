@@ -1,12 +1,12 @@
 #include "glouton.h"
 
 int valeurPossibleRegle[TAILLE_ETAT + 2][7] = {
-  {5, -1, 1, 2, 3, 4},
-  {5, -1, 1, 2, 3, 4},
-  {5, -1, 1, 2, 3, 4},
-  {6, -1, 1, 2, 3, 4, 5},
-  {3, -1, 0, 1},
-  {5, 1, 2, 3, 4, 5}
+    {5, -1, 1, 2, 3, 4},
+    {5, -1, 1, 2, 3, 4},
+    {5, -1, 1, 2, 3, 4},
+    {6, -1, 1, 2, 3, 4, 5},
+    {3, -1, 0, 1},
+    {5, 1, 2, 3, 4, 5}
 };
 
 void initialiserBot(bot unBot){
@@ -70,62 +70,62 @@ int averageScore(bot unBot, bool multithread) {
 
 void algoGlouton(bot unBot){
 
-  int indices[NOMBRE_INDICES];
-  initIndices(indices);
+    int indices[NOMBRE_INDICES];
+    initIndices(indices);
 
-  initialiserBot(unBot);
+    initialiserBot(unBot);
 
-  int ligne;
-  int colonne;
+    int ligne;
+    int colonne;
 
-  for (int i = 0; i < NOMBRE_GLOUTON; i++) { 
-    for (int j = 0; j < NOMBRE_INDICES; j++) {
-      colonne = indices[j] % (TAILLE_ETAT + 2);
-      ligne = indices[j] / (TAILLE_ETAT + 2);
+    for (int i = 0; i < NOMBRE_GLOUTON; i++) { 
+	for (int j = 0; j < NOMBRE_INDICES; j++) {
+	    colonne = indices[j] % (TAILLE_ETAT + 2);
+	    ligne = indices[j] / (TAILLE_ETAT + 2);
 
-      int meilleurScore = MAX_ITER;
-      int meilleurValeur = valeurPossibleRegle[colonne][1];
-      int scoreActuel;
+	    int meilleurScore = MAX_ITER;
+	    int meilleurValeur = valeurPossibleRegle[colonne][1];
+	    int scoreActuel;
 
-      for (int k = 1; k <= valeurPossibleRegle[colonne][0]; k++) {
+	    for (int k = 1; k <= valeurPossibleRegle[colonne][0]; k++) {
 
-	unBot[ligne][colonne] = valeurPossibleRegle[colonne][k];
+		unBot[ligne][colonne] = valeurPossibleRegle[colonne][k];
 	
-	scoreActuel = averageScore(unBot, false);
+		scoreActuel = averageScore(unBot, false);
 
-	if (scoreActuel < meilleurScore)
-	  {
-	    meilleurScore = scoreActuel;
-	    meilleurValeur = valeurPossibleRegle[colonne][k];
-	  }
-      }
-      printf("score trouve %d\n", meilleurScore);
+		if (scoreActuel < meilleurScore)
+		    {
+			meilleurScore = scoreActuel;
+			meilleurValeur = valeurPossibleRegle[colonne][k];
+		    }
+	    }
+	    printf("score trouve %d\n", meilleurScore);
 
-      unBot[ligne][colonne] = meilleurValeur;
-    }
+	    unBot[ligne][colonne] = meilleurValeur;
+	}
       
-    /* on repermute les probas */
-    melangeIndices(indices);
-  }
+	/* on repermute les probas */
+	melangeIndices(indices);
+    }
 
-  /* printf("Score du meilleur bot d'algo Glouton %d\n", Jeu(unBot)); */
+    /* printf("Score du meilleur bot d'algo Glouton %d\n", Jeu(unBot)); */
 
 }
 
 void initIndices(int * indices){
 
-  for (int i = 0; i < NOMBRE_INDICES; i++) {
-    indices[i] = i;
-  }
-  melangeIndices(indices);
+    for (int i = 0; i < NOMBRE_INDICES; i++) {
+	indices[i] = i;
+    }
+    melangeIndices(indices);
 }
 
 void melangeIndices(int * indices){
 
-  for (int j = NOMBRE_INDICES - 1; j > 0; j--) {
-    int k = rand() % (j + 1);
-    swap(&indices[j], &indices[k]);
-  }
+    for (int j = NOMBRE_INDICES - 1; j > 0; j--) {
+	int k = rand() % (j + 1);
+	swap(&indices[j], &indices[k]);
+    }
   
 }
 

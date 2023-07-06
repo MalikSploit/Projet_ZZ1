@@ -15,6 +15,8 @@ typedef struct UserCar
     int velocity;
     int current_frame;
     int total_frames;
+    double draw_x;
+    double draw_y;
 } UserCar;
 
 typedef struct

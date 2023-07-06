@@ -6,6 +6,7 @@ int valeurPossibleRegle[TAILLE_ETAT + 2][7] = {
   {5, -1, 1, 2, 3, 4},
   {6, -1, 1, 2, 3, 4, 5},
   {3, -1, 0, 1},
+  {3, -1, 0, 1},
   {5, 1, 2, 3, 4, 5}
 };
 
@@ -25,7 +26,9 @@ void initialiserBot(bot unBot){
 	}
 
 	unBot[i][4] = rand() % 3 - 1;
-	unBot[i][5] = (rand() % 5) + 1;
+
+	unBot[i][5] = rand() % 3 - 1;
+	unBot[i][6] = (rand() % 5) + 1;
     }
 
 }

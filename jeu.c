@@ -115,6 +115,9 @@ void getSituationFromJeu(jeu j, int * situation){
     else if (j.proie == j.chasseur + 1) situation[3] = DROITE;
     else if (j.proie < j.chasseur) situation[3] = EGAUCHE;
     else situation[3] = EDROITE;
+
+    if (j.proie < NB_COLONNES / 2) situation[4] = COTEGAUCHE;
+    else situation[4] = COTEDROITE;
 }
 
 // teste si une regle matche une situation (en prenant en compte les jokers -1 dans la regle)

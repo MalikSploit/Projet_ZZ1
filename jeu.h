@@ -10,7 +10,7 @@
 
 // types regle et bot
 
-#define TAILLE_ETAT 4 // nombre de perceptions pour les regles du bot
+#define TAILLE_ETAT 5 // nombre de perceptions pour les regles du bot
 #define NB_REGLES 20 // nombre de regles dans un bot
 #define IMPORTANCE_PRIORITES 5
 
@@ -37,6 +37,10 @@ typedef regle bot[NB_REGLES];
 #define CENTRE 3 // devant
 #define DROITE 4 // immédiatement à droite
 #define EDROITE 5 // à droite mais pas directement
+
+// Valeurs pour le cote de la proie
+#define COTEGAUCHE 0
+#define COTEDROITE 1
 
 // Directions possibles de deplacement (outputs d'une regle)
 #define DIRGAUCHE -1

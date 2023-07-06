@@ -298,12 +298,14 @@ void displayHighScore(SDL_Renderer* renderer)
     }
 
     // Load a font
-    TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 24);
+    TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 28);
     if (font == NULL)
     {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
         return;
     }
+
+    SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/ScoreBoard_Background.jpg");
 
     // Create the high score and average score strings
     char highScorePlayerText[100], highScoreBotText[100];
@@ -330,26 +332,36 @@ void displayHighScore(SDL_Renderer* renderer)
     SDL_FreeSurface(surfacePlayerAvg);
     SDL_FreeSurface(surfaceBotAvg);
 
-    SDL_Rect textRectPlayerAvg, textRectBotAvg;
-    SDL_QueryTexture(texturePlayerAvg, NULL, NULL, &textRectPlayerAvg.w, &textRectPlayerAvg.h);
-    SDL_QueryTexture(textureBotAvg, NULL, NULL, &textRectBotAvg.w, &textRectBotAvg.h);
-    textRectPlayerAvg.x = (SCREEN_WIDTH - textRectPlayerAvg.w) / 2; // Calculate the x coordinate to center the text
-    textRectBotAvg.x = (SCREEN_WIDTH - textRectBotAvg.w) / 2; // Calculate the x coordinate to center the text
-    textRectPlayerAvg.y = 150; // Position these lower on the screen
-    textRectBotAvg.y = 200;
-
     SDL_Rect textRectPlayer, textRectBot;
     SDL_QueryTexture(texturePlayer, NULL, NULL, &textRectPlayer.w, &textRectPlayer.h);
     SDL_QueryTexture(textureBot, NULL, NULL, &textRectBot.w, &textRectBot.h);
     textRectPlayer.x = (SCREEN_WIDTH - textRectPlayer.w) / 2; // Calculate the x coordinate to center the text
     textRectBot.x = (SCREEN_WIDTH - textRectBot.w) / 2; // Calculate the x coordinate to center the text
-    textRectPlayer.y = 50;
-    textRectBot.y = 100;
+    textRectPlayer.y = 400;
+    textRectBot.y = 450;
+
+    SDL_Rect textRectPlayerAvg, textRectBotAvg;
+    SDL_QueryTexture(texturePlayerAvg, NULL, NULL, &textRectPlayerAvg.w, &textRectPlayerAvg.h);
+    SDL_QueryTexture(textureBotAvg, NULL, NULL, &textRectBotAvg.w, &textRectBotAvg.h);
+    textRectPlayerAvg.x = (SCREEN_WIDTH - textRectPlayerAvg.w) / 2; // Calculate the x coordinate to center the text
+    textRectBotAvg.x = (SCREEN_WIDTH - textRectBotAvg.w) / 2; // Calculate the x coordinate to center the text
+    textRectPlayerAvg.y = 500; // Position these lower on the screen
+    textRectBotAvg.y = 550;
+
+    // Image Scoreboard
+    SDL_Texture* promptTexture = loadTexture(renderer, "Images/Scoreboard.png");
+    int prompt_width, prompt_height;
+    SDL_QueryTexture(promptTexture, NULL, NULL, &prompt_width, &prompt_height);
+    SDL_Rect ScoreboardRect = {SCREEN_WIDTH / 2 - prompt_width / 2, 150, prompt_width, prompt_height};
 
     // Clear the renderer
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
+    //Render the background image
+    SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+    //Render the Scoreboard image
+    SDL_RenderCopy(renderer, promptTexture, NULL, &ScoreboardRect);
     // Copy the texture with the high scores to the renderer
     SDL_RenderCopy(renderer, texturePlayer, NULL, &textRectPlayer);
     SDL_RenderCopy(renderer, textureBot, NULL, &textRectBot);
@@ -379,6 +391,7 @@ void displayHighScore(SDL_Renderer* renderer)
     SDL_DestroyTexture(textureBot);
     SDL_DestroyTexture(texturePlayerAvg);
     SDL_DestroyTexture(textureBotAvg);
+    SDL_DestroyTexture(promptTexture);
     TTF_CloseFont(font);
 }
 

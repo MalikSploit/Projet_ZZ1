@@ -21,7 +21,7 @@ void lancerSimulation(){
     }
     printf("\n");
   }
-  printf("score du bot avec algoGlouton : %d\n", Jeu(robot));
+  printf("score du bot avec algoGlouton : %d\n", averageScore(robot));
     
   /* affichage temoin */
   for(int i = 0; i < NB_REGLES; i++){
@@ -30,9 +30,7 @@ void lancerSimulation(){
     }
     printf("\n");
   }
-  /* calcul moyenne */
 
-
-  printf("score du bot avec algoGlouton : %d\n", Jeu(robot));
+  printf("score du bot temoin : %d\n", averageScore(temoin));
 
 }

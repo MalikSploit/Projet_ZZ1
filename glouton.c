@@ -42,6 +42,23 @@ int jeuPourThread(void * parameters) {
     return Jeu(*robot);
 }
 
+int averageScore(bot unBot) {
+    pthread_t threads[NUM_THREADS];
+    int scoreTotal = 0;
+    
+    for (int thread = 0; thread < NUM_THREADS; thread++) {
+	thrd_create(&threads[thread], jeuPourThread, &unBot);
+    }
+
+    for (int thread = 0; thread < NUM_THREADS; thread++) {
+	int result;
+	thrd_join(threads[thread], &result);
+	scoreTotal += result;
+    }
+    
+    return (float)scoreTotal / NUM_THREADS;
+}
+
 void algoGlouton(bot unBot){
 
   int indices[NOMBRE_INDICES];
@@ -61,38 +78,20 @@ void algoGlouton(bot unBot){
       int meilleurValeur = valeurPossibleRegle[colonne][1];
       int scoreActuel;
 
-      pthread_t threads[NUM_THREADS];
-      int scoreTotal;
-
       for (int k = 1; k <= valeurPossibleRegle[colonne][0]; k++) {
 
 	unBot[ligne][colonne] = valeurPossibleRegle[colonne][k];
-
-	for (int thread = 0; thread < NUM_THREADS; thread++) {
-	    thrd_create(&threads[thread], jeuPourThread, &unBot);
-	    /* printf("lancement du thread\n"); */
-	}
-
-	scoreTotal = 0;
-
-	for (int thread = 0; thread < NUM_THREADS; thread++) {
-	    int result;
-	    /* printf("deb attente du thread\n"); */
-	    thrd_join(threads[thread], &result);
-	    /* printf("fin attente du thread, result %d\n", result); */
-	    scoreTotal += result;
-	}
-
-	scoreActuel = (float)scoreTotal / NUM_THREADS;
-
-	/* printf("score trouve %d\n", scoreActuel); */
 	
+	scoreActuel = averageScore(unBot);
+
 	if (scoreActuel < meilleurScore)
 	  {
 	    meilleurScore = scoreActuel;
 	    meilleurValeur = valeurPossibleRegle[colonne][k];
 	  }
       }
+      printf("score trouve %d\n", meilleurScore);
+
       unBot[ligne][colonne] = meilleurValeur;
     }
       

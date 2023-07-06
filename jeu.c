@@ -5,7 +5,7 @@ int Jeu(bot robot){
     bool fin = false;
     int i = 0;
     int deplacement;
-    int situation[TAILLE_ETAT];
+    int situation[TAILLE_ETAT] = {0};
 
     // initialisation du jeu
     jeu j = initJeu();
@@ -56,14 +56,14 @@ int distanceSurColonne(jeu j, int colonne) {
     if(colonne < 0 || colonne >= NB_COLONNES)
 	return 0;
     
-    int ligne = 1;
+    int ligne = 2;
     bool trouve = false;
     // recherche du plus proche obstacle
     while (ligne < NB_LIGNES && !trouve) {
-        ligne++;
         if(j.grille[ligne][colonne]) {
             trouve = true;
         }
+        ligne++;
     }
     // si pas d'obstacle, on renvoie l'indice de la ligne après la dernière
     if(!trouve) ligne = NB_LIGNES;
@@ -98,6 +98,7 @@ void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]){
     }
 
     // colonne d'en face
+
     situation[1] = proximiteSurColonne(j, j.proie);
 
     // colonne a droite de la proie
@@ -117,7 +118,7 @@ void getSituationFromJeu(jeu j, int situation[TAILLE_ETAT]){
 }
 
 // teste si une regle matche une situation (en prenant en compte les jokers -1 dans la regle)
-bool matchRegleSituation(regle r, int situation[TAILLE_ETAT]) {
+bool matchRegleSituation(regle r, int * situation) {
     bool matches = true;
     int i = 0;
     while (matches && i < TAILLE_ETAT) {
@@ -128,7 +129,7 @@ bool matchRegleSituation(regle r, int situation[TAILLE_ETAT]) {
 }
 
 // renvoyer ce que fait le bot dans le cas donne
-int deplacementFromBot(jeu j, bot robot, int situation[TAILLE_ETAT]){
+int deplacementFromBot(jeu j, bot robot, int * situation){
     // trouver les regles qui matchent la situation
     // retirer les regles demandant une action illegale
     // choisir une regle parmi les restantes en priorisant les priorités fortes (proba de prio^s / somme des prio^s avec s constante d'importance des priorites)

@@ -3,6 +3,7 @@
 
 #include "Constantes.h"
 #include "jeu.h"
+#include "glouton.h"
 
 typedef struct UserCar
 {

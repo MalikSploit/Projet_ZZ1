@@ -713,23 +713,22 @@ void LancerJeu(SDL_Renderer* renderer)
 
 /* int main() { */
 /*     int seed = time(NULL); */
-/*     seed = 1688484772; */
+/*     /\* seed = 1688568071; *\/ */
 /*     srand(seed); */
 /*     printf("%d\n", seed); */
-
+    
 /*     bot robot; */
-/*     for (int i = 0; i < NB_REGLES; i++) { */
-/* 	for (int j = 0; j <= 2; j++) { */
-/* 	    robot[i][j] = (rand() % 4) + 1; */
+/*     algoGlouton(robot); */
+
+/*     for(int i = 0; i < NB_REGLES; i++){ */
+/* 	for(int j = 0; j < TAILLE_ETAT + 2; j++) { */
+/* 	    printf("%d ", robot[i][j]); */
 /* 	} */
-/* 	robot[i][3] = (rand() % 5) + 1; */
-/* 	robot[i][4] = (rand() % 3) - 1; */
-/* 	robot[i][5] = (rand() % 5) + 1; */
+/* 	printf("\n"); */
 /*     } */
-/*     // to do rajouter les jokers */
-
-/*     printf("Bot aleatoire cree\n"); */
-/*     printf("score de ce bot : %d\n", Jeu(robot)); */
-
+    
+/*     /\* printf("Bot aleatoire cree\n"); *\/ */
+/*     /\* printf("score de ce bot : %d\n", Jeu(robot)); *\/ */
+    
 /*     return 0; */
 /* } */

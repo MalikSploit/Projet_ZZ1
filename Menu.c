@@ -536,11 +536,11 @@ int main()
         SDL_RenderCopy(renderer, logo1, NULL, &logo1Quad);
 
         // Define the new dimensions
-        int newLogo2Width = logo2Width / 2;
-        double newLogo2Height = logo2Height / 2.3;
+        double newLogo2Width = logo2Width / 1.5;
+        double newLogo2Height = logo2Height / 1.3;
 
         // Draw logo2 (Menu Image)
-        SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - newLogo2Width / 2, 20 + logo1Height, newLogo2Width, (int)newLogo2Height };
+        SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - (int)newLogo2Width / 2, 20 + logo1Height, (int)newLogo2Width, (int)newLogo2Height };
         SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad);
 
         // Draw buttons

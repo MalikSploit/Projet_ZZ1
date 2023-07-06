@@ -360,7 +360,13 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
 
     SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/DemanderUsername_Background.jpg");
     // Dim the background image by half
-    SDL_SetTextureColorMod(backgroundTexture, 128, 128, 128);
+    SDL_SetTextureColorMod(backgroundTexture, 100, 100, 100);
+
+    // Image qui demande a l'utilisateur d'entrer son nom
+    SDL_Texture* promptTexture = loadTexture(renderer, "Images/Entrer-votre-nom.png");
+    int prompt_width, prompt_height;
+    SDL_QueryTexture(promptTexture, NULL, NULL, &prompt_width, &prompt_height);
+    SDL_Rect promptRect = {SCREEN_WIDTH / 2 - prompt_width / 2, SCREEN_HEIGHT / 2 - prompt_height - 50, prompt_width, prompt_height};
 
     SDL_Texture* usernameTexture = NULL;
     SDL_Rect usernameRect = {SCREEN_WIDTH / 2 - 250, SCREEN_HEIGHT / 2, 500, 40};
@@ -379,7 +385,7 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
     SDL_Event e;
     bool buttonHovered = false;
 
-    char username[50] = "";
+    char username[29] = "";
 
     while (running)
     {
@@ -410,7 +416,7 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
                     {
                         ch[0] = toupper(ch[0]);
                     }
-                    strncat(username, ch, 49 - strlen(username));
+                    strncat(username, ch, 28 - strlen(username));
                 }
             }
             else if (e.type == SDL_MOUSEBUTTONDOWN)
@@ -444,7 +450,10 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
 
         updateText(renderer, font, BLACK, &usernameTexture, &usernameRect, username);
 
+        //Render the background image
         SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+        // Render the prompt
+        SDL_RenderCopy(renderer, promptTexture, NULL, &promptRect);
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &textBoxRect);
@@ -472,6 +481,7 @@ char* DemanderUsername(SDL_Renderer* renderer, int *QuitterJeu)
     SDL_DestroyTexture(validateTexture);
     SDL_DestroyTexture(validateHoverTexture);
     SDL_DestroyTexture(backgroundTexture);
+    SDL_DestroyTexture(promptTexture);
     TTF_CloseFont(font);
     TTF_CloseFont(font_button);
 

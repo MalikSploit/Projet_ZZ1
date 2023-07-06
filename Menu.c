@@ -71,6 +71,56 @@ void initHighScore()
     fclose(highscoreFile);
 }
 
+void calculerMoyenneScores()
+{
+    FILE* fichier = fopen("GameLog", "r"); // Ouvrir le fichier de log en mode lecture
+    char ligne[256];
+    int totalScoreJoueur = 0, totalScoreBot = 0, countJoueur = 0, countBot = 0;
+
+    while (fgets(ligne, sizeof ligne, fichier))
+    {
+        char* nom = strtok(ligne, ";");
+        char* scoreStr = strtok(NULL, ";");
+
+        // Convertir le score en int, on saute les 8 premiers caractères " Score : "
+        char* end;
+        long scoreLong = strtol(scoreStr + 8, &end, 10);
+        if (end == scoreStr + 8)
+        {
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
+
+        int score = (int) scoreLong;
+
+        if (strstr(nom, "Player"))
+        {
+            totalScoreJoueur += score;
+            countJoueur++;
+        }
+        else if (strstr(nom, "Bot"))
+        {
+            totalScoreBot += score;
+            countBot++;
+        }
+    }
+    fclose(fichier); // Fermer le fichier de log
+
+    double moyenneScoreJoueur = (double) totalScoreJoueur / countJoueur;
+    double moyenneScoreBot = (double) totalScoreBot / countBot;
+
+    // Maintenant, nous allons écrire les moyennes dans un nouveau fichier
+    FILE* fichierMoyennes = fopen("moyennes", "w"); // Ouvrir le fichier de moyennes en mode écriture
+    fprintf(fichierMoyennes, "Moyenne du score du joueur : %.2f\n", moyenneScoreJoueur);
+    fprintf(fichierMoyennes, "Moyenne du score du bot : %.2f\n", moyenneScoreBot);
+    fclose(fichierMoyennes); // Fermer le fichier de moyennes
+}
+
 void displayHelp(SDL_Renderer* renderer)
 {
     // Load a font
@@ -207,6 +257,35 @@ void displayHighScore(SDL_Renderer* renderer)
 
     fclose(file);
 
+    double averagePlayerScore, averageBotScore;
+    char buffer[256];
+    FILE *averageFile = fopen("moyennes", "r");
+    if (averageFile != NULL)
+    {
+        // Read player's average score
+        fgets(buffer, sizeof(buffer), averageFile);
+        averagePlayerScore = strtod(strchr(buffer, ':') + 2, NULL);
+        if (averagePlayerScore == 0)
+        {
+            printf("Error: could not convert player's average score to a float.\n");
+            return;
+        }
+
+        // Read bot's average score
+        fgets(buffer, sizeof(buffer), averageFile);
+        averageBotScore = strtod(strchr(buffer, ':') + 2, NULL);
+        if (averageBotScore == 0)
+        {
+            printf("Error: could not convert bot's average score to a float.\n");
+            return;
+        }
+    }
+    else
+    {
+        printf("Could not open averages file!\n");
+        return;
+    }
+
     // Load a font
     TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 24);
     if (font == NULL)
@@ -215,10 +294,13 @@ void displayHighScore(SDL_Renderer* renderer)
         return;
     }
 
-    // Create the high score strings
+    // Create the high score and average score strings
     char highScorePlayerText[100], highScoreBotText[100];
+    char averagePlayerText[100], averageBotText[100];
     sprintf(highScorePlayerText, "Best player score : %s with %d points", highScores.playerName, highScores.playerScore);
     sprintf(highScoreBotText, "Best bot score : %s with %d points", highScores.botName, highScores.botScore);
+    sprintf(averagePlayerText, "Average player score: %.2f points", averagePlayerScore);
+    sprintf(averageBotText, "Average bot score: %.2f points", averageBotScore);
 
     // Render the high scores
     SDL_Color textColor = { 255, 255, 255, 255 }; // White color
@@ -228,6 +310,22 @@ void displayHighScore(SDL_Renderer* renderer)
     SDL_Texture* textureBot = SDL_CreateTextureFromSurface(renderer, surfaceBot);
     SDL_FreeSurface(surfacePlayer);
     SDL_FreeSurface(surfaceBot);
+
+    // Render the Average score
+    SDL_Surface* surfacePlayerAvg = TTF_RenderText_Blended(font, averagePlayerText, textColor);
+    SDL_Surface* surfaceBotAvg = TTF_RenderText_Blended(font, averageBotText, textColor);
+    SDL_Texture* texturePlayerAvg = SDL_CreateTextureFromSurface(renderer, surfacePlayerAvg);
+    SDL_Texture* textureBotAvg = SDL_CreateTextureFromSurface(renderer, surfaceBotAvg);
+    SDL_FreeSurface(surfacePlayerAvg);
+    SDL_FreeSurface(surfaceBotAvg);
+
+    SDL_Rect textRectPlayerAvg, textRectBotAvg;
+    SDL_QueryTexture(texturePlayerAvg, NULL, NULL, &textRectPlayerAvg.w, &textRectPlayerAvg.h);
+    SDL_QueryTexture(textureBotAvg, NULL, NULL, &textRectBotAvg.w, &textRectBotAvg.h);
+    textRectPlayerAvg.x = (SCREEN_WIDTH - textRectPlayerAvg.w) / 2; // Calculate the x coordinate to center the text
+    textRectBotAvg.x = (SCREEN_WIDTH - textRectBotAvg.w) / 2; // Calculate the x coordinate to center the text
+    textRectPlayerAvg.y = 150; // Position these lower on the screen
+    textRectBotAvg.y = 200;
 
     SDL_Rect textRectPlayer, textRectBot;
     SDL_QueryTexture(texturePlayer, NULL, NULL, &textRectPlayer.w, &textRectPlayer.h);
@@ -244,6 +342,9 @@ void displayHighScore(SDL_Renderer* renderer)
     // Copy the texture with the high scores to the renderer
     SDL_RenderCopy(renderer, texturePlayer, NULL, &textRectPlayer);
     SDL_RenderCopy(renderer, textureBot, NULL, &textRectBot);
+    // Copy the texture with the average scores to the renderer
+    SDL_RenderCopy(renderer, texturePlayerAvg, NULL, &textRectPlayerAvg);
+    SDL_RenderCopy(renderer, textureBotAvg, NULL, &textRectBotAvg);
 
     // Show the renderer contents on the screen
     SDL_RenderPresent(renderer);
@@ -265,6 +366,8 @@ void displayHighScore(SDL_Renderer* renderer)
     // Clean up
     SDL_DestroyTexture(texturePlayer);
     SDL_DestroyTexture(textureBot);
+    SDL_DestroyTexture(texturePlayerAvg);
+    SDL_DestroyTexture(textureBotAvg);
     TTF_CloseFont(font);
 }
 
@@ -365,6 +468,9 @@ int main()
 
     // Initialisation du high score a partir de GameLog
     initHighScore();
+
+    // On calcule la moyenne du score des joueurs et des bots
+    calculerMoyenneScores();
 
     // Main loop flag
     bool quit = false;

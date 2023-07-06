@@ -2,7 +2,6 @@
 #define PROJET_ZZ1_MAIN_H
 
 #include "glouton.h"
-#include "Menu.h"
 #include "SDL_Initialisation.h"
 #include "Constantes.h"
 
@@ -29,7 +28,7 @@ typedef struct
 
 extern SDL_Texture* obstacles[NOMBRE_SPRITE];
 
-void LancerJeu(SDL_Renderer* renderer, Mix_Chunk* buttonSound);
+void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname);
 UserCar initVoiture(SDL_Renderer *renderer, int x, int y);
 void drawVoiture(SDL_Renderer *renderer, UserCar *userCar);
 void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL_Texture** texture, SDL_Rect* rect, const char* text);
@@ -39,6 +38,9 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
 void InitScore(SDL_Renderer* renderer, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, SDL_Color* textColor, int deplacementEffectue);
 void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor, SDL_Texture** vitesseTexture, SDL_Rect *vitesseRect, TTF_Font* font);
 int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score);
+char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud, char *pathMessage);
+void playButtonSound(Mix_Chunk* buttonSound);
+void initHighScore();
 
 
 #endif //PROJET_ZZ1_MAIN_H

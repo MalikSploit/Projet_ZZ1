@@ -1,74 +1,4 @@
 #include "Menu.h"
-#include "jeu_SDL.h"
-
-
-void initHighScore()
-{
-    FILE *logFile, *highscoreFile;
-    char line[MAX_LINE_LENGTH];
-    char playerName[MAX_NAME_LENGTH], botName[MAX_NAME_LENGTH];
-    int playerScore = INT_MAX, botScore = INT_MAX;
-    char name[MAX_NAME_LENGTH];
-    char scoreStr[MAX_NAME_LENGTH];
-    long scoreLong;
-
-    logFile = fopen("DataLog/GameLog", "r");
-    if (logFile == NULL)
-    {
-        printf("Error opening file\n");
-        return;
-    }
-
-    while (fgets(line, sizeof(line), logFile))
-    {
-        sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
-
-        char *end;
-        scoreLong = strtol(scoreStr, &end, 10);
-
-        if (end == scoreStr)
-        {
-            printf("Error: could not convert score to an integer.\n");
-            return;
-        }
-
-        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
-        {
-            printf("Error: score is out of range for an integer.\n");
-            return;
-        }
-
-        int score = (int)scoreLong;
-        if (strstr(line, "Player"))
-        {
-            if (score < playerScore)
-            {
-                playerScore = score;
-                strcpy(playerName, name);
-            }
-        }
-        else
-        {
-            if (score < botScore)
-            {
-                botScore = score;
-                strcpy(botName, "Robocop");
-            }
-        }
-    }
-    fclose(logFile);
-
-    highscoreFile = fopen("DataLog/HighScore", "w");
-    if (highscoreFile == NULL)
-    {
-        printf("Error opening file\n");
-        return;
-    }
-
-    fprintf(highscoreFile, "Player: %s; Score: %d\n", playerName, playerScore);
-    fprintf(highscoreFile, "Bot: %s; Score: %d\n", botName, botScore);
-    fclose(highscoreFile);
-}
 
 void calculerMoyenneScores()
 {
@@ -406,17 +336,6 @@ void drawButton(SDL_Renderer* renderer, Button* button)
     SDL_RenderCopy(renderer, button->texture, NULL, &renderQuad);
 }
 
-void playButtonSound(Mix_Chunk* buttonSound)
-{
-    // Augmente le volume du son du bouton. La valeur doit être entre 0 et 128.
-    Mix_VolumeChunk(buttonSound, 128); // met le volume au maximum
-    // Play sound effect
-    if(Mix_PlayChannel(-1, buttonSound, 0) == -1)
-    {
-        printf("Failed to play button sound! SDL_mixer Error: %s\n", Mix_GetError());
-    }
-}
-
 int main()
 {
     // Initialise le générateur de nombres pseudo aléatoires
@@ -535,13 +454,19 @@ int main()
     calculerMoyenneScores();
 
     // Main loop flag
-    bool quit = false;
+    int quit = false;
 
     // Calcul de la nouvelle vitesse
     int bgSpeed = 1;
 
     // Event handler
     SDL_Event e;
+
+    // Compteur de temps pour l'animation
+    double time = 0.0;
+
+    bool faireSimulation = false;
+    
     // While application is running
     while (!quit)
     {
@@ -645,7 +570,12 @@ int main()
                         }
                         if (strcmp(buttons[i].text, "Run a Bot") == 0)
                         {
-
+				SDL_RenderClear(renderer); // Clear the screen
+				bot robot = {0};
+				char filename[100] = "";
+				recupererBot(renderer, &quit, robot, filename);
+				LancerJeu(renderer, robot, filename+5);
+				quit = true;
                         }
                         if (strcmp(buttons[i].text, "Scoreboard") == 0)
                         {
@@ -653,15 +583,19 @@ int main()
                             displayHighScore(renderer);
                         }
                         if (strcmp(buttons[i].text, "Simulation") == 0)
-                        {
+			  {
 
-                        }
+			    quit = true;
+			    faireSimulation = true;
+
+			  }
                         if (strcmp(buttons[i].text, "New Game") == 0)
-                        {
-                            SDL_RenderClear(renderer); // Clear the screen
-                            LancerJeu(renderer, buttonSound);
-                            quit = true;
-                        }
+			    {
+
+				SDL_RenderClear(renderer); // Clear the screen
+				LancerJeu(renderer, NULL, NULL); // lancer le jeu pour un humain
+				quit = true;
+			    }
                     }
                 }
             }
@@ -689,5 +623,10 @@ int main()
     Mix_FreeChunk(buttonSound);
     Mix_CloseAudio();
 
+
+    if(faireSimulation) lancerSimulation();
+
+
     return 0;
 }
+

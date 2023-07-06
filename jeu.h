@@ -6,14 +6,12 @@
 #include <stdbool.h>
 #include <time.h>
 
-/* #include <strings.h> */
-
 #include <math.h>
 
 // types regle et bot
 
 #define TAILLE_ETAT 4 // nombre de perceptions pour les regles du bot
-#define NB_REGLES 10 // nombre de regles dans un bot
+#define NB_REGLES 20 // nombre de regles dans un bot
 #define IMPORTANCE_PRIORITES 5
 
 /* Une regle contient six entiers :

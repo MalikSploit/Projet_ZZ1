@@ -2,6 +2,10 @@
 #define PROJET_ZZ1_MENU_H
 
 #include "Constantes.h"
+#include "jeu.h"
+#include "simulation.h"
+#include "jeu_SDL.h"
+
 
 typedef struct Button
 {
@@ -25,7 +29,5 @@ typedef struct
 void drawButton(SDL_Renderer* renderer, Button* button);
 void displayHelp(SDL_Renderer* renderer);
 void displayHighScore(SDL_Renderer* renderer);
-void initHighScore();
-void playButtonSound(Mix_Chunk* buttonSound);
 
 #endif //PROJET_ZZ1_MENU_H

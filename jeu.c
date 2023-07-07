@@ -230,8 +230,8 @@ int comportementProie(jeu j){
             /*     deplacement = DIRDROITE; */
             /* } */
             /* else deplacement = DIRMILIEU; */
-	    if(verifDeplacement(j.grille, DIRMILIEU, j.proie, 1)) {
-		deplacement = DIRMILIEU;
+	    if(verifDeplacement(j.grille, DIRMILIEU, j.proie, 1) && j.proie != 0 && j.proie != NB_COLONNES - 1) {
+		    deplacement = DIRMILIEU;
 	    } else {
                 if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
 		    if(verifDeplacement(j.grille, DIRGAUCHE, j.proie, 1)){
@@ -242,8 +242,13 @@ int comportementProie(jeu j){
 		    }
                 }
                 else {
-                    deplacement = DIRGAUCHE;
-                }
+		    if(verifDeplacement(j.grille, DIRGAUCHE, j.proie, 1)){
+			deplacement = DIRGAUCHE;
+		    }
+		    else {
+			deplacement = DIRMILIEU;
+		    }         
+		}
 	    }
 
         }
@@ -472,7 +477,7 @@ void avanceGrille(int grille[][NB_COLONNES]){
     grille[NB_LIGNES - 1][i] = 0;
   }
 
-  if(!seulementPiege && (rand() % moduloPiege)){
+  if(!SEULEMENTPIEGE && (rand() % MODULOPIEGE)){
 
 
     // Remplis la dernière ligne avec des nombres aléatoires 0 et 1
@@ -482,10 +487,10 @@ void avanceGrille(int grille[][NB_COLONNES]){
   else{
 
     iterationAvancee++;
-    if(iterationAvancee % tousLesCombiens == 1 && seulementPiege) {
+    if(iterationAvancee % FREQ_PIEGE == 1 && SEULEMENTPIEGE) {
       creerPiege(grille);
     }
-    if(seulementPiege == 0){
+    if(SEULEMENTPIEGE == 0){
       creerPiege(grille);      
     }
 
@@ -502,7 +507,7 @@ void creerLigne(int arr[NB_COLONNES]) {
     int nbCroixMise = 0;
 
     // Remplis le tableau avec des nombres aléatoires 0 et 1
-    for (int j = 1; j < NB_COLONNES - 1; j++) {
+    for (int j = COLMINPIEGE; j <= COLMAXPIEGE; j++) {
         if((double)rand() / RAND_MAX < PROBA_OBSTACLE){
 	  arr[j] = rand() % (NOMBRE_SPRITE -1) + 1 ;
             nbCroixMise++;
@@ -524,17 +529,17 @@ void creerPiege(int grille[][NB_COLONNES]) {
   /* X */
  /* X X */
   if(typeDePiege){
-    placerPiege = (rand() % 4) + 2;
-    grille[NB_LIGNES - 1][placerPiege] = NOMBRE_SPRITE;
-    grille[NB_LIGNES - 2][placerPiege - 1] = NOMBRE_SPRITE;
-    grille[NB_LIGNES - 2 ][placerPiege + 1] = NOMBRE_SPRITE;
+      placerPiege = (rand() % (COLMAXPIEGE - COLMINPIEGE - 1)) + COLMINPIEGE;
+    grille[NB_LIGNES - 2][placerPiege] = NOMBRE_SPRITE;
+    grille[NB_LIGNES - 1][placerPiege + 1] = NOMBRE_SPRITE;
+    grille[NB_LIGNES - 2][placerPiege + 2] = NOMBRE_SPRITE;
   }
 
   /* XX */
   /*X  X*/
   else {
 
-    placerPiege = (rand() % 3) + 1;
+      placerPiege = (rand() % (COLMAXPIEGE - COLMINPIEGE - 2)) + COLMINPIEGE;
     grille[NB_LIGNES - 2][placerPiege] = NOMBRE_SPRITE;
     grille[NB_LIGNES - 1][placerPiege + 1] = NOMBRE_SPRITE;
     grille[NB_LIGNES - 1][placerPiege + 2] = NOMBRE_SPRITE;

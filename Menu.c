@@ -370,7 +370,6 @@ int main()
 {
     // Initialise le générateur de nombres pseudo aléatoires
     int seed = time(NULL);
-    /* int seed = 42; */
     srand(seed);
 
     if (initializeSDL() == -1)

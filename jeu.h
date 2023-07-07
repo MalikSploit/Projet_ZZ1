@@ -51,12 +51,14 @@ typedef regle bot[NB_REGLES];
 #define ALEATOIRE 0.1
 
 /* si différent que 0, alors génère que des lignes */
-#define seulementPiege 1
+#define SEULEMENTPIEGE 0
 /* quand seulementPiege = 1, touts les combien on met des pièges */
-#define tousLesCombiens 8
-
+#define FREQ_PIEGE 8
 /* si seulementPiege = 0, alors on génère une ligne aléatoire tous les combiens d'itérations */
-#define moduloPiege 5
+#define MODULOPIEGE 5
+
+#define COLMINPIEGE 1
+#define COLMAXPIEGE 6
 
 // prototypes
 jeu initJeu();

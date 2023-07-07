@@ -30,5 +30,6 @@ void drawButton(SDL_Renderer* renderer, Button* button);
 void displayHelp(SDL_Renderer* renderer);
 void displayScoreboard(SDL_Renderer* renderer);
 void calculerMoyenneScores();
+void cleanup0(SDL_Renderer* renderer, SDL_Window* window, Button buttons[], TTF_Font* font, Mix_Music *bgMusic, Mix_Chunk* buttonSound, SDL_Texture* logo1, SDL_Texture* logo2, SDL_Texture* bgTexture1, SDL_Texture* bgTexture2);
 
 #endif //PROJET_ZZ1_MENU_H

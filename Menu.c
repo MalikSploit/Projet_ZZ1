@@ -366,6 +366,46 @@ void drawButton(SDL_Renderer* renderer, Button* button)
     SDL_RenderCopy(renderer, button->texture, NULL, &renderQuad);
 }
 
+void cleanup0(SDL_Renderer* renderer, SDL_Window* window, Button buttons[], TTF_Font* font, Mix_Music *bgMusic, Mix_Chunk* buttonSound, SDL_Texture* logo1, SDL_Texture* logo2, SDL_Texture* bgTexture1, SDL_Texture* bgTexture2) {
+    if (renderer) {
+        SDL_DestroyRenderer(renderer);
+    }
+    if (window) {
+        SDL_DestroyWindow(window);
+    }
+    if (font) {
+        TTF_CloseFont(font);
+    }
+    if (bgMusic) {
+        Mix_FreeMusic(bgMusic);
+    }
+    if (buttonSound) {
+        Mix_FreeChunk(buttonSound);
+    }
+    for(int i = 0; i < 6; ++i) {
+        if (buttons[i].texture) {
+            SDL_DestroyTexture(buttons[i].texture);
+        }
+    }
+    if (logo1) {
+        SDL_DestroyTexture(logo1);
+    }
+    if (logo2) {
+        SDL_DestroyTexture(logo2);
+    }
+    if (bgTexture1) {
+        SDL_DestroyTexture(bgTexture1);
+    }
+    if (bgTexture2) {
+        SDL_DestroyTexture(bgTexture2);
+    }
+
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
+    Mix_CloseAudio();
+}
+
 int main()
 {
     // Initialise le générateur de nombres pseudo aléatoires
@@ -375,51 +415,69 @@ int main()
 
     if (initializeSDL() == -1)
     {
+        printf("Erreur d initialisation de la SDL\n");
         return 1;
     }
     if (initializeTTF() == -1)
     {
+        printf("Erreur d initialisation du font\n");
+        cleanup0(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         return 1;
     }
     if (initializeIMG() == -1)
     {
+        printf("Erreur d initialisation des images\n");
+        cleanup0(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         return 1;
     }
     SDL_Window* window = createWindow("Highway Racer");
     if (window == NULL)
     {
+        printf("Erreur de creation de la fenetre\n");
+        cleanup0(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         return 1;
     }
     SDL_Renderer* renderer = createRenderer(window);
     if (renderer == NULL)
     {
+        printf("Erreur d initialisation du renderer\n");
+        cleanup0(NULL, window, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         return 1;
     }
     SDL_Texture* logo1 = loadLogo(renderer, "Images/Highway-Racer.png");
     if (logo1 == NULL)
     {
+        printf("Erreur du chargement du logo1\n");
+        cleanup0(renderer, window, NULL, NULL, NULL, NULL, logo1, NULL, NULL, NULL);
         return 1;
     }
     SDL_Texture* logo2 = loadLogo(renderer, "Images/Menu_Image.jpg");
     if (logo2 == NULL)
     {
+        printf("Erreur du chargement du logo2\n");
+        cleanup0(renderer, window, NULL, NULL, NULL, NULL, logo1, logo2, NULL, NULL);
         return 1;
     }
     SDL_Texture* bgTexture1 = loadLogo(renderer, "Images/Background_Menu.png");
     SDL_Texture* bgTexture2 = loadLogo(renderer, "Images/Background_Menu.png");
     if (bgTexture1 == NULL || bgTexture2 == NULL)
     {
+        printf("Erreur du chargement du background\n");
+        cleanup0(renderer, window, NULL, NULL, NULL, NULL, logo1, logo2, bgTexture1, bgTexture2);
         return 1;
     }
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 38);
     if (font == NULL)
     {
+        printf("Erreur du chargement du font\n");
+        cleanup0(renderer, window, NULL, font, NULL, NULL, logo1, logo2, bgTexture1, bgTexture2);
         return 1;
     }
     // Initialize SDL2_mixer
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
     {
         printf("SDL2_mixer could not initialize! SDL2_mixer Error: %s\n", Mix_GetError());
+        cleanup0(renderer, window, NULL, font, NULL, NULL, logo1, logo2, bgTexture1, bgTexture2);
         return 1;
     }
     // Load the music
@@ -427,6 +485,7 @@ int main()
     if(bgMusic == NULL)
     {
         printf("Failed to load beat music! SDL2_mixer Error: %s\n", Mix_GetError());
+        cleanup0(renderer, window, NULL, font, NULL, NULL, logo1, logo2, bgTexture1, bgTexture2);
         return 1;
     }
     Mix_VolumeMusic(50); // Sets the volume to half
@@ -438,6 +497,7 @@ int main()
     if(buttonSound == NULL)
     {
         printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
+        cleanup0(renderer, window, NULL, font, bgMusic, NULL, logo1, logo2, bgTexture1, bgTexture2);
         return 1;
     }
 
@@ -636,27 +696,7 @@ int main()
         }
     }
 
-    // Free resources and close SDL
-    SDL_DestroyTexture(logo1);  // destroy the logo1 texture
-    SDL_DestroyTexture(logo2);  // destroy the logo2 texture
-    SDL_DestroyTexture(bgTexture1);
-    SDL_DestroyTexture(bgTexture2);
-
-    for (int i = 0; i < 6; ++i)
-    {
-        SDL_DestroyTexture(buttons[i].texture);
-    }
-    TTF_CloseFont(font);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-
-    TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
-    Mix_FreeMusic(bgMusic);
-    Mix_FreeChunk(buttonSound);
-    Mix_CloseAudio();
-
+    cleanup0(renderer, window, buttons, font, bgMusic, buttonSound, logo1, logo2, bgTexture1, bgTexture2);
 
     if(faireSimulation)
     {

@@ -27,7 +27,6 @@ void initialiserBot(bot unBot){
         unBot[i][4] = rand() % 3 - 1;
         unBot[i][5] = (rand() % 5) + 1;
     }
-
 }
 
 void * jeuPourpThread(void * parameters) {
@@ -65,7 +64,6 @@ int averageScore(bot unBot, bool multithread) {
     }
 
     return scoreTotal / nbScores;
-
 }
 
 void algoGlouton(bot unBot){
@@ -109,7 +107,6 @@ void algoGlouton(bot unBot){
     }
 
     /* printf("Score du meilleur bot d'algo Glouton %d\n", Jeu(unBot)); */
-
 }
 
 void initIndices(int * indices){
@@ -126,7 +123,6 @@ void melangeIndices(int * indices){
         int k = rand() % (j + 1);
         swap(&indices[j], &indices[k]);
     }
-
 }
 
 void swap(int *a, int *b) {

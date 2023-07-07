@@ -125,8 +125,18 @@ void displayHelp(SDL_Renderer* renderer)
 
     // Wait for the user to close the help screen
     bool closeHelp = false;
+
+    // Frame rate
+    const int FPS = 120;
+    Uint32 frameDelay = 1000 / FPS;
+
+    Uint32 frameStart;
+    Uint32 frameTime;
+
     while (!closeHelp)
     {
+        frameStart = SDL_GetTicks();
+
         while (SDL_PollEvent(&e) != 0)
         {
             // User requests quit
@@ -134,6 +144,12 @@ void displayHelp(SDL_Renderer* renderer)
             {
                 closeHelp = true;
             }
+        }
+        frameTime = SDL_GetTicks() - frameStart;
+
+        if(frameDelay > frameTime)
+        {
+            SDL_Delay(frameDelay - frameTime);
         }
     }
 
@@ -147,8 +163,7 @@ void displayHelp(SDL_Renderer* renderer)
     SDL_DestroyTexture(backgroundTexture);
 }
 
-
-void displayHighScore(SDL_Renderer* renderer)
+void displayScoreboard(SDL_Renderer* renderer)
 {
     FILE *file = fopen("DataLog/HighScore", "r");
     if (file == NULL) {
@@ -305,14 +320,29 @@ void displayHighScore(SDL_Renderer* renderer)
     // Wait until user presses a key
     bool highScoreOpen = true;
     SDL_Event e;
+
+    // Frame rate
+    const int FPS = 120;
+    Uint32 frameDelay = 1000 / FPS;
+
+    Uint32 frameStart;
+    Uint32 frameTime;
+
     while (highScoreOpen)
     {
+        frameStart = SDL_GetTicks();
         while (SDL_PollEvent(&e) != 0)
         {
             if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONDOWN)
             {
                 highScoreOpen = false;
             }
+        }
+        frameTime = SDL_GetTicks() - frameStart;
+
+        if(frameDelay > frameTime)
+        {
+            SDL_Delay(frameDelay - frameTime);
         }
     }
 
@@ -324,7 +354,6 @@ void displayHighScore(SDL_Renderer* renderer)
     SDL_DestroyTexture(promptTexture);
     TTF_CloseFont(font);
 }
-
 
 void drawButton(SDL_Renderer* renderer, Button* button)
 {
@@ -480,7 +509,6 @@ int main()
         frameStart = SDL_GetTicks();
 
         // Clear screen
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
         // Draw the background
@@ -556,7 +584,7 @@ int main()
                 }
 
             }
-                // User clicks the mouse
+            // User clicks the mouse
             else if (e.type == SDL_MOUSEBUTTONDOWN)
             {
                 int x, y;
@@ -588,7 +616,7 @@ int main()
                         if (strcmp(buttons[i].text, "Scoreboard") == 0)
                         {
                             SDL_RenderClear(renderer); // Clear the screen
-                            displayHighScore(renderer);
+                            displayScoreboard(renderer);
                         }
                         if (strcmp(buttons[i].text, "Simulation") == 0)
                         {
@@ -631,15 +659,17 @@ int main()
     SDL_DestroyWindow(window);
 
     TTF_Quit();
-    IMG_Quit();  // quit SDL_image
+    IMG_Quit();
     SDL_Quit();
     Mix_FreeMusic(bgMusic);
     Mix_FreeChunk(buttonSound);
     Mix_CloseAudio();
 
 
-    if(faireSimulation) lancerSimulation();
-
+    if(faireSimulation)
+    {
+        lancerSimulation();
+    }
 
     return 0;
 }

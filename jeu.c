@@ -30,21 +30,6 @@ jeu initJeu() {
         }
     }
 
-    /* int nombreObstacles = 0; */
-
-    /* // Ajouter les obstacles un par un à des positions aléatoires */
-    /* while (nombreObstacles < MAX_OBSTACLES) */
-    /* { */
-    /*     int x = rand() % NB_COLONNES; */
-    /*     int y = rand() % 6;  // Choisissez une ligne aléatoire parmi les 5 premières */
-    /*     // Vérifiez s'il n'y a pas déjà un obstacle ici */
-    /*     if (j.grille[y][x] == 0) */
-    /*     { */
-    /*         j.grille[y][x] = rand() % 8;  // Ajoute un obstacle */
-    /*         nombreObstacles++; */
-    /*     } */
-    /* } */
-
     j.chasseur = rand() % NB_COLONNES;
     j.proie = rand() % NB_COLONNES;
     return j;
@@ -118,7 +103,7 @@ void getSituationFromJeu(jeu j, int * situation){
 }
 
 // teste si une regle matche une situation (en prenant en compte les jokers -1 dans la regle)
-bool matchRegleSituation(regle r, int * situation) {
+bool matchRegleSituation(const regle r, const int * situation) {
     bool matches = true;
     int i = 0;
     while (matches && i < TAILLE_ETAT) {
@@ -147,7 +132,7 @@ int deplacementFromBot(jeu j, bot robot, int * situation){
     for (int i = 0; i < NB_REGLES; i++) {
         // si la regle matche et que le deplacement est legal on attribue la probabilite
         if(matchRegleSituation(robot[i], situation) && verifDeplacement(j.grille, robot[i][TAILLE_ETAT], j.chasseur, 0)) {
-            newProba = powf(robot[i][TAILLE_ETAT+1], IMPORTANCE_PRIORITES);
+            newProba = powf((float)robot[i][TAILLE_ETAT+1], IMPORTANCE_PRIORITES);
             probabilities[robot[i][TAILLE_ETAT]+1] += newProba;
             probaTotale += newProba;
             regleExiste = true;
@@ -393,7 +378,7 @@ bool jeuFini(jeu j, int depart, int fin){
 }
 
 /* retourne 1 si les croix sont bien toutes présentes */
-bool verifCroix(int debut, int fin, int * ligne){
+bool verifCroix(int debut, int fin, const int * ligne){
     debut++;
     while(debut < fin) {
         if(ligne[debut] == 0)return 0;

@@ -113,7 +113,6 @@ void drawObstacles(SDL_Renderer *renderer, jeu g) {
     }
 }
 
-
 void drawVoiture(SDL_Renderer *renderer, UserCar *userCar)
 {
     // Mettez à jour la position du rectangle en fonction des valeurs de dessin
@@ -311,6 +310,17 @@ void initHighScore()
     fclose(highscoreFile);
 }
 
+void playButtonSound(Mix_Chunk* buttonSound)
+{
+    // Augmente le volume du son du bouton. La valeur doit être entre 0 et 128.
+    Mix_VolumeChunk(buttonSound, 128); // met le volume au maximum
+    // Play sound effect
+    if(Mix_PlayChannel(-1, buttonSound, 0) == -1)
+    {
+        printf("Failed to play button sound! SDL_mixer Error: %s\n", Mix_GetError());
+    }
+}
+
 int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 {
     int highScore = getHighScore();
@@ -385,8 +395,18 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     Uint32 startTime = SDL_GetTicks(); // This gets the number of milliseconds since the SDL library was initialized.
 
     bool running = true;
+
+    // Frame rate
+    const int FPS = 120;
+    Uint32 frameDelay = 1000 / FPS;
+
+    Uint32 frameStart;
+    Uint32 frameTime;
+
     while (running)
     {
+        frameStart = SDL_GetTicks();
+
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0)
         {
@@ -473,6 +493,13 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
+
+        frameTime = SDL_GetTicks() - frameStart;
+
+        if(frameDelay > frameTime)
+        {
+            SDL_Delay(frameDelay - frameTime);
+        }
     }
 
     SDL_DestroyTexture(gameOverTexture);
@@ -491,9 +518,16 @@ char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud,
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 32);
     TTF_Font* font_button = loadFont("Font/arial_bold.ttf", 35);
 
+    // Load button sound
+    Mix_Chunk* buttonSound = Mix_LoadWAV("Musiques/Mouse_Click.wav");
+    if(buttonSound == NULL)
+    {
+        printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
+    }
+
     SDL_Color WHITE = {255, 255, 255, 255};
     SDL_Color BLACK = {0, 0, 0, 255};
-    SDL_Color HOVER_COLOR = {255, 100, 0, 255};
+    SDL_Color HOVER_COLOR = {255, 0, 0, 255};
     SDL_Color BUTTON_COLOR = {100, 200, 100, 255};
 
     SDL_Texture *backgroundTexture = loadTexture(renderer, pathBackgroud);
@@ -525,8 +559,17 @@ char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud,
 
     char username[29] = "";
 
+    // Frame rate
+    const int FPS = 120;
+    Uint32 frameDelay = 1000 / FPS;
+
+    Uint32 frameStart;
+    Uint32 frameTime;
+
     while (running)
     {
+        frameStart = SDL_GetTicks();
+
         while (SDL_PollEvent(&e) != 0)
         {
             if ( (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) || (e.type == SDL_QUIT) )
@@ -538,6 +581,7 @@ char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud,
             {
                 if (e.key.keysym.sym == SDLK_RETURN)
                 {
+                    playButtonSound(buttonSound);
                     running = false;
                 }
                 else if (e.key.keysym.sym == SDLK_BACKSPACE)
@@ -567,7 +611,7 @@ char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud,
                 if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
                     y >= validateRect.y && y <= validateRect.y + validateRect.h)
                 {
-                    /* playButtonSound(buttonSound); */
+                    playButtonSound(buttonSound);
                     // Clicked on "Validate" button
                     running = false;
                 }
@@ -617,6 +661,13 @@ char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud,
         }
 
         SDL_RenderPresent(renderer);
+
+        frameTime = SDL_GetTicks() - frameStart;
+
+        if(frameDelay > frameTime)
+        {
+            SDL_Delay(frameDelay - frameTime);
+        }
     }
 
     SDL_DestroyTexture(usernameTexture);
@@ -626,10 +677,9 @@ char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud,
     SDL_DestroyTexture(promptTexture);
     TTF_CloseFont(font);
     TTF_CloseFont(font_button);
-
+    //Mix_FreeChunk(buttonSound);
     return strdup(username);
 }
-
 
 void logScore(const char* username, int score, bool humain)
 {
@@ -647,7 +697,6 @@ void logScore(const char* username, int score, bool humain)
         printf("Failed to open the file.\n");
     }
 }
-
 
 void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
 {
@@ -735,8 +784,17 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
         int situation[TAILLE_ETAT];
         int frames = 500;
 
+        // Frame rate
+        const int FPS = 120;
+        Uint32 frameDelay = 1000 / FPS;
+
+        Uint32 frameStart;
+        Uint32 frameTime;
+
         while (running)
         {
+            frameStart = SDL_GetTicks();
+
             while (SDL_PollEvent(&e) != 0)
             {
                 deplacement = -2;
@@ -841,13 +899,13 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
 
             double target_x = userCar.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 250;
             double target_y = userCar.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
-            userCar.draw_x += (target_x - userCar.draw_x) * 0.04;
-            userCar.draw_y += (target_y - userCar.draw_y) * 0.04;
+            userCar.draw_x += (target_x - userCar.draw_x) * 0.05;
+            userCar.draw_y += (target_y - userCar.draw_y) * 0.05;
 
             target_x = moto.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 285;
             target_y = moto.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
-            moto.draw_x += (target_x - moto.draw_x) * 0.04;
-            moto.draw_y += (target_y - moto.draw_y) * 0.04;
+            moto.draw_x += (target_x - moto.draw_x) * 0.05;
+            moto.draw_y += (target_y - moto.draw_y) * 0.05;
 
             drawMoto(renderer, &moto);
             drawVoiture(renderer, &userCar);
@@ -869,7 +927,13 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
             SDL_RenderPresent(renderer);
             SDL_RenderClear(renderer);
 
-            /* if(!humain) SDL_Delay(20); */
+
+            frameTime = SDL_GetTicks() - frameStart;
+
+            if(frameDelay > frameTime)
+            {
+                SDL_Delay(frameDelay - frameTime);
+            }
 
         }
 
@@ -889,16 +953,5 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
         }
         cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
         Mix_FreeChunk(buttonSound2);
-    }
-}
-
-void playButtonSound(Mix_Chunk* buttonSound)
-{
-    // Augmente le volume du son du bouton. La valeur doit être entre 0 et 128.
-    Mix_VolumeChunk(buttonSound, 128); // met le volume au maximum
-    // Play sound effect
-    if(Mix_PlayChannel(-1, buttonSound, 0) == -1)
-    {
-        printf("Failed to play button sound! SDL_mixer Error: %s\n", Mix_GetError());
     }
 }

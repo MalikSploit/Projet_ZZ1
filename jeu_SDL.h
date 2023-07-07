@@ -18,17 +18,8 @@ typedef struct UserCar
     double draw_y;
 } UserCar;
 
-typedef struct
-{
-    int cell_x;
-    int cell_y;
-    SDL_Rect rect;
-    SDL_Texture *texture;
-    int speed;
-} EnemyCar;
 
-
-//extern SDL_Texture* obstacles[NOMBRE_SPRITE];
+extern SDL_Texture* obstacles[NOMBRE_SPRITE];
 
 void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname);
 UserCar initVoiture(SDL_Renderer *renderer, int x, int y);
@@ -43,6 +34,11 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score);
 char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud, char *pathMessage);
 void playButtonSound(Mix_Chunk* buttonSound);
 void initHighScore();
-
+UserCar initMoto(SDL_Renderer *renderer, int x, int y);
+void drawMoto(SDL_Renderer *renderer, UserCar *moto);
+void initTexturesObstacles(SDL_Renderer *renderer);
+void drawObstacles(SDL_Renderer *renderer, jeu g);
+int getHighScore();
+void logScore(const char* username, int score, bool humain);
 
 #endif //PROJET_ZZ1_MAIN_H

@@ -16,6 +16,7 @@ typedef struct UserCar
     int total_frames;
     double draw_x;
     double draw_y;
+    Uint32 last_frame_time;
 } UserCar;
 
 

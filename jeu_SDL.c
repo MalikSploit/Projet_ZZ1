@@ -22,12 +22,12 @@ UserCar initVoiture(SDL_Renderer *renderer, int x, int y)
     // Load the textures for the user car
     char* image_files[] = {"Images/Chasseur/1.png", "Images/Chasseur/2.png", "Images/Chasseur/3.png"};
     for (int i = 0; i < userCar.total_frames; ++i)
-	{
-	    SDL_Surface *tempSurface = LoadImage(image_files[i]);
+    {
+        SDL_Surface *tempSurface = LoadImage(image_files[i]);
 
-	    userCar.textures[i] = SDL_CreateTextureFromSurface(renderer, tempSurface);
-	    SDL_FreeSurface(tempSurface);
-	}
+        userCar.textures[i] = SDL_CreateTextureFromSurface(renderer, tempSurface);
+        SDL_FreeSurface(tempSurface);
+    }
 
     // Initial velocity
     userCar.velocity = 2;
@@ -72,40 +72,47 @@ void drawMoto(SDL_Renderer *renderer, UserCar *moto)
 
 void initTexturesObstacles(SDL_Renderer *renderer) {
     for(int i = 0; i < NOMBRE_SPRITE; i++) {
-	char obstacleImagePath[25];
-	sprintf(obstacleImagePath, "Images/Obstacle%d.png", i+1);
-	obstacles[i] = loadTexture(renderer, obstacleImagePath);
+        char obstacleImagePath[25];
+        sprintf(obstacleImagePath, "Images/Obstacle%d.png", i+1);
+        obstacles[i] = loadTexture(renderer, obstacleImagePath);
     }
 }
 
 void drawObstacles(SDL_Renderer *renderer, jeu g) {
+    static int old_grille[NB_LIGNES][NB_COLONNES] = {0}; // Grille précédente
     static double draw_x[NB_LIGNES][NB_COLONNES] = {0}; // Positions de dessin réelles des obstacles
-    static double draw_y[NB_LIGNES][NB_COLONNES] = {0};
+    static double draw_y[NB_LIGNES][NB_COLONNES] = {0}; // Positions de dessin réelles des obstacles
 
     for(int i = 0; i < NB_LIGNES; i++) {
         for(int j = 0; j < NB_COLONNES; j++) {
             if(g.grille[i][j]) {
-                // Si l'obstacle vient d'apparaître, initialisez ses coordonnées de dessin
-                if(draw_x[i][j] == 0 && draw_y[i][j] == 0) {
+                if(old_grille[i][j] != g.grille[i][j]) {
                     draw_x[i][j] = j * ((double)TAILLE_CELLULE_LARGEUR/2) + 250;
                     draw_y[i][j] = (7-i) * ((double)TAILLE_CELLULE_LONGUEUR/2);
                 }
 
                 // Mise à jour de la position de dessin en fonction de la vitesse
-                draw_x[i][j] += (j * ((double)TAILLE_CELLULE_LARGEUR/2) + 250 - draw_x[i][j]) * 0.1;
-                draw_y[i][j] += ((7-i) * ((double)TAILLE_CELLULE_LONGUEUR/2) - draw_y[i][j]) * 0.1;
+                double target_x = j * ((double)TAILLE_CELLULE_LARGEUR/2) + 250;
+                double target_y = (7-i) * ((double)TAILLE_CELLULE_LONGUEUR/2);
+                draw_x[i][j] += (target_x - draw_x[i][j]) * 0.04;
+                draw_y[i][j] += (target_y - draw_y[i][j]) * 0.04;
 
                 SDL_Rect posObstacle = {(int)draw_x[i][j], (int)draw_y[i][j], 140, 130};
                 SDL_RenderCopy(renderer, obstacles[g.grille[i][j]-1], NULL, &posObstacle);
+
+                old_grille[i][j] = g.grille[i][j];
             }
             else {
-                // Si l'obstacle a disparu, réinitialisez ses coordonnées de dessin
-                draw_x[i][j] = 0;
-                draw_y[i][j] = 0;
+                if(old_grille[i][j] != 0) {
+                    draw_x[i][j] = 0;
+                    draw_y[i][j] = 0;
+                    old_grille[i][j] = 0;
+                }
             }
         }
     }
 }
+
 
 void drawVoiture(SDL_Renderer *renderer, UserCar *userCar)
 {
@@ -126,13 +133,13 @@ void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL
 
     SDL_Surface* textSurface = TTF_RenderText_Blended(font, renderText, textColor);
     if (textSurface != NULL)
-	{
-	    SDL_DestroyTexture(*texture); // Destroy the old texture first
-	    *texture = SDL_CreateTextureFromSurface(renderer, textSurface);
-	    rect->w = textSurface->w;
-	    rect->h = textSurface->h;
-	    SDL_FreeSurface(textSurface);
-	}
+    {
+        SDL_DestroyTexture(*texture); // Destroy the old texture first
+        *texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        rect->w = textSurface->w;
+        rect->h = textSurface->h;
+        SDL_FreeSurface(textSurface);
+    }
 }
 
 void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
@@ -153,15 +160,15 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
     // Destroy user car textures and moto texture
     SDL_DestroyTexture(moto.textures[0]);
     for(int i = 0; i < userCar.total_frames; ++i)
-	{
-	    SDL_DestroyTexture(userCar.textures[i]);
-	}
+    {
+        SDL_DestroyTexture(userCar.textures[i]);
+    }
 
     // Destroy enemy car textures
     for(int i = 0; i < MAX_OBSTACLES; i++)
-	{
-	    SDL_DestroyTexture(obstacle[i]);
-	}
+    {
+        SDL_DestroyTexture(obstacle[i]);
+    }
 
     // Quit SDL subsystems
     IMG_Quit();
@@ -172,15 +179,15 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
 void InitScore(SDL_Renderer* renderer, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, SDL_Color* textColor, int deplacementEffectue)
 {
     if (deplacementEffectue)
-	{
-	    // if 1 second has passed
-	    *score += 1;
+    {
+        // if 1 second has passed
+        *score += 1;
 
-	    // update the score text
-	    char scoreText[20];
-	    sprintf(scoreText, "Score: %d", *score);
-	    updateText(renderer, font, *textColor, scoreTexture, scoreRect, scoreText);
-	}
+        // update the score text
+        char scoreText[20];
+        sprintf(scoreText, "Score: %d", *score);
+        updateText(renderer, font, *textColor, scoreTexture, scoreRect, scoreText);
+    }
 }
 
 void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor, SDL_Texture** vitesseTexture, SDL_Rect *vitesseRect, TTF_Font* font)
@@ -195,42 +202,42 @@ int getHighScore()
 {
     FILE *file = fopen("DataLog/HighScore", "r");
     if (file == NULL)
-	{
-	    printf("Could not open high score file\n");
-	    return -1;
-	}
+    {
+        printf("Could not open high score file\n");
+        return -1;
+    }
 
     char line[256];
     int highScore = INT_MAX; // Initialize to maximum integer value
     while (fgets(line, sizeof(line), file))
-	{
-	    // Assume that the line format is always "Player: Name; Score: X" or "Bot: Name; Score: X"
-	    char *scoreStr = strstr(line, "Score: ");
-	    if (scoreStr != NULL)
-		{
-		    char* end;
-		    long scoreLong = strtol(scoreStr + 7, &end, 10);
+    {
+        // Assume that the line format is always "Player: Name; Score: X" or "Bot: Name; Score: X"
+        char *scoreStr = strstr(line, "Score: ");
+        if (scoreStr != NULL)
+        {
+            char* end;
+            long scoreLong = strtol(scoreStr + 7, &end, 10);
 
-		    if (end == scoreStr + 7)
-			{
-			    printf("Error: could not convert score to an integer.\n");
-			    return -1;
-			}
+            if (end == scoreStr + 7)
+            {
+                printf("Error: could not convert score to an integer.\n");
+                return -1;
+            }
 
-		    if (scoreLong > INT_MAX || scoreLong < INT_MIN)
-			{
-			    printf("Error: score is out of range for an integer.\n");
-			    return -1;
-			}
+            if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+            {
+                printf("Error: score is out of range for an integer.\n");
+                return -1;
+            }
 
-		    int score = (int)scoreLong;
-		    if(score < highScore)
-			{
-			    // If the read score is less than the current highScore
-			    highScore = score;  // Update highScore
-			}
-		}
-	}
+            int score = (int)scoreLong;
+            if(score < highScore)
+            {
+                // If the read score is less than the current highScore
+                highScore = score;  // Update highScore
+            }
+        }
+    }
 
     fclose(file);
     return highScore == INT_MAX ? 0 : highScore;  // Return 0 if no scores were found
@@ -248,56 +255,56 @@ void initHighScore()
 
     logFile = fopen("DataLog/GameLog", "r");
     if (logFile == NULL)
-	{
-	    printf("Error opening file\n");
-	    return;
-	}
+    {
+        printf("Error opening file\n");
+        return;
+    }
 
     while (fgets(line, sizeof(line), logFile))
-	{
-	    sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
+    {
+        sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
 
-	    char *end;
-	    scoreLong = strtol(scoreStr, &end, 10);
+        char *end;
+        scoreLong = strtol(scoreStr, &end, 10);
 
-	    if (end == scoreStr)
-		{
-		    printf("Error: could not convert score to an integer.\n");
-		    return;
-		}
+        if (end == scoreStr)
+        {
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
 
-	    if (scoreLong > INT_MAX || scoreLong < INT_MIN)
-		{
-		    printf("Error: score is out of range for an integer.\n");
-		    return;
-		}
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
 
-	    int score = (int)scoreLong;
-	    if (strstr(line, "Player"))
-		{
-		    if (score < playerScore)
-			{
-			    playerScore = score;
-			    strcpy(playerName, name);
-			}
-		}
-	    else
-		{
-		    if (score < botScore)
-			{
-			    botScore = score;
-			    strcpy(botName, name);
-			}
-		}
-	}
+        int score = (int)scoreLong;
+        if (strstr(line, "Player"))
+        {
+            if (score < playerScore)
+            {
+                playerScore = score;
+                strcpy(playerName, name);
+            }
+        }
+        else
+        {
+            if (score < botScore)
+            {
+                botScore = score;
+                strcpy(botName, name);
+            }
+        }
+    }
     fclose(logFile);
 
     highscoreFile = fopen("DataLog/HighScore", "w");
     if (highscoreFile == NULL)
-	{
-	    printf("Error opening file\n");
-	    return;
-	}
+    {
+        printf("Error opening file\n");
+        return;
+    }
 
     fprintf(highscoreFile, "Player: %s; Score: %d\n", playerName, playerScore);
     fprintf(highscoreFile, "Bot: %s; Score: %d\n", botName, botScore);
@@ -307,7 +314,7 @@ void initHighScore()
 int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 {
     int highScore = getHighScore();
-    
+
     SDL_Color greenColor = {0, 255, 0, 255}; // Define the color green.
 
     // Load the Game Over background image
@@ -324,14 +331,14 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 
     // On charge l'image congratulation si l'utilisateur a un highscore
     if (score < highScore)
-	{
-	    gameOverTexture = loadTexture(renderer, "Images/Congratulations.png");
-	}
-    // On charge l'image prey captured s'il n'a pas de highscore
+    {
+        gameOverTexture = loadTexture(renderer, "Images/Congratulations.png");
+    }
+        // On charge l'image prey captured s'il n'a pas de highscore
     else if (score >= highScore)
-	{
-	    gameOverTexture = loadTexture(renderer, "Images/Prey-Captured.png");
-	}
+    {
+        gameOverTexture = loadTexture(renderer, "Images/Prey-Captured.png");
+    }
 
     // Get dimensions of Game Over texture
     SDL_QueryTexture(gameOverTexture, NULL, NULL, &gameOverWidth, &gameOverHeight);
@@ -341,19 +348,19 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
     // Create the score text and get its dimensions
     char scoreText[50];
     if (score < highScore)
-	{
-	    sprintf(scoreText, "New High Score: %d", score);
-	}
+    {
+        sprintf(scoreText, "New High Score: %d", score);
+    }
     else if (score >= highScore)
-	{
-	    sprintf(scoreText, "Score: %d", score);
-	}
+    {
+        sprintf(scoreText, "Score: %d", score);
+    }
     SDL_Texture* scoreTexture = createTextTexture(renderer, font, greenColor, scoreText);
     int scoreWidth, scoreHeight;
     SDL_QueryTexture(scoreTexture, NULL, NULL, &scoreWidth, &scoreHeight);
     // Position and size of Score text
     SDL_Rect scoreRect = {SCREEN_WIDTH / 2 - scoreWidth / 2, gameOverHeight + 250, scoreWidth, scoreHeight};
-    
+
     char highScoreText[50];
     sprintf(highScoreText, "High Score: %d", highScore);
     SDL_Texture* highScoreTexture = createTextTexture(renderer, font, greenColor, highScoreText);
@@ -379,94 +386,94 @@ int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
 
     bool running = true;
     while (running)
-	{
-	    SDL_Event e;
-	    while (SDL_PollEvent(&e) != 0)
-		{
-		    if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN))
-			{
-			    running = false;
-			}
-		    if (e.type == SDL_MOUSEBUTTONDOWN)
-			{
-			    int x, y;
-			    SDL_GetMouseState(&x, &y);
+    {
+        SDL_Event e;
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN))
+            {
+                running = false;
+            }
+            if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
 
-			    if (x > replayRect.x && x < replayRect.x + replayRect.w && y > replayRect.y && y < replayRect.y + replayRect.h)
-				{
-				    // The user clicked on the "Play Again" button
-				    SDL_DestroyTexture(gameOverTexture);
-				    SDL_DestroyTexture(scoreTexture);
-				    SDL_DestroyTexture(highScoreTexture);
-				    SDL_DestroyTexture(replayTexture);
-				    SDL_DestroyTexture(quitTexture);
-				    return 1;
-				}
-			    else if (x > quitRect.x && x < quitRect.x + quitRect.w && y > quitRect.y && y < quitRect.y + quitRect.h)
-				{
-				    // The user clicked on the "Quit" button
-				    SDL_DestroyTexture(gameOverTexture);
-				    SDL_DestroyTexture(scoreTexture);
-				    SDL_DestroyTexture(highScoreTexture);
-				    SDL_DestroyTexture(replayTexture);
-				    SDL_DestroyTexture(quitTexture);
-				    return 0;
-				}
-			}
-		    else if (e.type == SDL_MOUSEMOTION)
-			{
-			    int x, y;
-			    SDL_GetMouseState(&x, &y);
-			    if (x > replayRect.x && x < replayRect.x + replayRect.w && y > replayRect.y && y < replayRect.y + replayRect.h)
-				{
-				    SDL_DestroyTexture(replayTexture);
-				    replayTexture = createTextTexture(renderer, font, WHITE, "Play Again");
-				}
-			    else
-				{
-				    SDL_DestroyTexture(replayTexture);
-				    replayTexture = createTextTexture(renderer, font, greenColor, "Play Again");
-				}
+                if (x > replayRect.x && x < replayRect.x + replayRect.w && y > replayRect.y && y < replayRect.y + replayRect.h)
+                {
+                    // The user clicked on the "Play Again" button
+                    SDL_DestroyTexture(gameOverTexture);
+                    SDL_DestroyTexture(scoreTexture);
+                    SDL_DestroyTexture(highScoreTexture);
+                    SDL_DestroyTexture(replayTexture);
+                    SDL_DestroyTexture(quitTexture);
+                    return 1;
+                }
+                else if (x > quitRect.x && x < quitRect.x + quitRect.w && y > quitRect.y && y < quitRect.y + quitRect.h)
+                {
+                    // The user clicked on the "Quit" button
+                    SDL_DestroyTexture(gameOverTexture);
+                    SDL_DestroyTexture(scoreTexture);
+                    SDL_DestroyTexture(highScoreTexture);
+                    SDL_DestroyTexture(replayTexture);
+                    SDL_DestroyTexture(quitTexture);
+                    return 0;
+                }
+            }
+            else if (e.type == SDL_MOUSEMOTION)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (x > replayRect.x && x < replayRect.x + replayRect.w && y > replayRect.y && y < replayRect.y + replayRect.h)
+                {
+                    SDL_DestroyTexture(replayTexture);
+                    replayTexture = createTextTexture(renderer, font, WHITE, "Play Again");
+                }
+                else
+                {
+                    SDL_DestroyTexture(replayTexture);
+                    replayTexture = createTextTexture(renderer, font, greenColor, "Play Again");
+                }
 
-			    if (x > quitRect.x && x < quitRect.x + quitRect.w && y > quitRect.y && y < quitRect.y + quitRect.h)
-				{
-				    SDL_DestroyTexture(quitTexture);
-				    quitTexture = createTextTexture(renderer, font, WHITE, "Quit");
-				}
-			    else
-				{
-				    SDL_DestroyTexture(quitTexture);
-				    quitTexture = createTextTexture(renderer, font, greenColor, "Quit");
-				}
-			}
-		}
+                if (x > quitRect.x && x < quitRect.x + quitRect.w && y > quitRect.y && y < quitRect.y + quitRect.h)
+                {
+                    SDL_DestroyTexture(quitTexture);
+                    quitTexture = createTextTexture(renderer, font, WHITE, "Quit");
+                }
+                else
+                {
+                    SDL_DestroyTexture(quitTexture);
+                    quitTexture = createTextTexture(renderer, font, greenColor, "Quit");
+                }
+            }
+        }
 
-	    if (score < highScore)
-		{
-		    Uint32 elapsedTime = SDL_GetTicks() - startTime;
+        if (score < highScore)
+        {
+            Uint32 elapsedTime = SDL_GetTicks() - startTime;
 
-		    if ((elapsedTime / 500) % 2 == 0)  // We're dividing by 500 to convert milliseconds to half-seconds.
-			{
-			    SDL_DestroyTexture(scoreTexture); // Destroy the previous texture
-			    scoreTexture = createTextTexture(renderer, font, WHITE, scoreText);
-			}
-		    else
-			{
-			    SDL_DestroyTexture(scoreTexture); // Destroy the previous texture
-			    scoreTexture = createTextTexture(renderer, font, greenColor, scoreText);
-			}
-		}
+            if ((elapsedTime / 500) % 2 == 0)  // We're dividing by 500 to convert milliseconds to half-seconds.
+            {
+                SDL_DestroyTexture(scoreTexture); // Destroy the previous texture
+                scoreTexture = createTextTexture(renderer, font, WHITE, scoreText);
+            }
+            else
+            {
+                SDL_DestroyTexture(scoreTexture); // Destroy the previous texture
+                scoreTexture = createTextTexture(renderer, font, greenColor, scoreText);
+            }
+        }
 
-	    SDL_RenderCopy(renderer, backgroundTexture, NULL, &backgroundRect);
-	    SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverRect);
-	    SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
-	    SDL_RenderCopy(renderer, highScoreTexture, NULL, &highScoreRect);
-	    SDL_RenderCopy(renderer, replayTexture, NULL, &replayRect);
-	    SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);
+        SDL_RenderCopy(renderer, backgroundTexture, NULL, &backgroundRect);
+        SDL_RenderCopy(renderer, gameOverTexture, NULL, &gameOverRect);
+        SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
+        SDL_RenderCopy(renderer, highScoreTexture, NULL, &highScoreRect);
+        SDL_RenderCopy(renderer, replayTexture, NULL, &replayRect);
+        SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);
 
-	    SDL_RenderPresent(renderer);
-	    SDL_RenderClear(renderer);
-	}
+        SDL_RenderPresent(renderer);
+        SDL_RenderClear(renderer);
+    }
 
     SDL_DestroyTexture(gameOverTexture);
     SDL_DestroyTexture(scoreTexture);
@@ -519,98 +526,98 @@ char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud,
     char username[29] = "";
 
     while (running)
-	{
-	    while (SDL_PollEvent(&e) != 0)
-		{
-		    if ( (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) || (e.type == SDL_QUIT) )
-			{
-			    running = false;
-			    *QuitterJeu = 1;
-			}
-		    else if (e.type == SDL_KEYDOWN)
-			{
-			    if (e.key.keysym.sym == SDLK_RETURN)
-				{
-				    running = false;
-				}
-			    else if (e.key.keysym.sym == SDLK_BACKSPACE)
-				{
-				    if (strlen(username) > 0)
-					{
-					    username[strlen(username) - 1] = '\0';
-					}
-				}
-			    else if (e.key.keysym.sym >= SDLK_SPACE && e.key.keysym.sym <= SDLK_z)
-				{
-				    if(e.key.keysym.sym <= 126) // Check if the value is within ASCII range
-					{
-					    char ch[2] = { (char)e.key.keysym.sym, '\0' };
-					    if ((e.key.keysym.mod & KMOD_SHIFT) || (SDL_GetModState() & KMOD_CAPS))
-						{
-						    ch[0] = (char)toupper(ch[0]);
-						}
-					    strncat(username, ch, 28 - strlen(username));
-					}
-				}
-			}
-		    else if (e.type == SDL_MOUSEBUTTONDOWN)
-			{
-			    int x, y;
-			    SDL_GetMouseState(&x, &y);
-			    if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
-				y >= validateRect.y && y <= validateRect.y + validateRect.h)
-				{
-				    /* playButtonSound(buttonSound); */
-				    // Clicked on "Validate" button
-				    running = false;
-				}
-			}
-		    else if (e.type ==SDL_MOUSEMOTION)
-			{
-			    int x, y;
-			    SDL_GetMouseState(&x, &y);
-			    if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
-				y >= validateRect.y && y <= validateRect.y + validateRect.h)
-				{
-				    // Mouse is over "Validate" button
-				    buttonHovered = true;
-				}
-			    else
-				{
-				    // Mouse is not over "Validate" button
-				    buttonHovered = false;
-				}
-			}
-		}
+    {
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if ( (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) || (e.type == SDL_QUIT) )
+            {
+                running = false;
+                *QuitterJeu = 1;
+            }
+            else if (e.type == SDL_KEYDOWN)
+            {
+                if (e.key.keysym.sym == SDLK_RETURN)
+                {
+                    running = false;
+                }
+                else if (e.key.keysym.sym == SDLK_BACKSPACE)
+                {
+                    if (strlen(username) > 0)
+                    {
+                        username[strlen(username) - 1] = '\0';
+                    }
+                }
+                else if (e.key.keysym.sym >= SDLK_SPACE && e.key.keysym.sym <= SDLK_z)
+                {
+                    if(e.key.keysym.sym <= 126) // Check if the value is within ASCII range
+                    {
+                        char ch[2] = { (char)e.key.keysym.sym, '\0' };
+                        if ((e.key.keysym.mod & KMOD_SHIFT) || (SDL_GetModState() & KMOD_CAPS))
+                        {
+                            ch[0] = (char)toupper(ch[0]);
+                        }
+                        strncat(username, ch, 28 - strlen(username));
+                    }
+                }
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
+                    y >= validateRect.y && y <= validateRect.y + validateRect.h)
+                {
+                    /* playButtonSound(buttonSound); */
+                    // Clicked on "Validate" button
+                    running = false;
+                }
+            }
+            else if (e.type ==SDL_MOUSEMOTION)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (x >= validateRect.x && x <= validateRect.x + validateRect.w &&
+                    y >= validateRect.y && y <= validateRect.y + validateRect.h)
+                {
+                    // Mouse is over "Validate" button
+                    buttonHovered = true;
+                }
+                else
+                {
+                    // Mouse is not over "Validate" button
+                    buttonHovered = false;
+                }
+            }
+        }
 
-	    updateText(renderer, font, BLACK, &usernameTexture, &usernameRect, username);
+        updateText(renderer, font, BLACK, &usernameTexture, &usernameRect, username);
 
-	    //Render the background image
-	    SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
-	    // Render the prompt
-	    SDL_RenderCopy(renderer, promptTexture, NULL, &promptRect);
+        //Render the background image
+        SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+        // Render the prompt
+        SDL_RenderCopy(renderer, promptTexture, NULL, &promptRect);
 
-	    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	    SDL_RenderFillRect(renderer, &textBoxRect);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &textBoxRect);
 
-	    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	    SDL_RenderCopy(renderer, usernameTexture, NULL, &usernameRect);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderCopy(renderer, usernameTexture, NULL, &usernameRect);
 
-	    if (buttonHovered)
-		{
-		    SDL_SetRenderDrawColor(renderer, BUTTON_COLOR.r, BUTTON_COLOR.g, BUTTON_COLOR.b, BUTTON_COLOR.a);
-		    SDL_RenderFillRect(renderer, &validateBorderRect);
-		    SDL_RenderCopy(renderer, validateHoverTexture, NULL, &validateRect);
-		}
-	    else
-		{
-		    SDL_SetRenderDrawColor(renderer, BUTTON_COLOR.r, BUTTON_COLOR.g, BUTTON_COLOR.b, BUTTON_COLOR.a);
-		    SDL_RenderFillRect(renderer, &validateBorderRect);
-		    SDL_RenderCopy(renderer, validateTexture, NULL, &validateRect);
-		}
+        if (buttonHovered)
+        {
+            SDL_SetRenderDrawColor(renderer, BUTTON_COLOR.r, BUTTON_COLOR.g, BUTTON_COLOR.b, BUTTON_COLOR.a);
+            SDL_RenderFillRect(renderer, &validateBorderRect);
+            SDL_RenderCopy(renderer, validateHoverTexture, NULL, &validateRect);
+        }
+        else
+        {
+            SDL_SetRenderDrawColor(renderer, BUTTON_COLOR.r, BUTTON_COLOR.g, BUTTON_COLOR.b, BUTTON_COLOR.a);
+            SDL_RenderFillRect(renderer, &validateBorderRect);
+            SDL_RenderCopy(renderer, validateTexture, NULL, &validateRect);
+        }
 
-	    SDL_RenderPresent(renderer);
-	}
+        SDL_RenderPresent(renderer);
+    }
 
     SDL_DestroyTexture(usernameTexture);
     SDL_DestroyTexture(validateTexture);
@@ -628,17 +635,17 @@ void logScore(const char* username, int score, bool humain)
 {
     FILE *file = fopen("DataLog/GameLog", "a");
     if (file != NULL)
-	{
-	    if(humain)
-		fprintf(file, "Player : %s; Score : %d\n", username, score);
-	    else
-		fprintf(file, "Bot : %s; Score : %d\n", username, score);	    
-	    fclose(file);
-	}
+    {
+        if(humain)
+            fprintf(file, "Player : %s; Score : %d\n", username, score);
+        else
+            fprintf(file, "Bot : %s; Score : %d\n", username, score);
+        fclose(file);
+    }
     else
-	{
-	    printf("Failed to open the file.\n");
-	}
+    {
+        printf("Failed to open the file.\n");
+    }
 }
 
 
@@ -652,238 +659,237 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
     char *username;
 
     if(humain) {
-	char *pathBackgroud = "Images/DemanderUsername_Background.jpg";
-	char *pathMessage = "Images/Entrer-votre-nom.png";
-	username = DemanderQqch(renderer, &quitterJeu, pathBackgroud, pathMessage);
+        char *pathBackgroud = "Images/DemanderUsername_Background.jpg";
+        char *pathMessage = "Images/Entrer-votre-nom.png";
+        username = DemanderQqch(renderer, &quitterJeu, pathBackgroud, pathMessage);
     } else {
-	username = botname;
+        username = botname;
     }
 
     if (!quitterJeu)
-	{
-            // Load button sound
-	    Mix_Chunk* buttonSound2 = Mix_LoadWAV("Musiques/Error_Click.wav");
-	    if(buttonSound2 == NULL)
-		{
-		    printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
-		}
-	    //Init jeu
-	    jeu j = initJeu();
+    {
+        // Load button sound
+        Mix_Chunk* buttonSound2 = Mix_LoadWAV("Musiques/Error_Click.wav");
+        if(buttonSound2 == NULL)
+        {
+            printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
+        }
+        //Init jeu
+        jeu j = initJeu();
 
-	    // Initialize SDL
-	    initializeSDL();
+        // Initialize SDL
+        initializeSDL();
 
-	    // Initialize SDL_image
-	    initializeIMG();
+        // Initialize SDL_image
+        initializeIMG();
 
-	    // Load the background image
-	    SDL_Surface *backgroundSurface = LoadImage("Images/Game.png");
+        // Load the background image
+        SDL_Surface *backgroundSurface = LoadImage("Images/Game.png");
 
-	    // Create a texture from the loaded surface
-	    SDL_Texture *backgroundTexture = LoadTexture(renderer, backgroundSurface);
+        // Create a texture from the loaded surface
+        SDL_Texture *backgroundTexture = LoadTexture(renderer, backgroundSurface);
 
-	    // Create a second texture from the same surface for scrolling background
-	    SDL_Texture *backgroundTexture2 = LoadTexture(renderer, backgroundSurface);
+        // Create a second texture from the same surface for scrolling background
+        SDL_Texture *backgroundTexture2 = LoadTexture(renderer, backgroundSurface);
 
-	    initializeTTF();
-	    TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
-	    TTF_Font* gameOverFont = loadFont("Font/arial_bold.ttf", 38);
+        initializeTTF();
+        TTF_Font* font = loadFont("Font/arial_bold.ttf", 28);
+        TTF_Font* gameOverFont = loadFont("Font/arial_bold.ttf", 38);
 
-	    SDL_Color textColor = {255, 255, 255, 255}; // white color
-	    SDL_Texture* scoreTexture = NULL;
-	    SDL_Texture* vitesseTexture = NULL;
-	    SDL_Rect scoreRect = {10, 10, 0, 0}; // position for score, top left
-	    SDL_Rect vitesseRect = {SCREEN_WIDTH - 260, 10, 0, 0}; // position for speed, top right
+        SDL_Color textColor = {255, 255, 255, 255}; // white color
+        SDL_Texture* scoreTexture = NULL;
+        SDL_Texture* vitesseTexture = NULL;
+        SDL_Rect scoreRect = {10, 10, 0, 0}; // position for score, top left
+        SDL_Rect vitesseRect = {SCREEN_WIDTH - 260, 10, 0, 0}; // position for speed, top right
 
-	    // Create the texture for high score
-	    char highScoreText[30];
-	    sprintf(highScoreText, "High Score: %d", getHighScore());
-	    SDL_Texture* highScoreTexture = createTextTexture(renderer, font, textColor, highScoreText);
-	    int highScoreWidth, highScoreHeight;
-	    SDL_QueryTexture(highScoreTexture, NULL, NULL, &highScoreWidth, &highScoreHeight);
-	    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 - highScoreWidth / 2, 10, highScoreWidth, highScoreHeight}; // position for highscore, top middle
+        // Create the texture for high score
+        char highScoreText[30];
+        sprintf(highScoreText, "High Score: %d", getHighScore());
+        SDL_Texture* highScoreTexture = createTextTexture(renderer, font, textColor, highScoreText);
+        int highScoreWidth, highScoreHeight;
+        SDL_QueryTexture(highScoreTexture, NULL, NULL, &highScoreWidth, &highScoreHeight);
+        SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 - highScoreWidth / 2, 10, highScoreWidth, highScoreHeight}; // position for highscore, top middle
 
-	    // Initialisation de la voiture chasseur
-	    UserCar userCar = initVoiture(renderer, j.chasseur, 0);
+        // Initialisation de la voiture chasseur
+        UserCar userCar = initVoiture(renderer, j.chasseur, 0);
 
-	    // Initialisation de la moto proie
-	    UserCar moto = initMoto(renderer, j.proie, 1);
+        // Initialisation de la moto proie
+        UserCar moto = initMoto(renderer, j.proie, 1);
 
-	    // Initialisation de la texture des obstacles
-	    initTexturesObstacles(renderer);
+        // Initialisation de la texture des obstacles
+        initTexturesObstacles(renderer);
 
-	    int bgScroll = 0;  // Initialize background scroll offset
+        int bgScroll = 0;  // Initialize background scroll offset
 
-	    int score = -1;
+        int score = -1;
 
-	    bool isPaused = false;
-	    SDL_Texture* pauseTexture = NULL;
-	    SDL_Rect pauseRect = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, 100, 100}; // position for pause text, middle of the screen
+        bool isPaused = false;
+        SDL_Texture* pauseTexture = NULL;
+        SDL_Rect pauseRect = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, 100, 100}; // position for pause text, middle of the screen
 
-	    bool running = true;
-	    SDL_Event e;
-	    int deplacement = -2;
-	    int deplacementEffectue = 1;
+        bool running = true;
+        SDL_Event e;
+        int deplacement = -2;
+        int deplacementEffectue = 1;
 
-	    int situation[TAILLE_ETAT];
-	    int frames = 500;
+        int situation[TAILLE_ETAT];
+        int frames = 500;
 
-	    while (running)
-		{
-		    while (SDL_PollEvent(&e) != 0)
-			{
-			    deplacement = -2;
+        while (running)
+        {
+            while (SDL_PollEvent(&e) != 0)
+            {
+                deplacement = -2;
 
-			    if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
-				{
-				    running = false;
-				    quitterJeu = 1;
-				}
-			    else if (e.type == SDL_KEYDOWN)
-				{
-				    if (e.key.keysym.sym == SDLK_p)
-					{
-					    isPaused = !isPaused; // Inverse l'état de pause
-					    if (isPaused)
-						{
-						    updateText(renderer, font, textColor, &pauseTexture, &pauseRect, "Paused");
-						}
-					    else
-						{
-						    SDL_DestroyTexture(pauseTexture);
-						    pauseTexture = NULL;
-						}
-					}
-				    if (!isPaused)
-					{
-					    if (e.key.keysym.sym == SDLK_LEFT)
-						{
-						    if(humain) deplacement = -1;
-						}
-					    else if (e.key.keysym.sym == SDLK_RIGHT)
-						{
-						    if(humain) deplacement = 1;
-						}
-					    else if (e.key.keysym.sym == SDLK_UP && !( SDL_GetModState() & KMOD_CTRL))
-						{
-						    if(humain) deplacement = 0;
-						}
-					    else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_UP)
-						{
-						    if (userCar.velocity <= 19)
-							{
-							    userCar.velocity += 1;
-							    break;
-							}
-						}
-					    else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_DOWN)
-						{
-						    if (userCar.velocity > 1)
-							{
-							    userCar.velocity -= 1;
-							    break;
-							}
-						}
-					}
-				}
-			}
+                if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    running = false;
+                    quitterJeu = 1;
+                }
+                else if (e.type == SDL_KEYDOWN)
+                {
+                    if (e.key.keysym.sym == SDLK_p)
+                    {
+                        isPaused = !isPaused; // Inverse l'état de pause
+                        if (isPaused)
+                        {
+                            updateText(renderer, font, textColor, &pauseTexture, &pauseRect, "Paused");
+                        }
+                        else
+                        {
+                            SDL_DestroyTexture(pauseTexture);
+                            pauseTexture = NULL;
+                        }
+                    }
+                    if (!isPaused)
+                    {
+                        if (e.key.keysym.sym == SDLK_LEFT)
+                        {
+                            if(humain) deplacement = -1;
+                        }
+                        else if (e.key.keysym.sym == SDLK_RIGHT)
+                        {
+                            if(humain) deplacement = 1;
+                        }
+                        else if (e.key.keysym.sym == SDLK_UP && !( SDL_GetModState() & KMOD_CTRL))
+                        {
+                            if(humain) deplacement = 0;
+                        }
+                        else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_UP)
+                        {
+                            if (userCar.velocity <= 19)
+                            {
+                                userCar.velocity += 1;
+                                break;
+                            }
+                        }
+                        else if (( SDL_GetModState() & KMOD_CTRL ) && e.key.keysym.sym == SDLK_DOWN)
+                        {
+                            if (userCar.velocity > 1)
+                            {
+                                userCar.velocity -= 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
 
-		    frames--;
+            frames--;
 
-		    if(!humain && frames == 0) {
-			getSituationFromJeu(j, situation);
-			deplacement = deplacementFromBot(j, robot, situation);
-			frames = -45 * userCar.velocity + 950;
-		    }
+            if(!humain && frames == 0) {
+                getSituationFromJeu(j, situation);
+                deplacement = deplacementFromBot(j, robot, situation);
+                frames = -45 * userCar.velocity + 950;
+            }
 
-		    if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
-			{
-			    running = !iterJeu(&j, deplacement);
-			    userCar.cell_x = j.chasseur;
-			    moto.cell_x = j.proie;
-			    deplacement = -2;
-			    deplacementEffectue = 1;
-			}
-		    else if (deplacement != -2 && !verifDeplacement(j.grille, deplacement, j.chasseur, 0))
-			{
-			    playButtonSound(buttonSound2);
-			    deplacement = -2;
-			}
+            if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))
+            {
+                running = !iterJeu(&j, deplacement);
+                userCar.cell_x = j.chasseur;
+                moto.cell_x = j.proie;
+                deplacement = -2;
+                deplacementEffectue = 1;
+            }
+            else if (deplacement != -2 && !verifDeplacement(j.grille, deplacement, j.chasseur, 0))
+            {
+                playButtonSound(buttonSound2);
+                deplacement = -2;
+            }
 
-		    if (!isPaused)
-			{
-			    InitScore(renderer, &score, font, &scoreTexture, &scoreRect, &textColor, deplacementEffectue);
-			    deplacementEffectue = 0;
+            if (!isPaused)
+            {
+                InitScore(renderer, &score, font, &scoreTexture, &scoreRect, &textColor, deplacementEffectue);
+                deplacementEffectue = 0;
 
-			    initVitesse(&userCar, renderer, &textColor, &vitesseTexture, &vitesseRect, font);
+                initVitesse(&userCar, renderer, &textColor, &vitesseTexture, &vitesseRect, font);
 
-			    bgScroll += userCar.velocity;  // Scroll background at car's velocity
+                bgScroll += userCar.velocity;  // Scroll background at car's velocity
 
-			    // Reset scroll offset when it is greater than or equal to the height of the screen
-			    if (bgScroll >= SCREEN_HEIGHT)
-				{
-				    bgScroll = 0;
-				}
-			}
+                // Reset scroll offset when it is greater than or equal to the height of the screen
+                if (bgScroll >= SCREEN_HEIGHT)
+                {
+                    bgScroll = 0;
+                }
+            }
 
-		    // Draw the scrolling backgrounds
-		    SDL_Rect bgQuad1 = { 0, bgScroll - SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT };
-		    SDL_Rect bgQuad2 = { 0, bgScroll, SCREEN_WIDTH, SCREEN_HEIGHT };
-		    SDL_RenderCopy(renderer, backgroundTexture, NULL, &bgQuad1);
-		    SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgQuad2);
+            // Draw the scrolling backgrounds
+            SDL_Rect bgQuad1 = { 0, bgScroll - SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT };
+            SDL_Rect bgQuad2 = { 0, bgScroll, SCREEN_WIDTH, SCREEN_HEIGHT };
+            SDL_RenderCopy(renderer, backgroundTexture, NULL, &bgQuad1);
+            SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgQuad2);
 
-		    // Ajouter ceci avant de dessiner la voiture et la moto
-		    double target_x = userCar.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 250;
-		    double target_y = userCar.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
-		    userCar.draw_x += (target_x - userCar.draw_x) * 0.1;
-		    userCar.draw_y += (target_y - userCar.draw_y) * 0.1;
+            double target_x = userCar.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 250;
+            double target_y = userCar.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
+            userCar.draw_x += (target_x - userCar.draw_x) * 0.04;
+            userCar.draw_y += (target_y - userCar.draw_y) * 0.04;
 
-		    target_x = moto.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 285;
-		    target_y = moto.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
-		    moto.draw_x += (target_x - moto.draw_x) * 0.1;
-		    moto.draw_y += (target_y - moto.draw_y) * 0.1;
+            target_x = moto.cell_x * ((double)TAILLE_CELLULE_LARGEUR/2) + 285;
+            target_y = moto.cell_y * ((double)TAILLE_CELLULE_LONGUEUR/2);
+            moto.draw_x += (target_x - moto.draw_x) * 0.04;
+            moto.draw_y += (target_y - moto.draw_y) * 0.04;
 
-		    drawMoto(renderer, &moto);
-		    drawVoiture(renderer, &userCar);
+            drawMoto(renderer, &moto);
+            drawVoiture(renderer, &userCar);
 
-		    drawObstacles(renderer, j);
+            drawObstacles(renderer, j);
 
-		    // Draw the score and time
-		    SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
-		    SDL_RenderCopy(renderer, vitesseTexture, NULL, &vitesseRect);
-		    SDL_RenderCopy(renderer, highScoreTexture, NULL, &highScoreRect);
+            // Draw the score and time
+            SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
+            SDL_RenderCopy(renderer, vitesseTexture, NULL, &vitesseRect);
+            SDL_RenderCopy(renderer, highScoreTexture, NULL, &highScoreRect);
 
-		    // If game is paused, draw the pause message
-		    if (isPaused)
-			{
-			    SDL_RenderCopy(renderer, pauseTexture, NULL, &pauseRect);
-			}
+            // If game is paused, draw the pause message
+            if (isPaused)
+            {
+                SDL_RenderCopy(renderer, pauseTexture, NULL, &pauseRect);
+            }
 
-		    // Update screen
-		    SDL_RenderPresent(renderer);
-		    SDL_RenderClear(renderer);
+            // Update screen
+            SDL_RenderPresent(renderer);
+            SDL_RenderClear(renderer);
 
-		    /* if(!humain) SDL_Delay(20); */
+            /* if(!humain) SDL_Delay(20); */
 
-		}
+        }
 
-	    if (!quitterJeu)
-		{
-		    // Enregistrer le nom et le score du joueur
-		    logScore(username, score, humain);
-		    initHighScore();
+        if (!quitterJeu)
+        {
+            // Enregistrer le nom et le score du joueur
+            logScore(username, score, humain);
+            initHighScore();
 
-		    // Ajouter ceci après votre boucle de jeu
-		    int retry = gameOverScreen(renderer, gameOverFont, score);
-		    if (retry)
-			{
-			    // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
-			    LancerJeu(renderer, robot, botname);
-			}
-		}
-	    cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
-	    Mix_FreeChunk(buttonSound2);
-	}
+            // Ajouter ceci après votre boucle de jeu
+            int retry = gameOverScreen(renderer, gameOverFont, score);
+            if (retry)
+            {
+                // Si le joueur veut rejouer, réexécuter la fonction LancerJeu
+                LancerJeu(renderer, robot, botname);
+            }
+        }
+        cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles);
+        Mix_FreeChunk(buttonSound2);
+    }
 }
 
 void playButtonSound(Mix_Chunk* buttonSound)
@@ -892,7 +898,7 @@ void playButtonSound(Mix_Chunk* buttonSound)
     Mix_VolumeChunk(buttonSound, 128); // met le volume au maximum
     // Play sound effect
     if(Mix_PlayChannel(-1, buttonSound, 0) == -1)
-	{
-	    printf("Failed to play button sound! SDL_mixer Error: %s\n", Mix_GetError());
-	}
+    {
+        printf("Failed to play button sound! SDL_mixer Error: %s\n", Mix_GetError());
+    }
 }

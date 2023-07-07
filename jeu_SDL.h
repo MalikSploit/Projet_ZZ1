@@ -28,7 +28,7 @@ typedef struct
 } EnemyCar;
 
 
-extern SDL_Texture* obstacles[NOMBRE_SPRITE];
+//extern SDL_Texture* obstacles[NOMBRE_SPRITE];
 
 void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname);
 UserCar initVoiture(SDL_Renderer *renderer, int x, int y);

@@ -7,37 +7,37 @@ void calculerMoyenneScores()
     int totalScoreJoueur = 0, totalScoreBot = 0, countJoueur = 0, countBot = 0;
 
     while (fgets(ligne, sizeof ligne, fichier))
-	{
-	    char* nom = strtok(ligne, ";");
-	    char* scoreStr = strtok(NULL, ";");
+    {
+        char* nom = strtok(ligne, ";");
+        char* scoreStr = strtok(NULL, ";");
 
-	    // Convertir le score en int, on saute les 8 premiers caractères " Score : "
-	    char* end;
-	    long scoreLong = strtol(scoreStr + 8, &end, 10);
-	    if (end == scoreStr + 8)
-		{
-		    printf("Error: could not convert score to an integer.\n");
-		    return;
-		}
-	    if (scoreLong > INT_MAX || scoreLong < INT_MIN)
-		{
-		    printf("Error: score is out of range for an integer.\n");
-		    return;
-		}
+        // Convertir le score en int, on saute les 8 premiers caractères " Score : "
+        char* end;
+        long scoreLong = strtol(scoreStr + 8, &end, 10);
+        if (end == scoreStr + 8)
+        {
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
 
-	    int score = (int) scoreLong;
+        int score = (int) scoreLong;
 
-	    if (strstr(nom, "Player"))
-		{
-		    totalScoreJoueur += score;
-		    countJoueur++;
-		}
-	    else if (strstr(nom, "Bot"))
-		{
-		    totalScoreBot += score;
-		    countBot++;
-		}
-	}
+        if (strstr(nom, "Player"))
+        {
+            totalScoreJoueur += score;
+            countJoueur++;
+        }
+        else if (strstr(nom, "Bot"))
+        {
+            totalScoreBot += score;
+            countBot++;
+        }
+    }
     fclose(fichier); // Fermer le fichier de log
 
     double moyenneScoreJoueur = (double) totalScoreJoueur / countJoueur;
@@ -55,10 +55,10 @@ void displayHelp(SDL_Renderer* renderer)
     // Load a font
     TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 29);
     if (font == NULL)
-	{
-	    printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
-	    return;
-	}
+    {
+        printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
+        return;
+    }
 
     SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/Help_Background.jpg");
 
@@ -74,16 +74,16 @@ void displayHelp(SDL_Renderer* renderer)
 
     // Set the text for the instructions
     const char* instructions[] = {
-      "Le voleur vient de s'echapper en moto !",
-      "",
-      "Rattrapez-le en le bloquant avec votre voiture de police.",
-      "Pour rattraper la moto, vous devez reussir a la bloquer avec le moins de",
-      "coups possibles.",
-      "Pour ce faire, vous devez reussir a placer votre voiture derriere la ",
-      "moto lorsqu'elle est encerclee.",
-      "",
-      "Le jeu se joue au tour par tour avec les fleches directionnelles",
-      "(gauche, droit, et haut).",
+            "Le voleur vient de s'echapper en moto !",
+            "",
+            "Rattrapez-le en le bloquant avec votre voiture de police.",
+            "Pour rattraper la moto, vous devez reussir a la bloquer avec le moins de",
+            "coups possibles.",
+            "Pour ce faire, vous devez reussir a placer votre voiture derriere la ",
+            "moto lorsqu'elle est encerclee.",
+            "",
+            "Le jeu se joue au tour par tour avec les fleches directionnelles",
+            "(gauche, droit, et haut).",
     };
     int numLines = sizeof(instructions) / sizeof(instructions[0]);
 
@@ -94,11 +94,11 @@ void displayHelp(SDL_Renderer* renderer)
         return;
     }
     for (int i = 0; i < numLines; i++)
-	{
-	    SDL_Surface* surface = TTF_RenderText_Blended(font, instructions[i], textColor);
-	    textures[i] = SDL_CreateTextureFromSurface(renderer, surface);
-	    SDL_FreeSurface(surface);
-	}
+    {
+        SDL_Surface* surface = TTF_RenderText_Blended(font, instructions[i], textColor);
+        textures[i] = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+    }
 
     // Clear the renderer
     SDL_RenderClear(renderer);
@@ -112,11 +112,11 @@ void displayHelp(SDL_Renderer* renderer)
     textRect.x = 400;
     textRect.y = 300;
     for (int i = 0; i < numLines; i++)
-	{
-	    SDL_QueryTexture(textures[i], NULL, NULL, &textRect.w, &textRect.h);
-	    SDL_RenderCopy(renderer, textures[i], NULL, &textRect);
-	    textRect.y += textRect.h + 5; // Move down for the next line (adjust the value to increase or decrease the line spacing)
-	}
+    {
+        SDL_QueryTexture(textures[i], NULL, NULL, &textRect.w, &textRect.h);
+        SDL_RenderCopy(renderer, textures[i], NULL, &textRect);
+        textRect.y += textRect.h + 5; // Move down for the next line (adjust the value to increase or decrease the line spacing)
+    }
 
     // Show the renderer contents on the screen
     SDL_RenderPresent(renderer);
@@ -126,22 +126,22 @@ void displayHelp(SDL_Renderer* renderer)
     // Wait for the user to close the help screen
     bool closeHelp = false;
     while (!closeHelp)
-	{
-	    while (SDL_PollEvent(&e) != 0)
-		{
-		    // User requests quit
-		    if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN  || (e.type == SDL_MOUSEBUTTONDOWN))
-			{
-			    closeHelp = true;
-			}
-		}
-	}
+    {
+        while (SDL_PollEvent(&e) != 0)
+        {
+            // User requests quit
+            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN  || (e.type == SDL_MOUSEBUTTONDOWN))
+            {
+                closeHelp = true;
+            }
+        }
+    }
 
     // Clean up
     for (int i = 0; i < numLines; i++)
-	{
-	    SDL_DestroyTexture(textures[i]);
-	}
+    {
+        SDL_DestroyTexture(textures[i]);
+    }
     free(textures);
     TTF_CloseFont(font);
     SDL_DestroyTexture(backgroundTexture);
@@ -162,39 +162,39 @@ void displayHighScore(SDL_Renderer* renderer)
 
     char line[100];
     while (fgets(line, sizeof(line), file) != NULL)
-	{
-	    char name[MAX_NAME_LENGTH];
-	    char scoreStr[MAX_NAME_LENGTH];
-	    sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
+    {
+        char name[MAX_NAME_LENGTH];
+        char scoreStr[MAX_NAME_LENGTH];
+        sscanf(line, "%*[^:]: %[^;]; %*[^:]: %s", name, scoreStr);
 
-	    char* end;
-	    long scoreLong = strtol(scoreStr, &end, 10);
+        char* end;
+        long scoreLong = strtol(scoreStr, &end, 10);
 
-	    if (end == scoreStr)
-		{
-		    printf("Error: could not convert score to an integer.\n");
-		    return;
-		}
+        if (end == scoreStr)
+        {
+            printf("Error: could not convert score to an integer.\n");
+            return;
+        }
 
-	    if (scoreLong > INT_MAX || scoreLong < INT_MIN)
-		{
-		    printf("Error: score is out of range for an integer.\n");
-		    return;
-		}
+        if (scoreLong > INT_MAX || scoreLong < INT_MIN)
+        {
+            printf("Error: score is out of range for an integer.\n");
+            return;
+        }
 
-	    int score = (int)scoreLong;
+        int score = (int)scoreLong;
 
-	    if (strstr(line, "Player"))
-		{
-		    strcpy(highScores.playerName, name);
-		    highScores.playerScore = score;
-		}
-	    else
-		{  // Bot
-		    strcpy(highScores.botName, name);
-		    highScores.botScore = score;
-		}
-	}
+        if (strstr(line, "Player"))
+        {
+            strcpy(highScores.playerName, name);
+            highScores.playerScore = score;
+        }
+        else
+        {  // Bot
+            strcpy(highScores.botName, name);
+            highScores.botScore = score;
+        }
+    }
 
     fclose(file);
 
@@ -202,38 +202,38 @@ void displayHighScore(SDL_Renderer* renderer)
     char buffer[256];
     FILE *averageFile = fopen("DataLog/moyennes", "r");
     if (averageFile != NULL)
-	{
-	    // Read player's average score
-	    fgets(buffer, sizeof(buffer), averageFile);
-	    averagePlayerScore = strtod(strchr(buffer, ':') + 2, NULL);
-	    if (averagePlayerScore == 0)
-		{
-		    printf("Error: could not convert player's average score to a float.\n");
-		    return;
-		}
+    {
+        // Read player's average score
+        fgets(buffer, sizeof(buffer), averageFile);
+        averagePlayerScore = strtod(strchr(buffer, ':') + 2, NULL);
+        if (averagePlayerScore == 0)
+        {
+            printf("Error: could not convert player's average score to a float.\n");
+            return;
+        }
 
-	    // Read bot's average score
-	    fgets(buffer, sizeof(buffer), averageFile);
-	    averageBotScore = strtod(strchr(buffer, ':') + 2, NULL);
-	    if (averageBotScore == 0)
-		{
-		    printf("Error: could not convert bot's average score to a float.\n");
-		    return;
-		}
-	}
+        // Read bot's average score
+        fgets(buffer, sizeof(buffer), averageFile);
+        averageBotScore = strtod(strchr(buffer, ':') + 2, NULL);
+        if (averageBotScore == 0)
+        {
+            printf("Error: could not convert bot's average score to a float.\n");
+            return;
+        }
+    }
     else
-	{
-	    printf("Could not open averages file!\n");
-	    return;
-	}
+    {
+        printf("Could not open averages file!\n");
+        return;
+    }
 
     // Load a font
     TTF_Font* font = TTF_OpenFont("Font/arial_bold.ttf", 28);
     if (font == NULL)
-	{
-	    printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
-	    return;
-	}
+    {
+        printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
+        return;
+    }
 
     SDL_Texture *backgroundTexture = loadTexture(renderer, "Images/ScoreBoard_Background.jpg");
 
@@ -306,15 +306,15 @@ void displayHighScore(SDL_Renderer* renderer)
     bool highScoreOpen = true;
     SDL_Event e;
     while (highScoreOpen)
-	{
-	    while (SDL_PollEvent(&e) != 0)
-		{
-		    if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONDOWN)
-			{
-			    highScoreOpen = false;
-			}
-		}
-	}
+    {
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                highScoreOpen = false;
+            }
+        }
+    }
 
     // Clean up
     SDL_DestroyTexture(texturePlayer);
@@ -332,72 +332,74 @@ void drawButton(SDL_Renderer* renderer, Button* button)
     int textWidth, textHeight;
     SDL_QueryTexture(button->texture, NULL, NULL, &textWidth, &textHeight);
     SDL_Rect renderQuad = { button->rect.x + (button->rect.w - textWidth) / 2,
-	button->rect.y + (button->rect.h - textHeight) / 2,
-	textWidth, textHeight };
+                            button->rect.y + (button->rect.h - textHeight) / 2,
+                            textWidth, textHeight };
     SDL_RenderCopy(renderer, button->texture, NULL, &renderQuad);
 }
 
 int main()
 {
     // Initialise le générateur de nombres pseudo aléatoires
-    srand(time(NULL));
+    //int seed = time(NULL);
+    int seed = 42;
+    srand(seed);
 
     if (initializeSDL() == -1)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     if (initializeTTF() == -1)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     if (initializeIMG() == -1)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     SDL_Window* window = createWindow("Highway Racer");
     if (window == NULL)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     SDL_Renderer* renderer = createRenderer(window);
     if (renderer == NULL)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     SDL_Texture* logo1 = loadLogo(renderer, "Images/Highway-Racer.png");
     if (logo1 == NULL)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     SDL_Texture* logo2 = loadLogo(renderer, "Images/Menu_Image.jpg");
     if (logo2 == NULL)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     SDL_Texture* bgTexture1 = loadLogo(renderer, "Images/Background_Menu.png");
     SDL_Texture* bgTexture2 = loadLogo(renderer, "Images/Background_Menu.png");
     if (bgTexture1 == NULL || bgTexture2 == NULL)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     TTF_Font* font = loadFont("Font/arial_bold.ttf", 38);
     if (font == NULL)
-	{
-	    return 1;
-	}
+    {
+        return 1;
+    }
     // Initialize SDL2_mixer
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
-	{
-	    printf("SDL2_mixer could not initialize! SDL2_mixer Error: %s\n", Mix_GetError());
-	    return 1;
-	}
+    {
+        printf("SDL2_mixer could not initialize! SDL2_mixer Error: %s\n", Mix_GetError());
+        return 1;
+    }
     // Load the music
     Mix_Music *bgMusic = Mix_LoadMUS("Musiques/Background_Music.wav");
     if(bgMusic == NULL)
-	{
-	    printf("Failed to load beat music! SDL2_mixer Error: %s\n", Mix_GetError());
-	    return 1;
-	}
+    {
+        printf("Failed to load beat music! SDL2_mixer Error: %s\n", Mix_GetError());
+        return 1;
+    }
     Mix_VolumeMusic(50); // Sets the volume to half
     // Play the background music
     Mix_PlayMusic(bgMusic, -1);  // Play indefinitely
@@ -405,10 +407,10 @@ int main()
     // Load button sound
     Mix_Chunk* buttonSound = Mix_LoadWAV("Musiques/Mouse_Click.wav");
     if(buttonSound == NULL)
-	{
-	    printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
-	    return 1;
-	}
+    {
+        printf("Failed to load button sound! SDL_mixer Error: %s\n", Mix_GetError());
+        return 1;
+    }
 
     int logo1Width, logo1Height;
     SDL_QueryTexture(logo1, NULL, NULL, &logo1Width, &logo1Height);
@@ -423,17 +425,17 @@ int main()
     SDL_Color WHITE = {255, 255, 255, 255}; // On hover change color to white
     Button buttons[6];
     for (int i = 0; i < 6; ++i)
-	{
-	    buttons[i].rect.x = SCREEN_WIDTH / 2 - 50;
-	    buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 50;
-	    buttons[i].rect.w = 100;
-	    buttons[i].rect.h = 50;
-	    buttons[i].color.r = 0;
-	    buttons[i].color.g = 255;
-	    buttons[i].color.b = 0;
-	    buttons[i].color.a = 255;
-	    buttons[i].font = font;
-	}
+    {
+        buttons[i].rect.x = SCREEN_WIDTH / 2 - 50;
+        buttons[i].rect.y = SCREEN_HEIGHT / 2 + 70 * i + 50;
+        buttons[i].rect.w = 100;
+        buttons[i].rect.h = 50;
+        buttons[i].color.r = 0;
+        buttons[i].color.g = 255;
+        buttons[i].color.b = 0;
+        buttons[i].color.a = 255;
+        buttons[i].font = font;
+    }
     buttons[0].text = "New Game";
     buttons[1].text = "Run a Bot";
     buttons[2].text = "Simulation";
@@ -442,11 +444,11 @@ int main()
     buttons[5].text = "Quit";
 
     for (int i = 0; i < 6; ++i)
-	{
-	    SDL_Surface* surface = TTF_RenderText_Blended(font, buttons[i].text, buttons[i].color);
-	    buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
-	    SDL_FreeSurface(surface);
-	}
+    {
+        SDL_Surface* surface = TTF_RenderText_Blended(font, buttons[i].text, buttons[i].color);
+        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+    }
 
     // Initialisation du high score a partir de GameLog
     initHighScore();
@@ -464,141 +466,155 @@ int main()
     SDL_Event e;
 
     bool faireSimulation = false;
-    
+
+    // Frame rate
+    const int FPS = 120;
+    Uint32 frameDelay = 1000 / FPS;
+
+    Uint32 frameStart;
+    Uint32 frameTime;
+
     // While application is running
     while (!quit)
-	{
-	    // Clear screen
-	    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	    SDL_RenderClear(renderer);
+    {
+        frameStart = SDL_GetTicks();
 
-	    // Draw the background
-	    SDL_RenderCopy(renderer, bgTexture1, NULL, &bgRect1);
-	    SDL_RenderCopy(renderer, bgTexture2, NULL, &bgRect2);
+        // Clear screen
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
 
-	    // Move the background
-	    bgRect1.x -= bgSpeed;
-	    bgRect2.x -= bgSpeed;
+        // Draw the background
+        SDL_RenderCopy(renderer, bgTexture1, NULL, &bgRect1);
+        SDL_RenderCopy(renderer, bgTexture2, NULL, &bgRect2);
 
-	    // Check if the background has completely scrolled off the screen
-	    if (bgRect1.x + SCREEN_WIDTH < 0) bgRect1.x = SCREEN_WIDTH;
-	    if (bgRect2.x + SCREEN_WIDTH < 0) bgRect2.x = SCREEN_WIDTH;
+        // Move the background
+        bgRect1.x -= bgSpeed;
+        bgRect2.x -= bgSpeed;
 
-	    // Draw logo1 (High_Racer Text)
-	    SDL_Rect logo1Quad = { SCREEN_WIDTH / 2 - logo1Width / 2, 40, logo1Width, logo1Height };
-	    SDL_RenderCopy(renderer, logo1, NULL, &logo1Quad);
+        // Check if the background has completely scrolled off the screen
+        if (bgRect1.x + SCREEN_WIDTH < 0) bgRect1.x = SCREEN_WIDTH;
+        if (bgRect2.x + SCREEN_WIDTH < 0) bgRect2.x = SCREEN_WIDTH;
 
-	    // Define the new dimensions
-	    double newLogo2Width = logo2Width / 1.6;
-	    double newLogo2Height = logo2Height / 1.6;
+        // Draw logo1 (High_Racer Text)
+        SDL_Rect logo1Quad = { SCREEN_WIDTH / 2 - logo1Width / 2, 40, logo1Width, logo1Height };
+        SDL_RenderCopy(renderer, logo1, NULL, &logo1Quad);
 
-	    // Draw logo2 (Menu Image)
-	    SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - (int)newLogo2Width / 2, 20 + logo1Height, (int)newLogo2Width, (int)newLogo2Height };
-	    SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad);
+        // Define the new dimensions
+        double newLogo2Width = logo2Width / 1.6;
+        double newLogo2Height = logo2Height / 1.6;
 
-	    // Draw buttons
-	    for (int i = 0; i < 6; ++i)
-		{
-		    drawButton(renderer, &buttons[i]);
-		}
+        // Draw logo2 (Menu Image)
+        SDL_Rect logo2Quad = { SCREEN_WIDTH / 2 - (int)newLogo2Width / 2, 20 + logo1Height, (int)newLogo2Width, (int)newLogo2Height };
+        SDL_RenderCopy(renderer, logo2, NULL, &logo2Quad);
 
-	    // Update screen
-	    SDL_RenderPresent(renderer);
+        // Draw buttons
+        for (int i = 0; i < 6; ++i)
+        {
+            drawButton(renderer, &buttons[i]);
+        }
 
-	    // Handle events on queue
-	    while (SDL_PollEvent(&e) != 0)
-		{
-		    // User requests quit
-		    if (e.type == SDL_QUIT || (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)))
-			{
-			    quit = true;
-			}
-		    // User hovers above the menu buttons
-		    if (e.type == SDL_MOUSEMOTION)
-			{
-			    int x, y;
-			    SDL_GetMouseState(&x, &y);
+        // Update screen
+        SDL_RenderPresent(renderer);
 
-			    for (int i = 0; i < 6; ++i)
-				{
-				    if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
-					{
+        // Handle events on queue
+        while (SDL_PollEvent(&e) != 0)
+        {
+            // User requests quit
+            if (e.type == SDL_QUIT || (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window)) || ((e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)))
+            {
+                quit = true;
+            }
+            // User hovers above the menu buttons
+            if (e.type == SDL_MOUSEMOTION)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
 
-					    // Change button text color and recreate the texture
-					    SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, WHITE);
-					    SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
-					    buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
-					    SDL_FreeSurface(surface);
+                for (int i = 0; i < 6; ++i)
+                {
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
+                    {
 
-					    // Redraw the button
-					    drawButton(renderer, &buttons[i]);
-					    SDL_RenderPresent(renderer);
-					}
-				    else
-					{
-					    // If button is not clicked, reset its color to the original one
-					    SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, buttons[i].color);
-					    SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
-					    buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
-					    SDL_FreeSurface(surface);
-					}
-				}
+                        // Change button text color and recreate the texture
+                        SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, WHITE);
+                        SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
+                        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+                        SDL_FreeSurface(surface);
 
-			}
-		    // User clicks the mouse
-		    else if (e.type == SDL_MOUSEBUTTONDOWN)
-			{
-			    playButtonSound(buttonSound);
+                        // Redraw the button
+                        drawButton(renderer, &buttons[i]);
+                        SDL_RenderPresent(renderer);
+                    }
+                    else
+                    {
+                        // If button is not clicked, reset its color to the original one
+                        SDL_Surface* surface = TTF_RenderText_Blended(buttons[i].font, buttons[i].text, buttons[i].color);
+                        SDL_DestroyTexture(buttons[i].texture); // Destroy the old texture first
+                        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, surface);
+                        SDL_FreeSurface(surface);
+                    }
+                }
 
-			    int x, y;
-			    SDL_GetMouseState(&x, &y);
-			    for (int i = 0; i < 6; ++i)
-				{
-				    if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
-					{
-					    if (strcmp(buttons[i].text, "Help") == 0)
-						{
-						    SDL_RenderClear(renderer); // Clear the screen
-						    displayHelp(renderer);
-						}
-					    if (strcmp(buttons[i].text, "Quit") == 0)
-						{
-						    quit = true;
-						    break;
-						}
-					    if (strcmp(buttons[i].text, "Run a Bot") == 0)
-						{
-						    SDL_RenderClear(renderer); // Clear the screen
-						    bot robot = {0};
-						    char filename[100] = "";
-						    recupererBot(renderer, &quit, robot, filename);
-						    LancerJeu(renderer, robot, filename+5);
-						    quit = true;
-						}
-					    if (strcmp(buttons[i].text, "Scoreboard") == 0)
-						{
-						    SDL_RenderClear(renderer); // Clear the screen
-						    displayHighScore(renderer);
-						}
-					    if (strcmp(buttons[i].text, "Simulation") == 0)
-						{
+            }
+                // User clicks the mouse
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                for (int i = 0; i < 6; ++i)
+                {
+                    if (SDL_PointInRect(&(SDL_Point){x, y}, &(buttons[i].rect)))
+                    {
+                        playButtonSound(buttonSound);
+                        if (strcmp(buttons[i].text, "Help") == 0)
+                        {
+                            SDL_RenderClear(renderer); // Clear the screen
+                            displayHelp(renderer);
+                        }
+                        if (strcmp(buttons[i].text, "Quit") == 0)
+                        {
+                            quit = true;
+                            break;
+                        }
+                        if (strcmp(buttons[i].text, "Run a Bot") == 0)
+                        {
+                            SDL_RenderClear(renderer); // Clear the screen
+                            bot robot = {0};
+                            char filename[100] = "";
+                            recupererBot(renderer, &quit, robot, filename);
+                            LancerJeu(renderer, robot, filename+5);
+                            quit = true;
+                        }
+                        if (strcmp(buttons[i].text, "Scoreboard") == 0)
+                        {
+                            SDL_RenderClear(renderer); // Clear the screen
+                            displayHighScore(renderer);
+                        }
+                        if (strcmp(buttons[i].text, "Simulation") == 0)
+                        {
 
-						    quit = true;
-						    faireSimulation = true;
+                            quit = true;
+                            faireSimulation = true;
 
-						}
-					    if (strcmp(buttons[i].text, "New Game") == 0)
-						{
+                        }
+                        if (strcmp(buttons[i].text, "New Game") == 0)
+                        {
 
-						    SDL_RenderClear(renderer); // Clear the screen
-						    LancerJeu(renderer, NULL, NULL); // lancer le jeu pour un humain
-						    quit = true;
-						}
-					}
-				}
-			}
-		}
-	}
+                            SDL_RenderClear(renderer); // Clear the screen
+                            LancerJeu(renderer, NULL, NULL); // lancer le jeu pour un humain
+                            quit = true;
+                        }
+                    }
+                }
+            }
+        }
+        frameTime = SDL_GetTicks() - frameStart;
+
+        if(frameDelay > frameTime)
+        {
+            SDL_Delay(frameDelay - frameTime);
+        }
+    }
 
     // Free resources and close SDL
     SDL_DestroyTexture(logo1);  // destroy the logo1 texture
@@ -607,9 +623,9 @@ int main()
     SDL_DestroyTexture(bgTexture2);
 
     for (int i = 0; i < 5; ++i)
-	{
-	    SDL_DestroyTexture(buttons[i].texture);
-	}
+    {
+        SDL_DestroyTexture(buttons[i].texture);
+    }
     TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

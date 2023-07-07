@@ -642,7 +642,7 @@ int main()
     SDL_DestroyTexture(bgTexture1);
     SDL_DestroyTexture(bgTexture2);
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 6; ++i)
     {
         SDL_DestroyTexture(buttons[i].texture);
     }

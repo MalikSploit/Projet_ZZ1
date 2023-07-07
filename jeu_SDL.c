@@ -180,10 +180,6 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
     }
 
     Mix_FreeChunk(buttonSound);
-    if (username)
-    {
-        free(username);  // Libération de la mémoire
-    }
 
     // Quit SDL subsystems
     IMG_Quit();

@@ -215,18 +215,33 @@ int comportementProie(jeu j){
 
         /* si le chasseur est derrière la proie */
         if(j.chasseur == j.proie){
-            if(verifDeplacement(j.grille, DIRGAUCHE, j.proie, 1)){
+            /* if(verifDeplacement(j.grille, DIRGAUCHE, j.proie, 1)){ */
+            /*     if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){ */
+            /*         deplacement = (rand() % 2) * 2 - 1; */
+            /*     } */
+            /*     else { */
+            /*         deplacement = DIRGAUCHE; */
+            /*     } */
+            /* } */
+            /* else if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){ */
+            /*     deplacement = DIRDROITE; */
+            /* } */
+            /* else deplacement = DIRMILIEU; */
+	    if(verifDeplacement(j.grille, DIRMILIEU, j.proie, 1)) {
+		deplacement = DIRMILIEU;
+	    } else {
                 if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
-                    deplacement = (rand() % 2) * 2 - 1;
+		    if(verifDeplacement(j.grille, DIRGAUCHE, j.proie, 1)){
+			deplacement = (rand() % 2) * 2 - 1;
+		    }
+		    else {
+			deplacement = DIRDROITE;
+		    }
                 }
                 else {
                     deplacement = DIRGAUCHE;
                 }
-            }
-            else if(verifDeplacement(j.grille, DIRDROITE, j.proie, 1)){
-                deplacement = DIRDROITE;
-            }
-            else deplacement = DIRMILIEU;
+	    }
 
         }
             /* si le chasseur est à sa droite */
@@ -463,7 +478,7 @@ void creerLigne(int arr[NB_COLONNES]) {
     int nbCroixMise = 0;
 
     // Remplis le tableau avec des nombres aléatoires 0 et 1
-    for (int j = 0; j < NB_COLONNES; j++) {
+    for (int j = 1; j < NB_COLONNES-1; j++) {
         if((double)rand() / RAND_MAX < PROBA_OBSTACLE){
             arr[j] = rand() % NOMBRE_SPRITE + 1;
             nbCroixMise++;

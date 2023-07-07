@@ -129,14 +129,14 @@ void displayHelp(SDL_Renderer* renderer)
     // Frame rate
     const int FPS = 120;
     Uint32 frameDelay = 1000 / FPS;
-
+    
     Uint32 frameStart;
     Uint32 frameTime;
 
     while (!closeHelp)
     {
         frameStart = SDL_GetTicks();
-
+	
         while (SDL_PollEvent(&e) != 0)
         {
             // User requests quit
@@ -495,19 +495,12 @@ int main()
     SDL_Event e;
 
     bool faireSimulation = false;
-
-    // Frame rate
-    const int FPS = 120;
-    Uint32 frameDelay = 1000 / FPS;
-
-    Uint32 frameStart;
-    Uint32 frameTime;
+    
+    int frame = 10;
 
     // While application is running
     while (!quit)
     {
-        frameStart = SDL_GetTicks();
-
         // Clear screen
         SDL_RenderClear(renderer);
 
@@ -515,9 +508,14 @@ int main()
         SDL_RenderCopy(renderer, bgTexture1, NULL, &bgRect1);
         SDL_RenderCopy(renderer, bgTexture2, NULL, &bgRect2);
 
+	frame--;
+
         // Move the background
-        bgRect1.x -= bgSpeed;
-        bgRect2.x -= bgSpeed;
+        if (frame <= 0) {
+	    bgRect1.x -= bgSpeed;
+	    bgRect2.x -= bgSpeed;
+	    frame = 10;
+	}
 
         // Check if the background has completely scrolled off the screen
         if (bgRect1.x + SCREEN_WIDTH < 0) bgRect1.x = SCREEN_WIDTH;
@@ -635,12 +633,6 @@ int main()
                     }
                 }
             }
-        }
-        frameTime = SDL_GetTicks() - frameStart;
-
-        if(frameDelay > frameTime)
-        {
-            SDL_Delay(frameDelay - frameTime);
         }
     }
 

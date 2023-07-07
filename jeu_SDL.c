@@ -782,7 +782,7 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
         int deplacementEffectue = 1;
 
         int situation[TAILLE_ETAT];
-        int frames = 500;
+        int frames = 191;
 
         // Frame rate
         const int FPS = 120;
@@ -858,7 +858,7 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
             if(!humain && frames == 0) {
                 getSituationFromJeu(j, situation);
                 deplacement = deplacementFromBot(j, robot, situation);
-                frames = -45 * userCar.velocity + 950;
+                frames = -9 * userCar.velocity + 200;
             }
 
             if (deplacement != -2 && verifDeplacement(j.grille, deplacement, j.chasseur, 0))

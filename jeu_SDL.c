@@ -331,10 +331,8 @@ void playButtonSound(Mix_Chunk* buttonSound)
     }
 }
 
-int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score)
+int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score, int highScore)
 {
-    int highScore = getHighScore();
-
     SDL_Color greenColor = {0, 255, 0, 255}; // Define the color green.
 
     // Load the Game Over background image
@@ -919,7 +917,6 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
 
             drawMoto(renderer, &moto);
             drawVoiture(renderer, &userCar);
-
             drawObstacles(renderer, j);
 
             // Draw the score and time
@@ -950,11 +947,12 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
         if (!quitterJeu)
         {
             // Enregistrer le nom et le score du joueur
+            int highscore_precedent = getHighScore();
             logScore(username, score, humain);
             initHighScore();
 
             // Ajouter ceci après votre boucle de jeu
-            int retry = gameOverScreen(renderer, gameOverFont, score);
+            int retry = gameOverScreen(renderer, gameOverFont, score, highscore_precedent);
             if (retry)
             {
                 // Si le joueur veut rejouer, réexécuter la fonction LancerJeu

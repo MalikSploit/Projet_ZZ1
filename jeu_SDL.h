@@ -31,7 +31,6 @@ void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL
              UserCar userCar, UserCar moto, SDL_Texture* obstacles[]);
 void InitScore(SDL_Renderer* renderer, int* score, TTF_Font* font, SDL_Texture** scoreTexture, SDL_Rect *scoreRect, SDL_Color* textColor, int deplacementEffectue);
 void initVitesse(UserCar* userCar, SDL_Renderer *renderer, SDL_Color *textColor, SDL_Texture** vitesseTexture, SDL_Rect *vitesseRect, TTF_Font* font);
-int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score);
 char* DemanderQqch(SDL_Renderer* renderer, int *QuitterJeu, char *pathBackgroud, char *pathMessage);
 void playButtonSound(Mix_Chunk* buttonSound);
 void initHighScore();
@@ -41,5 +40,6 @@ void initTexturesObstacles(SDL_Renderer *renderer);
 void drawObstacles(SDL_Renderer *renderer, jeu g);
 int getHighScore();
 void logScore(const char* username, int score, bool humain);
+int gameOverScreen(SDL_Renderer* renderer, TTF_Font* font, int score, int highScore);
 
 #endif //PROJET_ZZ1_MAIN_H

@@ -1,4 +1,7 @@
 #include "jeu.h"
+#include "Constantes.h"
+
+int iterationAvancee = 0;
 
 /* renvoie le score. Simule le jeu et run une de ces instance */
 int Jeu(bot robot){
@@ -444,16 +447,37 @@ int verifDeplacement(int grille[][NB_COLONNES], int deplacement, int coordonnee,
 
 void avanceGrille(int grille[][NB_COLONNES]){
 
-    // Déplace toutes les lignes une ligne vers le bas
-    for (int i = 0; i < NB_LIGNES - 1; i++) {
-        for (int j = 0; j < NB_COLONNES; j++) {
-            grille[i][j] = grille[i + 1][j];
-        }
+  // Déplace toutes les lignes une ligne vers le bas
+  for (int i = 0; i < NB_LIGNES - 1; i++) {
+    for (int j = 0; j < NB_COLONNES; j++) {
+      grille[i][j] = grille[i + 1][j];
     }
+  }
+  for (int i = 0; i < NB_COLONNES; i++) {
+    grille[NB_LIGNES - 1][i] = 0;
+  }
+
+  if(!seulementPiege && (rand() % moduloPiege)){
+
 
     // Remplis la dernière ligne avec des nombres aléatoires 0 et 1
     creerLigne(grille[NB_LIGNES - 1]);
 
+  }
+  else{
+
+    iterationAvancee++;
+    if(iterationAvancee % tousLesCombiens == 1 && seulementPiege) {
+      creerPiege(grille);
+    }
+    if(seulementPiege == 0){
+      creerPiege(grille);      
+    }
+
+  
+
+
+  }
 
 }
 
@@ -463,9 +487,9 @@ void creerLigne(int arr[NB_COLONNES]) {
     int nbCroixMise = 0;
 
     // Remplis le tableau avec des nombres aléatoires 0 et 1
-    for (int j = 0; j < NB_COLONNES; j++) {
+    for (int j = 1; j < NB_COLONNES - 1; j++) {
         if((double)rand() / RAND_MAX < PROBA_OBSTACLE){
-            arr[j] = rand() % NOMBRE_SPRITE + 1;
+	  arr[j] = rand() % (NOMBRE_SPRITE -1) + 1 ;
             nbCroixMise++;
         }
         else
@@ -476,4 +500,31 @@ void creerLigne(int arr[NB_COLONNES]) {
     if(nbCroixMise == NB_COLONNES){
         arr[rand() % NB_COLONNES] = 0;
     }
+}
+
+void creerPiege(int grille[][NB_COLONNES]) {
+
+  int placerPiege;
+  int typeDePiege = rand() % 2;
+  /* X */
+ /* X X */
+  if(typeDePiege){
+    placerPiege = (rand() % 4) + 2;
+    grille[NB_LIGNES - 1][placerPiege] = NOMBRE_SPRITE;
+    grille[NB_LIGNES - 2][placerPiege - 1] = NOMBRE_SPRITE;
+    grille[NB_LIGNES - 2 ][placerPiege + 1] = NOMBRE_SPRITE;
+  }
+
+  /* XX */
+  /*X  X*/
+  else {
+
+    placerPiege = (rand() % 3) + 1;
+    grille[NB_LIGNES - 2][placerPiege] = NOMBRE_SPRITE;
+    grille[NB_LIGNES - 1][placerPiege + 1] = NOMBRE_SPRITE;
+    grille[NB_LIGNES - 1][placerPiege + 2] = NOMBRE_SPRITE;
+    grille[NB_LIGNES - 2][placerPiege + 3] = NOMBRE_SPRITE;
+    
+  }
+
 }

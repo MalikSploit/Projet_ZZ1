@@ -50,6 +50,14 @@ typedef regle bot[NB_REGLES];
 /* Probabilité d'avoir un comportement aléatoire */
 #define ALEATOIRE 0.1
 
+/* si différent que 0, alors génère que des lignes */
+#define seulementPiege 1
+/* quand seulementPiege = 1, touts les combien on met des pièges */
+#define tousLesCombiens 8
+
+/* si seulementPiege = 0, alors on génère une ligne aléatoire tous les combiens d'itérations */
+#define moduloPiege 5
+
 // prototypes
 jeu initJeu();
 int Jeu(bot robot);
@@ -60,6 +68,7 @@ int distanceSurColonne(jeu j, int colonne);
 int proximiteSurColonne(jeu j, int colonne);
 void avanceGrille(int grille[][NB_COLONNES]);
 void creerLigne(int arr[NB_COLONNES]);
+void creerPiege(int grille[][NB_COLONNES]);
 int obstacleDroite(jeu j);
 int obstacleGauche(jeu j);
 bool jeuFini(jeu j, int depart, int fin);

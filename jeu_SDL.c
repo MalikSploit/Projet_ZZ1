@@ -153,7 +153,7 @@ void updateText(SDL_Renderer* renderer, TTF_Font* font, SDL_Color textColor, SDL
 
 void cleanup(SDL_Surface* backgroundSurface, SDL_Texture* backgroundTexture, SDL_Texture* backgroundTexture2,
              SDL_Texture* scoreTexture, SDL_Texture* pauseTexture, SDL_Texture* vitesseTexture, SDL_Texture* highScoreTexture, TTF_Font* font, TTF_Font* gameOverFont,
-             UserCar userCar, UserCar moto, SDL_Texture* obstacle[], Mix_Chunk* buttonSound, char *username)
+             UserCar userCar, UserCar moto, SDL_Texture* obstacle[], Mix_Chunk* buttonSound)
 {
     // Free the loaded surface as it is no longer needed
     SDL_FreeSurface(backgroundSurface);
@@ -961,6 +961,6 @@ void LancerJeu(SDL_Renderer* renderer, bot robot, char * botname)
                 LancerJeu(renderer, robot, botname);
             }
         }
-        cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles, buttonSound2, username);
+        cleanup(backgroundSurface, backgroundTexture, backgroundTexture2, scoreTexture, pauseTexture, vitesseTexture, highScoreTexture, font, gameOverFont, userCar, moto, obstacles, buttonSound2);
     }
 }
